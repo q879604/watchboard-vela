@@ -618,9 +618,9 @@
         this.hint('还没有落子');
         return;
       }
-      this.history.pop();
-      if (this.mode === 'ai' && this.history.length && this.history[this.history.length - 1].p === WHITE) {
-        this.history.pop();
+      this.history.pop(); // 撤掉最后一步（单人模式下那是 AI 刚下的）
+      if (this.mode === 'ai' && this.history.length) {
+        this.history.pop(); // 单人模式再撤自己的一手：悔棋后轮到自己重新下
       }
       this.rebuildFromHistory();
       if (this.mode === 'ai' && this.winner === 0 && this.turn === WHITE) {
