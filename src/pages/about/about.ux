@@ -12,27 +12,24 @@
         <div class="doc-block">
           <text class="doc-title">环上桌游</text>
           <text class="doc-text">版本 {{ version }}（{{ buildInfo }}）</text>
-          <text class="doc-text">腕上桌游合集：把聚会类桌游塞进手表，人多没带牌也能开局。</text>
+          <text class="doc-text">腕上桌游合集：聚会没带牌，表上也能开局。</text>
         </div>
 
         <div class="doc-block">
-          <text class="doc-title">已完成</text>
-          <text class="doc-text">五子棋：单人（三档难度 AI）/ 双人同表对战</text>
-          <text class="doc-text">UNO：2 ~ 4 人对局（你 + 1~3 个 AI）</text>
-          <text class="doc-text">谁是卧底：4 ~ 8 人传阅发词</text>
-          <text class="doc-text">规则 / 关于</text>
-        </div>
-
-        <div class="doc-block">
-          <text class="doc-title">未开发</text>
-          <text class="doc-text">大富翁 · 狼人杀 · 扑克牌类 · 三国杀</text>
-          <text class="doc-text">菜单里为灰色卡片，点击会提示「开发中」。</text>
+          <text class="doc-title">已收录（全部可玩）</text>
+          <text class="doc-text">五子棋：单人（三档 AI）/ 双人，放大棋盘 + 拖动 + 瞄准</text>
+          <text class="doc-text">大富翁：2 ~ 4 人 · 买地收租</text>
+          <text class="doc-text">狼人杀：5 ~ 8 人 · 传阅式身份局</text>
+          <text class="doc-text">扑克牌类：斗地主 + 骗子酒馆（2 ~ 4 人）</text>
+          <text class="doc-text">谁是卧底：4 ~ 8 人 · 30 组词库</text>
+          <text class="doc-text">三国杀：2 ~ 8 人 · 简化身份局</text>
+          <text class="doc-text">UNO：2 ~ 4 人 · 108 张全牌</text>
         </div>
 
         <div class="doc-block">
           <text class="doc-title">技术信息</text>
           <text class="doc-text">Xiaomi Vela JS 快应用 · 多尺寸穿戴屏自适应</text>
-          <text class="doc-text">局内进度只存在本机，无网络请求、无账号、无遥测。</text>
+          <text class="doc-text">对局数据只在内存与本机，无网络请求、无账号、无遥测。</text>
         </div>
       </div>
     </scroll>
@@ -57,7 +54,7 @@
   export default {
     private: {
       listW: 320,
-      version: '0.1.0',
+      version: '0.2.0',
       buildInfo: 'Vela 快应用'
     },
 

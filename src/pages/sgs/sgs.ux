@@ -1,0 +1,780 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <div class="back" onclick="onBack">
+        <text class="back-text">&lt;</text>
+      </div>
+      <text class="header-title">{{ title }}</text>
+    </div>
+
+    <!-- 选人数 -->
+    <div class="screen" if="{{ stage === 'menu' }}">
+      <text class="step">2 ~ 8 人身份局 · 你坐 1 号位</text>
+      <div class="countbox" style="width: {{ listW }}px;">
+        <div class="cbtn" onclick="minus">
+          <text class="ctext">－</text>
+        </div>
+        <text class="cnum">{{ playerCount }}</text>
+        <div class="cbtn" onclick="plus">
+          <text class="ctext">＋</text>
+        </div>
+      </div>
+      <div class="list" style="width: {{ listW }}px;">
+        <div class="card" onclick="startGame">
+          <text class="card-text">开始游戏</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="goRules">
+          <text class="card-text">玩法说明</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+      </div>
+      <text class="hint">身份按人数自动配比（主公+忠臣+反贼+内奸）</text>
+    </div>
+
+    <!-- 对局 -->
+    <div class="screen" if="{{ stage === 'play' }}">
+      <text class="info">{{ infoLine }}</text>
+      <text class="event">{{ eventLine }}</text>
+
+      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;" @touchstart="tapHand">
+        <div
+          class="tile {{ $item.selCls }}"
+          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
+          for="{{ handTiles }}"
+          tid="i"
+        >
+          <text class="tiletext {{ $item.selTextCls }}">{{ $item.text }}</text>
+        </div>
+      </div>
+
+      <div class="ops" style="top: {{ opsY }}px;">
+        <div class="btn btn-main" onclick="doPlay" if="{{ myTurn && pendingNone }}">
+          <text class="bt bt-main">出牌</text>
+        </div>
+        <div class="btn" onclick="endPlay" if="{{ myTurn && pendingNone }}">
+          <text class="bt">结束出牌</text>
+        </div>
+        <div class="btn" onclick="cycleSel" if="{{ myTurn && pendingNone }}">
+          <text class="bt">选牌</text>
+        </div>
+        <div class="btn btn-main" onclick="aiStep" if="{{ myTurn === false && pendingNone }}">
+          <text class="bt bt-main">下一步</text>
+        </div>
+      </div>
+
+      <!-- 响应挂起 -->
+      <div class="overlay" if="{{ resp }}">
+        <text class="overtext">{{ respText }}</text>
+        <div class="ops2">
+          <div class="btn" onclick="respYes" if="{{ respYesText }}">
+            <text class="bt">{{ respYesText }}</text>
+          </div>
+          <div class="btn" onclick="respNo" if="{{ respNoText }}">
+            <text class="bt">{{ respNoText }}</text>
+          </div>
+        </div>
+      </div>
+
+      <!-- 选目标 -->
+      <div class="overlay" if="{{ pickTarget }}">
+        <text class="overtext">{{ pickText }}</text>
+        <div class="chiprow" style="left: {{ px }}px; top: {{ py }}px; width: {{ pw }}px; height: {{ ph }}px;">
+          <div
+            class="chip {{ $item.cls }}"
+            style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;"
+            for="{{ targetChips }}"
+            tid="i"
+            @touchstart="tapTarget"
+          >
+            <text class="chiptext">{{ $item.text }}</text>
+          </div>
+        </div>
+        <div class="ops">
+          <div class="btn btn-main" onclick="confirmTarget">
+            <text class="bt bt-main">确认</text>
+          </div>
+          <div class="btn" onclick="cancelTarget">
+            <text class="bt">取消</text>
+          </div>
+        </div>
+      </div>
+
+      <!-- 结算 -->
+      <div class="overlay" if="{{ over }}">
+        <text class="overtext">{{ overText }}</text>
+        <div class="ops2">
+          <div class="btn" onclick="startGame">
+            <text class="bt">再来一局</text>
+          </div>
+          <div class="btn" onclick="onBack">
+            <text class="bt">返回</text>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  @import "../../common/theme.css";
+
+  .screen {
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step {
+    font-size: 17px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+
+  .info {
+    width: 100%;
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .event {
+    width: 100%;
+    font-size: 14px;
+    color: #eaffea;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .countbox {
+    height: 58px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.94);
+    border-radius: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 12px;
+  }
+
+  .cbtn {
+    width: 52px;
+    height: 40px;
+    border-radius: 12px;
+    background-color: #17331d;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ctext {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .cnum {
+    font-size: 28px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .hand {
+    position: absolute;
+  }
+
+  .tile {
+    position: absolute;
+    border-radius: 6px;
+    background-color: #ffffff;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .tile-sel {
+    background-color: #17331d;
+  }
+
+  .tiletext {
+    font-size: 15px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .tiletext-sel {
+    color: #ffffff;
+  }
+
+  .ops {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 34px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ops2 {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn {
+    width: 80px;
+    height: 34px;
+    border-radius: 17px;
+    background-color: rgba(255, 255, 255, 0.92);
+    justify-content: center;
+    align-items: center;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  .btn-main {
+    background-color: #17331d;
+  }
+
+  .bt {
+    font-size: 16px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .bt-main {
+    color: #ffffff;
+  }
+
+  .chiprow {
+    position: absolute;
+  }
+
+  .chip {
+    position: absolute;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.88);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .chip-sel {
+    background-color: #17331d;
+  }
+
+  .chiptext {
+    font-size: 15px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .chip-seltext {
+    color: #ffffff;
+  }
+
+  .overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.78);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overtext {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 12px;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  import device from '@system.device';
+  import prompt from '@system.prompt';
+  import {
+    ROLE_NAME,
+    CARD_NAME,
+    createGame,
+    aliveList,
+    playCard,
+    respond,
+    aiTakeTurn,
+    endTurn,
+    drawCards,
+    hasCard
+  } from '../../common/sgs';
+
+  const HEADER_H = 46;
+  const COLS = 6;
+  const TILE_GAP = 3;
+
+  export default {
+    private: {
+      stage: 'menu',
+      title: '三国杀',
+      playerCount: 5,
+      listW: 320,
+
+      game: null,
+      sel: [],
+      page: 0,
+      handTiles: [],
+      infoLine: '',
+      eventLine: '',
+
+      myTurn: false,
+      pendingNone: true,
+      resp: false,
+      respText: '',
+      respYesText: '',
+      respNoText: '',
+      respAction: '',
+
+      pickTarget: false,
+      pickText: '',
+      pickCardIdx: -1,
+      targetChips: [],
+      targetPick: -1,
+
+      over: false,
+      overText: '',
+
+      hx: 8,
+      hy: 300,
+      hw: 320,
+      hh: 126,
+      cw: 50,
+      ch: 40,
+      opsY: 438,
+      px: 16,
+      py: 120,
+      pw: 304,
+      ph: 120,
+      cw2: 90,
+      ch2: 52,
+
+      aiTimer: null
+    },
+
+    onInit() {
+      device.getInfo({
+        success: (ret) => {
+          const w = (ret && ret.screenWidth) || 336;
+          const h = (ret && ret.screenHeight) || 480;
+          this.applyLayout(w, h);
+        },
+        fail: () => {
+          this.applyLayout(336, 480);
+        }
+      });
+    },
+
+    onHide() {
+      this.clearAi();
+    },
+
+    onDestroy() {
+      this.clearAi();
+    },
+
+    onBackPress() {
+      return this.stage === 'play';
+    },
+
+    applyLayout(w, h) {
+      const cw = Math.floor((w - 12 - (COLS - 1) * TILE_GAP) / COLS);
+      const ch = Math.max(32, Math.floor(cw * 0.8));
+      const hw = COLS * cw + (COLS - 1) * TILE_GAP;
+      this.cw = cw;
+      this.ch = ch;
+      this.hw = hw;
+      this.hx = Math.floor((w - hw) / 2);
+      this.hy = h - 152;
+      this.hh = 3 * ch + 2 * TILE_GAP;
+      this.opsY = this.hy + this.hh + 8;
+      this.cw2 = Math.floor((w - 40) / 3);
+      this.ch2 = Math.max(44, Math.floor(this.cw2 * 0.55));
+      this.pw = 3 * this.cw2 + 12;
+      this.px = Math.floor((w - this.pw) / 2);
+      this.listW = w - 24;
+      if (this.game) this.renderHand();
+    },
+
+    minus() {
+      if (this.playerCount > 2) this.playerCount--;
+    },
+
+    plus() {
+      if (this.playerCount < 8) this.playerCount++;
+    },
+
+    startGame() {
+      this.clearAi();
+      this.game = createGame(this.playerCount);
+      this.sel = [];
+      this.page = 0;
+      this.over = false;
+      this.resp = false;
+      this.pickTarget = false;
+      this.stage = 'play';
+      this.title = '三国杀 · ' + this.playerCount + ' 人';
+      this.renderAll();
+      this.afterTurn();
+    },
+
+    /* ---------------- 渲染 ---------------- */
+
+    renderAll() {
+      const s = this.game;
+      if (!s) return;
+      const p = s.players[0];
+      this.infoLine =
+        '你：' + ROLE_NAME[p.role] + ' HP ' + p.hp + ' · 手牌 ' + p.hand.length +
+        ' · 现在 ' + (s.current + 1) + '号';
+      this.eventLine = s.events[s.events.length - 1] || '';
+      this.myTurn = s.current === 0 && s.players[0].alive && !s.winner;
+      this.pendingNone = !s.pending;
+      this.renderHand();
+    },
+
+    renderHand() {
+      const s = this.game;
+      if (!s) {
+        this.handTiles = [];
+        return;
+      }
+      const hand = s.players[0].hand;
+      const per = COLS * 3;
+      const tiles = [];
+      const start = this.page * per;
+      for (let k = 0; k < per; k++) {
+        const idx = start + k;
+        if (idx >= hand.length) break;
+        const col = k % COLS;
+        const row = Math.floor(k / COLS);
+        const isSel = this.sel.indexOf(idx) >= 0;
+        tiles.push({
+          i: idx + 1,
+          x: col * (this.cw + TILE_GAP),
+          y: row * (this.ch + TILE_GAP),
+          text: CARD_NAME[hand[idx].t],
+          selCls: isSel ? 'tile-sel' : '',
+          selTextCls: isSel ? 'tiletext-sel' : ''
+        });
+      }
+      this.handTiles = tiles;
+    },
+
+    tapHand(evt) {
+      if (!this.myTurn || this.game.pending) return;
+      const pt = this.touchPoint(evt);
+      if (!pt) return;
+      const stepX = this.cw + TILE_GAP;
+      const stepY = this.ch + TILE_GAP;
+      let col = Math.floor((pt.x - this.hx) / stepX);
+      let row = Math.floor((pt.y - this.hy) / stepY);
+      if (!this.inGrid(col, row)) {
+        const c2 = Math.floor(pt.x / stepX);
+        const r2 = Math.floor(pt.y / stepY);
+        if (this.inGrid(c2, r2)) {
+          col = c2;
+          row = r2;
+        }
+      }
+      if (!this.inGrid(col, row)) return;
+      const idx = this.page * COLS * 3 + row * COLS + col;
+      if (idx >= this.game.players[0].hand.length) return;
+      const pos = this.sel.indexOf(idx);
+      if (pos >= 0) this.sel.splice(pos, 1);
+      else this.sel.push(idx);
+      this.renderHand();
+    },
+
+    inGrid(col, row) {
+      return col >= 0 && col < COLS && row >= 0 && row < 3;
+    },
+
+    cycleSel() {
+      this.sel = [];
+      this.page = (this.page + 1) % Math.max(1, Math.ceil(this.game.players[0].hand.length / (COLS * 3)));
+      this.renderHand();
+    },
+
+    /* ---------------- 出牌 ---------------- */
+
+    doPlay() {
+      const s0 = this.game;
+      if (!this.myTurn || s0.pending) return;
+      if (!this.sel.length) {
+        this.hint('先点选要出的牌');
+        return;
+      }
+      if (this.sel.length > 1) {
+        this.hint('一次只能出一张牌');
+        return;
+      }
+      const idx = this.sel[0];
+      const card = s0.players[0].hand[idx];
+      if (card.t === 'sha' || card.t === 'juedou' || card.t === 'chai' || card.t === 'shun') {
+        // 需要选目标
+        this.pickCardIdx = idx;
+        this.pickText = '选择「' + CARD_NAME[card.t] + '」的目标';
+        this.targetPick = -1;
+        this.buildTargetChipthis.game;
+        this.pickTarget = true;
+        return;
+      }
+      this.commitPlay(idx, -1);
+    },
+
+    commitPlay(idx, target) {
+      const s0 = this.game;
+      const r = playCard(s0, 0, idx, target);
+      if (!r.ok) {
+        this.hint(r.msg);
+        return;
+      }
+      this.sel = [];
+      this.page = 0;
+      this.pickTarget = false;
+      this.renderAll();
+      this.afterTurn();
+    },
+
+    endPlay() {
+      const s0 = this.game;
+      if (!this.myTurn || s0.pending) return;
+      this.sel = [];
+      endTurn(s0);
+      this.renderAll();
+      this.afterTurn();
+    },
+
+    /* ---------------- 选目标 ---------------- */
+
+    buildTargetChips() {
+      const s0 = this.game;
+      const chips = [];
+      const alive = aliveList(s0).filter((x) => x !== 0);
+      for (let k = 0; k < alive.length; k++) {
+        const id = alive[k];
+        const p = s0.players[id];
+        chips.push({
+          i: k + 1,
+          id: id,
+          x: (k % 3) * (this.cw2 + 6),
+          y: Math.floor(k / 3) * (this.ch2 + 6),
+          text: (id + 1) + '号 HP' + p.hp,
+          cls: this.targetPick === id ? 'chip chip-sel' : 'chip',
+          textCls: this.targetPick === id ? 'chip-seltext' : ''
+        });
+      }
+      this.targetChips = chips;
+    },
+
+    tapTarget(evt) {
+      const pt = this.touchPoint(evt);
+      if (!pt) return;
+      const stepX = this.cw2 + 6;
+      const stepY = this.ch2 + 6;
+      let col = Math.floor((pt.x - this.px) / stepX);
+      let row = Math.floor((pt.y - this.py) / stepY);
+      if (!this.inGrid2(col, row)) {
+        const c2 = Math.floor(pt.x / stepX);
+        const r2 = Math.floor(pt.y / stepY);
+        if (this.inGrid2(c2, r2)) {
+          col = c2;
+          row = r2;
+        }
+      }
+      if (!this.inGrid2(col, row)) return;
+      const k = row * 3 + col;
+      const chip = this.targetChips[k];
+      if (!chip) return;
+      this.targetPick = chip.id;
+      this.buildTargetChipthis.game;
+    },
+
+    inGrid2(col, row) {
+      return col >= 0 && col < 3 && row >= 0 && row < 3;
+    },
+
+    confirmTarget() {
+      if (this.targetPick < 0) {
+        this.hint('先选目标');
+        return;
+      }
+      this.commitPlay(this.pickCardIdx, this.targetPick);
+    },
+
+    cancelTarget() {
+      this.pickTarget = false;
+      this.pickCardIdx = -1;
+    },
+
+    /* ---------------- 响应（出闪/吃桃/决斗） ---------------- */
+
+    afterTurn() {
+      const s0 = this.game;
+      if (!s0) return;
+      if (s0.pending) {
+        this.showResp();
+        return;
+      }
+      if (s0.winner) {
+        this.finish();
+        return;
+      }
+      if (s0.current === 0) {
+        this.renderAll();
+        return;
+      }
+      this.scheduleAi();
+    },
+
+    showResp() {
+      const s0 = this.game;
+      const pend = s0.pending;
+      if (!pend) {
+        this.resp = false;
+        return;
+      }
+      this.resp = true;
+      if (pend.type === 'shan') {
+        this.respText = '有人对你出杀！';
+        this.respYesText = '出闪';
+        this.respNoText = '掉血';
+        this.respAction = 'shan';
+      } else if (pend.type === 'tao') {
+        this.respText = '你濒死了！';
+        this.respYesText = '吃桃';
+        this.respNoText = '不救';
+        this.respAction = 'tao';
+      } else {
+        this.respText = '决斗中！你出杀吗？';
+        this.respYesText = '出杀';
+        this.respNoText = '认输';
+        this.respAction = 'juedou';
+      }
+      this.renderAll();
+    },
+
+    respYes() {
+      const s0 = this.game;
+      respond(s0, true);
+      this.resp = false;
+      this.renderAll();
+      this.afterTurn();
+    },
+
+    respNo() {
+      const s0 = this.game;
+      respond(s0, false);
+      this.resp = false;
+      this.renderAll();
+      this.afterTurn();
+    },
+
+    /* ---------------- AI ---------------- */
+
+    scheduleAi() {
+      this.clearAi();
+      this.aiTimer = setTimeout(() => {
+        this.aiTimer = null;
+        const s0 = this.game;
+        if (!s0 || s0.winner) return;
+        if (s0.pending) {
+          this.showResp();
+          return;
+        }
+        if (s0.current === 0) {
+          this.renderAll();
+          return;
+        }
+        const done = aiTakeTurn(s0, s0.current);
+        this.renderAll();
+        if (s0.winner) {
+          this.finish();
+          return;
+        }
+        if (s0.pending) {
+          this.showResp();
+          return;
+        }
+        if (done) {
+          // 下一个
+          if (s0.current === 0) this.renderAll();
+          else this.scheduleAi();
+        } else {
+          // 未完成但无挂起（罕见），继续驱动
+          if (s0.current !== 0) this.scheduleAi();
+        }
+      }, 750);
+    },
+
+    aiStep() {
+      this.clearAi();
+      this.scheduleAi();
+    },
+
+    clearAi() {
+      if (this.aiTimer) {
+        clearTimeout(this.aiTimer);
+        this.aiTimer = null;
+      }
+    },
+
+    finish() {
+      const s0 = this.game;
+      this.over = true;
+      if (s0.winner === 'fan') this.overText = '反贼阵营获胜！';
+      else if (s0.winner === 'nei') this.overText = '内奸获胜！';
+      else this.overText = '主公 / 忠臣阵营获胜！';
+      this.resp = false;
+      this.renderAll();
+    },
+
+    onBack() {
+      this.clearAi();
+      if (this.stage === 'play') {
+        this.stage = 'menu';
+        this.over = false;
+        return;
+      }
+      router.back();
+    },
+
+    goRules() {
+      router.push({ uri: '/pages/rules' });
+    },
+
+    touchPoint(evt) {
+      const list = evt && (evt.changedTouches || evt.touches);
+      const t = list && list[0];
+      if (!t) return null;
+      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
+      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
+      if (x == null || y == null) return null;
+      return { x: x, y: y };
+    },
+
+    hint(msg) {
+      prompt.showToast({ message: msg, duration: 1200 });
+    }
+  };
+
+
+</script>

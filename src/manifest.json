@@ -1,8 +1,8 @@
 {
   "package": "io.github.q879604.watchboard",
   "name": "环上桌游",
-  "versionName": "0.1.2",
-  "versionCode": 3,
+  "versionName": "0.2.0",
+  "versionCode": 4,
   "minPlatformVersion": 1200,
   "icon": "/common/logo.png",
   "deviceTypeList": [
@@ -44,8 +44,26 @@
       "pages/uno": {
         "component": "uno"
       },
+      "pages/monopoly": {
+        "component": "monopoly"
+      },
+      "pages/werewolf": {
+        "component": "werewolf"
+      },
       "pages/whois": {
         "component": "whois"
+      },
+      "pages/poker": {
+        "component": "poker"
+      },
+      "pages/doudizhu": {
+        "component": "doudizhu"
+      },
+      "pages/liar": {
+        "component": "liar"
+      },
+      "pages/sgs": {
+        "component": "sgs"
       },
       "pages/rules": {
         "component": "rules"
