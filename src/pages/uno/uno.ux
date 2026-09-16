@@ -233,8 +233,8 @@
   }
 
   .btn {
-    width: 70px;
-    height: 30px;
+    width: 76px;
+    height: 34px;
     border-radius: 15px;
     background-color: rgba(255, 255, 255, 0.92);
     justify-content: center;
@@ -244,7 +244,7 @@
   }
 
   .bt {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
     color: #17331d;
   }
@@ -322,10 +322,10 @@
     COLOR_NAME
   } from '../../common/uno';
 
-  const HEADER_H = 38;
-  const STATUS_H = 24;
-  const TABLE_H = 76;
-  const TIP_H = 22;
+  const HEADER_H = 46;
+  const STATUS_H = 26;
+  const TABLE_H = 82;
+  const TIP_H = 24;
   const COLS = 6;
   const ROWS = 2;
   const TILE_GAP = 3;
@@ -379,6 +379,11 @@
 
     onDestroy() {
       this.clearAi();
+    },
+
+    onBackPress() {
+      // 对局中拦截系统返回（防右滑误退），用左上角按钮退出
+      return this.phase === 'play';
     },
 
     /* ---------------- 布局 ---------------- */

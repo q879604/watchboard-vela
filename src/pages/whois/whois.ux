@@ -229,6 +229,11 @@
       });
     },
 
+    onBackPress() {
+      // 发词 / 讨论进行中拦截系统右滑返回，防止误退
+      return this.phase !== 'setup';
+    },
+
     minus() {
       if (this.playerCount > 4) this.playerCount--;
     },
