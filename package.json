@@ -1,0 +1,20 @@
+{
+  "name": "watch-board-games",
+  "version": "0.1.0",
+  "private": true,
+  "description": "环上桌游 —— 小米手环 / 手表 Vela 快应用（五子棋 · UNO · 谁是卧底）",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "aiot start --watch",
+    "build": "aiot build",
+    "release": "aiot release",
+    "lint": "eslint --format stylish --ext .js src/"
+  },
+  "devDependencies": {
+    "@aiot-toolkit/jsc": "^1.0.3",
+    "aiot-toolkit": "^2.0.5",
+    "eslint": "^8.57.1"
+  }
+}

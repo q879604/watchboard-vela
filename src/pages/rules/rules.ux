@@ -1,0 +1,86 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <div class="back" onclick="goBack">
+        <text class="back-text">&lt;</text>
+      </div>
+      <text class="header-title">规则</text>
+    </div>
+
+    <scroll class="body" scroll-y="true">
+      <div class="doc" style="width: {{ listW }}px;">
+        <div class="doc-block">
+          <text class="doc-title">五子棋</text>
+          <text class="doc-text">11 × 11 棋盘，黑先手，先连成五子（横/竖/斜）者胜。</text>
+          <text class="doc-text">直接点棋盘落子；点不准就用下方「左/上/下/右」把光标移到位置，再点「落子」。</text>
+          <text class="doc-text">单人：你执黑，AI 执白，可选新手 / 普通 / 困难三档难度。</text>
+          <text class="doc-text">双人：两人轮流在同一块表上操作，轮流落子。</text>
+          <text class="doc-text">悔棋：双人撤一手；单人一次撤回自己 + AI 各一手。</text>
+        </div>
+
+        <div class="doc-block">
+          <text class="doc-title">UNO</text>
+          <text class="doc-text">108 张标准牌，每人 7 张起手。轮到你时点牌选中（白点标记），再点「出牌」。</text>
+          <text class="doc-text">出牌条件：同色 / 同数字 / 同功能牌，或任意万能牌。</text>
+          <text class="doc-text">禁：下家跳过；反：3 人以上反向，双人局等同跳过；+2：下家摸 2 张并被跳过。</text>
+          <text class="doc-text">变色 / +4：出牌后选颜色（+4 让下家摸 4 张并被跳过）。</text>
+          <text class="doc-text">出不了就点「摸牌」；摸到能出的牌可以直接出。先出完手牌者胜。</text>
+          <text class="doc-text">腕上简化：+2 与 +4 不叠加；不喊 UNO。</text>
+        </div>
+
+        <div class="doc-block">
+          <text class="doc-title">谁是卧底</text>
+          <text class="doc-text">4 ~ 8 人。1 人拿到「卧底词」，其余人拿到相近的「平民词」。</text>
+          <text class="doc-text">依次传阅：每人只点开自己的词看一眼，看完交给下一位。</text>
+          <text class="doc-text">发言按随机顺序轮流进行，描述自己的词但不能直接说出来。</text>
+          <text class="doc-text">所有人发言后投票，票数最多者出局；卧底撑到最后则卧底胜。</text>
+        </div>
+
+        <div class="doc-block">
+          <text class="doc-title">腕上小贴士</text>
+          <text class="doc-text">屏幕小、格子密，点按前可以先用手指比一下位置。</text>
+          <text class="doc-text">两人对战时把表放在桌上，交替点按。</text>
+          <text class="doc-text">全部游戏纯本地运行，不联网、不收集数据。</text>
+        </div>
+      </div>
+    </scroll>
+  </div>
+</template>
+
+<style>
+  @import "../../common/theme.css";
+
+  .body {
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  import device from '@system.device';
+
+  export default {
+    private: {
+      listW: 320
+    },
+
+    onInit() {
+      device.getInfo({
+        success: (ret) => {
+          const w = ret && ret.screenWidth;
+          if (typeof w === 'number' && w > 0) this.listW = w - 24;
+        },
+        fail: () => {
+          this.listW = 320;
+        }
+      });
+    },
+
+    goBack() {
+      router.back();
+    }
+  };
+</script>

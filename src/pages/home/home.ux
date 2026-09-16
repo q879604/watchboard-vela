@@ -1,0 +1,109 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="header-title">环上桌游</text>
+    </div>
+
+    <scroll class="body" scroll-y="true">
+      <div class="list" style="width: {{ listW }}px;">
+        <div class="card" onclick="openGomoku">
+          <text class="card-text">五子棋</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="openUno">
+          <text class="card-text">UNO</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="openWhois">
+          <text class="card-text">谁是卧底</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="todo">
+          <text class="card-text card-off-text">大富翁</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="todo">
+          <text class="card-text card-off-text">狼人杀</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="todo">
+          <text class="card-text card-off-text">扑克牌类</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="todo">
+          <text class="card-text card-off-text">三国杀</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="openRules">
+          <text class="card-text">规则</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="openAbout">
+          <text class="card-text">关于</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+      </div>
+      <text class="hint">五子棋 · UNO · 谁是卧底 可开玩</text>
+      <text class="hint">灰色卡片为未开发</text>
+    </scroll>
+  </div>
+</template>
+
+<style>
+  @import "../../common/theme.css";
+
+  .body {
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  import device from '@system.device';
+  import prompt from '@system.prompt';
+
+  export default {
+    private: {
+      listW: 320
+    },
+
+    onInit() {
+      device.getInfo({
+        success: (ret) => {
+          const w = ret && ret.screenWidth;
+          if (typeof w === 'number' && w > 0) this.listW = w - 24;
+        },
+        fail: () => {
+          this.listW = 320;
+        }
+      });
+    },
+
+    openGomoku() {
+      router.push({ uri: '/pages/gomoku' });
+    },
+
+    openUno() {
+      router.push({ uri: '/pages/uno' });
+    },
+
+    openWhois() {
+      router.push({ uri: '/pages/whois' });
+    },
+
+    openRules() {
+      router.push({ uri: '/pages/rules' });
+    },
+
+    openAbout() {
+      router.push({ uri: '/pages/about' });
+    },
+
+    todo() {
+      prompt.showToast({ message: '该桌游正在开发中', duration: 1500 });
+    }
+  };
+</script>

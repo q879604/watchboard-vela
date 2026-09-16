@@ -1,0 +1,629 @@
+<template>
+  <div class="page">
+    <!-- ① 模式选择 -->
+    <div class="screen" if="{{ phase === 'menu' }}">
+      <div class="header">
+        <div class="back" onclick="goBack">
+          <text class="back-text">&lt;</text>
+        </div>
+        <text class="header-title">五子棋</text>
+      </div>
+
+      <div class="list" style="width: {{ listW }}px;">
+        <div class="card" onclick="startAi">
+          <text class="card-text">单人 · 挑战 AI</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="startPvp">
+          <text class="card-text">双人 · 同表对战</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="cycleLevel">
+          <text class="card-text">AI 难度 · {{ levelName }}</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="goBack">
+          <text class="card-text">返回菜单</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+      </div>
+
+      <text class="hint">11 × 11 棋盘 · 先连成五子者胜</text>
+      <text class="hint">直接点棋盘落子；点不准就用方向键 + 落子</text>
+      <text class="hint">双人模式：两人轮流在同一块表上操作</text>
+    </div>
+
+    <!-- ② 对局 -->
+    <div class="screen" if="{{ phase === 'play' }}">
+      <div class="header">
+        <div class="back" onclick="goMenu">
+          <text class="back-text">&lt;</text>
+        </div>
+        <text class="header-title">{{ title }}</text>
+      </div>
+
+      <div class="status">
+        <text class="status-text">{{ statusText }}</text>
+      </div>
+
+      <div
+        class="board"
+        style="left: {{ bx }}px; top: {{ by }}px; width: {{ bs }}px; height: {{ bs }}px;"
+        @touchstart="onBoardTouch"
+      >
+        <div
+          class="cell"
+          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cs }}px; height: {{ cs }}px;"
+          for="{{ cells }}"
+          tid="i"
+        >
+          <div class="cursor" if="{{ $item.cur }}"></div>
+          <div class="stone stone-b" if="{{ $item.v === 1 }}"></div>
+          <div class="stone stone-w" if="{{ $item.v === 2 }}"></div>
+          <div class="mark" if="{{ $item.last }}"></div>
+        </div>
+      </div>
+
+      <div class="ops" style="top: {{ opsY }}px;">
+        <div class="dbtn" onclick="curLeft">
+          <text class="dtext">左</text>
+        </div>
+        <div class="dbtn" onclick="curUp">
+          <text class="dtext">上</text>
+        </div>
+        <div class="dbtn dbtn-main" onclick="placeAtCursor">
+          <text class="dtext dtext-main">落子</text>
+        </div>
+        <div class="dbtn" onclick="curDown">
+          <text class="dtext">下</text>
+        </div>
+        <div class="dbtn" onclick="curRight">
+          <text class="dtext">右</text>
+        </div>
+      </div>
+
+      <div class="ops2" style="top: {{ ops2Y }}px;">
+        <div class="sbtn" onclick="undo">
+          <text class="stext">悔棋</text>
+        </div>
+        <div class="sbtn" onclick="restart">
+          <text class="stext">重开</text>
+        </div>
+        <div class="sbtn" onclick="goMenu">
+          <text class="stext">菜单</text>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  @import "../../common/theme.css";
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .status {
+    width: 100%;
+    height: 26px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .status-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  /* 棋盘：底色深 → 格子间露出的 1px 即网格线 */
+  .board {
+    position: absolute;
+    background-color: #8a6a3a;
+    border-radius: 4px;
+  }
+
+  .cell {
+    position: absolute;
+    background-color: #e9d3a6;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .stone {
+    width: 82%;
+    height: 82%;
+    border-radius: 50%;
+  }
+
+  .stone-b {
+    background-color: #14181c;
+  }
+
+  .stone-w {
+    background-color: #f7f7f7;
+  }
+
+  /* 最后一手标记 */
+  .mark {
+    position: absolute;
+    width: 24%;
+    height: 24%;
+    border-radius: 50%;
+    background-color: #e8422f;
+  }
+
+  /* 光标（方向键定位用，仅空格子显示） */
+  .cursor {
+    position: absolute;
+    width: 86%;
+    height: 86%;
+    border-radius: 50%;
+    background-color: rgba(60, 30, 0, 0.2);
+  }
+
+  .ops {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ops2 {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dbtn {
+    width: 56px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    justify-content: center;
+    align-items: center;
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+
+  .dbtn-main {
+    width: 66px;
+    background-color: #17331d;
+  }
+
+  .dtext {
+    font-size: 15px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .dtext-main {
+    color: #ffffff;
+  }
+
+  .sbtn {
+    width: 72px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.75);
+    justify-content: center;
+    align-items: center;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  .stext {
+    font-size: 15px;
+    font-weight: bold;
+    color: #17331d;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  import device from '@system.device';
+  import prompt from '@system.prompt';
+  import vibrator from '@system.vibrator';
+  import {
+    BLACK,
+    WHITE,
+    createBoard,
+    isWin,
+    isFull,
+    opponentOf,
+    chooseMove,
+    LEVEL_LABELS,
+    LEVEL_ORDER
+  } from '../../common/gomoku-ai';
+
+  const HEADER_H = 38;
+  const STATUS_H = 26;
+  const ROW_H = 30;
+
+  export default {
+    private: {
+      phase: 'menu', // menu | play
+      mode: 'ai', // ai | pvp
+      level: 'normal',
+      levelName: '普通',
+
+      boardN: 11,
+      board: [],
+      cells: [],
+      history: [],
+      turn: BLACK,
+      winner: 0, // 0 进行中 / 1 黑胜 / 2 白胜 / -1 平局
+      lastIdx: -1,
+      cursor: { r: 5, c: 5 },
+      showCursor: true,
+
+      // 布局
+      cs: 29,
+      bs: 319,
+      bx: 8,
+      by: 66,
+      opsY: 391,
+      ops2Y: 425,
+      listW: 320,
+
+      title: '五子棋',
+      statusText: '',
+
+      aiTimer: null
+    },
+
+    onInit() {
+      const app = this.$app && this.$app.$def && this.$app.$def.data;
+      const n = (app && app.boardN) || 11;
+      this.boardN = n;
+      this.resetState();
+      this.applyLayout(336, 480, true);
+      device.getInfo({
+        success: (ret) => {
+          const w = (ret && ret.screenWidth) || 336;
+          const h = (ret && ret.screenHeight) || 480;
+          this.applyLayout(w, h, false);
+        },
+        fail: () => {
+          this.applyLayout(336, 480, false);
+        }
+      });
+    },
+
+    onHide() {
+      this.clearAi();
+    },
+
+    onDestroy() {
+      this.clearAi();
+    },
+
+    /* ---------------- 布局 ---------------- */
+
+    applyLayout(w, h, silent) {
+      const n = this.boardN;
+      const cs = Math.max(12, Math.floor((w - 10) / n));
+      const bs = cs * n;
+      const bx = Math.floor((w - bs) / 2);
+      let by = HEADER_H + STATUS_H + 2;
+      let opsY = by + bs + 6;
+      let ops2Y = opsY + ROW_H + 4;
+
+      // 竖向剩余空间较多时（胶囊屏）整体居中
+      const extra = Math.floor((h - (ops2Y + ROW_H)) / 2) - 2;
+      if (extra > 0) {
+        by += extra;
+        opsY += extra;
+        ops2Y += extra;
+      }
+
+      this.cs = cs;
+      this.bs = bs;
+      this.bx = bx;
+      this.by = by;
+      this.opsY = opsY;
+      this.ops2Y = ops2Y;
+      this.listW = w - 24;
+      this.buildCells();
+      if (!silent) this.refresh();
+    },
+
+    buildCells() {
+      const n = this.boardN;
+      const cs = this.cs;
+      const cells = [];
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          const i = r * n + c;
+          const v = this.board[i];
+          cells.push({
+            i: i + 1, // tid 键必须从 1 开始：键 0 会让首项补丁失效
+            x: c * cs,
+            y: r * cs,
+            v: v,
+            last: i === this.lastIdx && v !== 0,
+            cur:
+              v === 0 &&
+              this.showCursor &&
+              !!this.cursor &&
+              this.cursor.r === r &&
+              this.cursor.c === c
+          });
+        }
+      }
+      this.cells = cells;
+    },
+
+    /* ---------------- 状态 ---------------- */
+
+    resetState() {
+      const n = this.boardN;
+      this.board = createBoard(n);
+      this.history = [];
+      this.turn = BLACK;
+      this.winner = 0;
+      this.lastIdx = -1;
+      this.cursor = { r: Math.floor(n / 2), c: Math.floor(n / 2) };
+      this.showCursor = true;
+      this.buildCells();
+    },
+
+    refresh() {
+      this.title = this.mode === 'ai' ? '五子棋 · 单人' : '五子棋 · 双人';
+      if (this.winner === BLACK) this.statusText = '黑棋胜！';
+      else if (this.winner === WHITE)
+        this.statusText = this.mode === 'ai' ? 'AI 胜，再来一局？' : '白棋胜！';
+      else if (this.winner === -1) this.statusText = '平局，棋盘已满';
+      else if (this.mode === 'ai')
+        this.statusText = this.turn === WHITE ? 'AI 思考中…' : '轮到你 · 执黑';
+      else this.statusText = this.turn === BLACK ? '轮到 黑方 落子' : '轮到 白方 落子';
+      this.buildCells();
+    },
+
+    canPlay() {
+      if (this.winner !== 0) return false;
+      if (this.mode === 'ai' && this.turn !== BLACK) return false;
+      return true;
+    },
+
+    /* ---------------- 对局流程 ---------------- */
+
+    startAi() {
+      this.mode = 'ai';
+      this.resetState();
+      this.phase = 'play';
+      this.refresh();
+    },
+
+    startPvp() {
+      this.mode = 'pvp';
+      this.resetState();
+      this.phase = 'play';
+      this.refresh();
+    },
+
+    cycleLevel() {
+      const cur = LEVEL_ORDER.indexOf(this.level);
+      const next = LEVEL_ORDER[(cur + 1) % LEVEL_ORDER.length];
+      this.level = next;
+      this.levelName = LEVEL_LABELS[next];
+    },
+
+    goMenu() {
+      this.clearAi();
+      this.phase = 'menu';
+    },
+
+    goBack() {
+      this.clearAi();
+      router.back();
+    },
+
+    restart() {
+      this.clearAi();
+      this.resetState();
+      this.refresh();
+    },
+
+    undo() {
+      this.clearAi();
+      if (!this.history.length) {
+        this.hint('还没有落子');
+        return;
+      }
+      // 单人模式：把「AI + 自己」这一回合一起撤掉
+      this.history.pop();
+      if (this.mode === 'ai' && this.history.length && this.history[this.history.length - 1].p === WHITE) {
+        this.history.pop();
+      }
+      this.rebuildFromHistory();
+      if (this.mode === 'ai' && this.winner === 0 && this.turn === WHITE) {
+        this.scheduleAi();
+      }
+    },
+
+    rebuildFromHistory() {
+      const n = this.boardN;
+      this.board = createBoard(n);
+      this.winner = 0;
+      this.lastIdx = -1;
+      let turn = BLACK;
+      for (let k = 0; k < this.history.length; k++) {
+        const m = this.history[k];
+        this.board[m.i] = m.p;
+        this.lastIdx = m.i;
+        turn = opponentOf(m.p);
+        if (isWin(this.board, n, Math.floor(m.i / n), m.i % n, m.p)) {
+          this.winner = m.p;
+        }
+      }
+      this.turn = turn;
+      if (this.lastIdx >= 0) {
+        this.cursor = { r: Math.floor(this.lastIdx / n), c: this.lastIdx % n };
+      } else {
+        this.cursor = { r: Math.floor(n / 2), c: Math.floor(n / 2) };
+      }
+      this.refresh();
+    },
+
+    /* ---------------- 落子 ---------------- */
+
+    commit(r, c) {
+      const n = this.boardN;
+      const i = r * n + c;
+      if (this.board[i] !== 0 || this.winner !== 0) return false;
+      const player = this.turn;
+      this.board[i] = player;
+      this.lastIdx = i;
+      this.history.push({ i: i, p: player });
+
+      if (isWin(this.board, n, r, c, player)) {
+        this.winner = player;
+        this.buzz(true);
+      } else if (isFull(this.board)) {
+        this.winner = -1;
+      } else {
+        this.turn = opponentOf(player);
+        this.buzz(false);
+      }
+      this.cursor = { r: r, c: c };
+      this.refresh();
+      return true;
+    },
+
+    tryPlace(r, c) {
+      const n = this.boardN;
+      if (this.board[r * n + c] !== 0) {
+        this.hint('这里已经有子了');
+        return;
+      }
+      if (!this.commit(r, c)) return;
+      if (this.mode === 'ai' && this.winner === 0 && this.turn === WHITE) {
+        this.scheduleAi();
+      }
+    },
+
+    placeAtCursor() {
+      if (!this.canPlay()) return;
+      this.tryPlace(this.cursor.r, this.cursor.c);
+    },
+
+    /* 点棋盘落子：坐标按「视口坐标 − 棋盘偏移」换算，越界时退回相对坐标再试一次 */
+    onBoardTouch(evt) {
+      if (!this.canPlay()) return;
+      const pt = this.touchPoint(evt);
+      if (!pt) return;
+      const n = this.boardN;
+      const cs = this.cs;
+
+      let c = Math.floor((pt.x - this.bx) / cs);
+      let r = Math.floor((pt.y - this.by) / cs);
+      if (!this.inRange(r, n) || !this.inRange(c, n)) {
+        const c2 = Math.floor(pt.x / cs);
+        const r2 = Math.floor(pt.y / cs);
+        if (this.inRange(r2, n) && this.inRange(c2, n)) {
+          r = r2;
+          c = c2;
+        }
+      }
+      if (!this.inRange(r, n) || !this.inRange(c, n)) return;
+      this.showCursor = false;
+      this.tryPlace(r, c);
+    },
+
+    inRange(v, n) {
+      return v >= 0 && v < n;
+    },
+
+    touchPoint(evt) {
+      const list = evt && (evt.changedTouches || evt.touches);
+      const t = list && list[0];
+      if (!t) return null;
+      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
+      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
+      if (x == null || y == null) return null;
+      return { x: x, y: y };
+    },
+
+    /* ---------------- 光标 / 方向键 ---------------- */
+
+    moveCursor(dr, dc) {
+      if (!this.canPlay()) return;
+      const n = this.boardN;
+      let r = this.cursor.r + dr;
+      let c = this.cursor.c + dc;
+      if (r < 0) r = 0;
+      if (c < 0) c = 0;
+      if (r > n - 1) r = n - 1;
+      if (c > n - 1) c = n - 1;
+      this.cursor = { r: r, c: c };
+      this.showCursor = true;
+      this.buildCells();
+    },
+
+    curLeft() {
+      this.moveCursor(0, -1);
+    },
+    curRight() {
+      this.moveCursor(0, 1);
+    },
+    curUp() {
+      this.moveCursor(-1, 0);
+    },
+    curDown() {
+      this.moveCursor(1, 0);
+    },
+
+    /* ---------------- AI ---------------- */
+
+    scheduleAi() {
+      this.clearAi();
+      this.aiTimer = setTimeout(() => {
+        this.aiTimer = null;
+        if (this.mode !== 'ai' || this.winner !== 0 || this.turn !== WHITE) return;
+        const n = this.boardN;
+        const idx = chooseMove(this.board, n, WHITE, this.level);
+        if (idx < 0) {
+          // 棋盘已满：判和棋
+          this.winner = -1;
+          this.refresh();
+          return;
+        }
+        this.commit(Math.floor(idx / n), idx % n);
+      }, 320);
+    },
+
+    clearAi() {
+      if (this.aiTimer) {
+        clearTimeout(this.aiTimer);
+        this.aiTimer = null;
+      }
+    },
+
+    /* ---------------- 杂项 ---------------- */
+
+    buzz(strong) {
+      try {
+        if (vibrator && typeof vibrator.vibrate === 'function') {
+          vibrator.vibrate({ mode: strong ? 'long' : 'short' });
+        }
+      } catch (e) {
+        console.log('vibrate failed: ' + e);
+      }
+    },
+
+    hint(msg) {
+      prompt.showToast({ message: msg, duration: 1200 });
+    }
+  };
+</script>

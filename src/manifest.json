@@ -1,0 +1,58 @@
+{
+  "package": "io.github.q879604.watchboard",
+  "name": "环上桌游",
+  "versionName": "0.1.0",
+  "versionCode": 1,
+  "minPlatformVersion": 1200,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.device"
+    },
+    {
+      "name": "system.storage"
+    },
+    {
+      "name": "system.prompt"
+    },
+    {
+      "name": "system.vibrator"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": "device-width"
+  },
+  "display": {
+    "backgroundColor": "#2f9e44"
+  },
+  "router": {
+    "entry": "pages/home",
+    "pages": {
+      "pages/home": {
+        "component": "home"
+      },
+      "pages/gomoku": {
+        "component": "gomoku"
+      },
+      "pages/uno": {
+        "component": "uno"
+      },
+      "pages/whois": {
+        "component": "whois"
+      },
+      "pages/rules": {
+        "component": "rules"
+      },
+      "pages/about": {
+        "component": "about"
+      }
+    }
+  }
+}

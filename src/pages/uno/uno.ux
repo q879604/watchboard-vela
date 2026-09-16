@@ -1,0 +1,714 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <div class="back" onclick="onBack">
+        <text class="back-text">&lt;</text>
+      </div>
+      <text class="header-title">{{ title }}</text>
+    </div>
+
+    <!-- ① 选人数 -->
+    <div class="screen" if="{{ phase === 'menu' }}">
+      <div class="list" style="width: {{ listW }}px;">
+        <div class="card" onclick="start2">
+          <text class="card-text">2 人 · 你 + 1 AI</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="start3">
+          <text class="card-text">3 人 · 你 + 2 AI</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="start4">
+          <text class="card-text">4 人 · 你 + 3 AI</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="goRules">
+          <text class="card-text">玩法说明</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+      </div>
+      <text class="hint">同色 / 同数字 / 同功能牌 可出</text>
+      <text class="hint">+2 与 +4 不叠加（腕上简化）</text>
+    </div>
+
+    <!-- ② 对局 -->
+    <div class="screen" if="{{ phase === 'play' }}">
+      <text class="status">{{ statusText }}</text>
+
+      <div class="table">
+        <div class="topcard {{ topCls }}">
+          <text class="toptext">{{ topText }}</text>
+        </div>
+        <div class="others">
+          <text class="other-item" for="{{ otherList }}" tid="k">{{ $item.t }}</text>
+        </div>
+      </div>
+
+      <text class="colortip">{{ colorTip }}</text>
+
+      <div
+        class="hand"
+        style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;"
+        @touchstart="tapHand"
+      >
+        <div
+          class="tile {{ $item.cls }}"
+          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ tw }}px; height: {{ th }}px;"
+          for="{{ tiles }}"
+          tid="i"
+        >
+          <div class="selmark" if="{{ $item.sel }}"></div>
+          <text class="tiletext">{{ $item.text }}</text>
+        </div>
+      </div>
+
+      <div class="ops" style="top: {{ opsY }}px;">
+        <div class="btn" onclick="doPlay">
+          <text class="bt">出牌</text>
+        </div>
+        <div class="btn" onclick="doDraw">
+          <text class="bt">摸牌</text>
+        </div>
+        <div class="btn" onclick="prevSel">
+          <text class="bt">上一张</text>
+        </div>
+        <div class="btn" onclick="nextSel">
+          <text class="bt">下一张</text>
+        </div>
+      </div>
+
+      <!-- 万能牌选色 -->
+      <div class="overlay" if="{{ needsColor }}">
+        <text class="overtext">万能牌 · 选个颜色</text>
+        <div class="colorpick">
+          <div class="cbtn c-r" onclick="pickR">
+            <text class="ct">红</text>
+          </div>
+          <div class="cbtn c-g" onclick="pickG">
+            <text class="ct">绿</text>
+          </div>
+          <div class="cbtn c-b" onclick="pickB">
+            <text class="ct">蓝</text>
+          </div>
+          <div class="cbtn c-y" onclick="pickY">
+            <text class="ct">黄</text>
+          </div>
+        </div>
+      </div>
+
+      <!-- 结算 -->
+      <div class="overlay" if="{{ over }}">
+        <text class="overtext">{{ overText }}</text>
+        <div class="ops2">
+          <div class="btn" onclick="restart">
+            <text class="bt">再来一局</text>
+          </div>
+          <div class="btn" onclick="onBack">
+            <text class="bt">返回菜单</text>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  @import "../../common/theme.css";
+
+  .screen {
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .status {
+    width: 100%;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .table {
+    width: 100%;
+    height: 76px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .topcard {
+    width: 50px;
+    height: 66px;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .toptext {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .others {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 14px;
+  }
+
+  .other-item {
+    font-size: 15px;
+    color: #ffffff;
+    margin-bottom: 2px;
+  }
+
+  .colortip {
+    width: 100%;
+    height: 22px;
+    font-size: 14px;
+    color: #eaffea;
+    text-align: center;
+  }
+
+  .hand {
+    position: absolute;
+  }
+
+  .tile {
+    position: absolute;
+    border-radius: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .tiletext {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .selmark {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
+    background-color: #ffffff;
+  }
+
+  .t-r {
+    background-color: #d64545;
+  }
+  .t-g {
+    background-color: #2f9e44;
+  }
+  .t-b {
+    background-color: #2b6cb0;
+  }
+  .t-y {
+    background-color: #d9a520;
+  }
+  .t-w {
+    background-color: #3a3f4a;
+  }
+
+  .ops {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ops2 {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn {
+    width: 70px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.92);
+    justify-content: center;
+    align-items: center;
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+
+  .bt {
+    font-size: 15px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.74);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overtext {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 14px;
+  }
+
+  .colorpick {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cbtn {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .c-r {
+    background-color: #d64545;
+  }
+  .c-g {
+    background-color: #2f9e44;
+  }
+  .c-b {
+    background-color: #2b6cb0;
+  }
+  .c-y {
+    background-color: #d9a520;
+  }
+
+  .ct {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  import device from '@system.device';
+  import prompt from '@system.prompt';
+  import {
+    createGame,
+    cardText,
+    isWild,
+    canPlay,
+    topCard,
+    playCard,
+    drawOne,
+    passTurn,
+    aiDecide,
+    handCounts,
+    COLOR_NAME
+  } from '../../common/uno';
+
+  const HEADER_H = 38;
+  const STATUS_H = 24;
+  const TABLE_H = 76;
+  const TIP_H = 22;
+  const COLS = 6;
+  const ROWS = 2;
+  const TILE_GAP = 3;
+
+  export default {
+    private: {
+      phase: 'menu', // menu | play
+      title: 'UNO',
+      listW: 320,
+      playerCount: 3,
+
+      game: null,
+      sel: 0,
+      page: 0,
+      tiles: [],
+      otherList: [],
+      topText: '',
+      topCls: 't-w',
+      statusText: '',
+      colorTip: '',
+      needsColor: false,
+      over: false,
+      overText: '',
+      drewThisTurn: false,
+
+      gx: 7,
+      gy: 160,
+      gw: 321,
+      gh: 129,
+      tw: 51,
+      th: 63,
+      opsY: 300,
+
+      aiTimer: null
+    },
+
+    onInit() {
+      device.getInfo({
+        success: (ret) => {
+          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
+        },
+        fail: () => {
+          this.applyLayout(336, 480);
+        }
+      });
+    },
+
+    onHide() {
+      this.clearAi();
+    },
+
+    onDestroy() {
+      this.clearAi();
+    },
+
+    /* ---------------- 布局 ---------------- */
+
+    applyLayout(w, h) {
+      const tw = Math.floor((w - 12 - (COLS - 1) * TILE_GAP) / COLS);
+      const th = Math.floor(tw * 1.25);
+      const gw = COLS * tw + (COLS - 1) * TILE_GAP;
+      const gx = Math.floor((w - gw) / 2);
+      let gy = HEADER_H + STATUS_H + TABLE_H + TIP_H + 6;
+      const gh = ROWS * th + TILE_GAP;
+
+      // 竖向空间富裕时（胶囊屏）整体下移居中
+      const extra = Math.floor((h - (gy + gh + 46)) / 2) - 2;
+      if (extra > 0) gy += extra;
+
+      this.tw = tw;
+      this.th = th;
+      this.gw = gw;
+      this.gx = gx;
+      this.gy = gy;
+      this.gh = gh;
+      this.opsY = gy + gh + 10;
+      this.listW = w - 24;
+      this.buildTiles();
+    },
+
+    /* ---------------- 开局 / 渲染 ---------------- */
+
+    start2() {
+      this.startGame(2);
+    },
+    start3() {
+      this.startGame(3);
+    },
+    start4() {
+      this.startGame(4);
+    },
+
+    startGame(count) {
+      this.playerCount = count;
+      this.game = createGame(count);
+      this.sel = 0;
+      this.page = 0;
+      this.over = false;
+      this.needsColor = false;
+      this.drewThisTurn = false;
+      this.phase = 'play';
+      this.title = 'UNO · ' + count + ' 人';
+      this.refresh();
+      this.afterAction();
+    },
+
+    restart() {
+      this.startGame(this.playerCount);
+    },
+
+    refresh() {
+      const s = this.game;
+      if (!s) return;
+      this.clearAi();
+
+      const t = topCard(s);
+      this.topText = cardText(t);
+      this.topCls = 't-' + t.color;
+      this.colorTip = '当前色 ' + (COLOR_NAME[s.color] || '') + ' · 上家出 ' + cardText(t);
+
+      const counts = handCounts(s);
+      const others = [];
+      for (let p = 1; p < counts.length; p++) {
+        others.push({ k: p + 1, t: (p + 1) + '号 · ' + counts[p] + ' 张' });
+      }
+      this.otherList = others;
+
+      if (s.winner === 0) {
+        this.over = true;
+        this.overText = '你赢了！';
+        this.statusText = '你赢了！';
+      } else if (s.winner > 0) {
+        this.over = true;
+        this.overText = s.winner + 1 + '号 赢了';
+        this.statusText = this.overText;
+      } else if (s.current === 0) {
+        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张';
+      } else {
+        this.statusText = s.current + 1 + '号 出牌中…';
+      }
+
+      const hand = s.hands[0];
+      if (this.sel > hand.length - 1) this.sel = hand.length - 1;
+      if (this.sel < 0) this.sel = 0;
+      this.page = Math.floor(this.sel / (COLS * ROWS));
+      this.buildTiles();
+    },
+
+    buildTiles() {
+      const s = this.game;
+      if (!s) {
+        this.tiles = [];
+        return;
+      }
+      const hand = s.hands[0];
+      const per = COLS * ROWS;
+      const start = this.page * per;
+      const tiles = [];
+      for (let k = 0; k < per; k++) {
+        const idx = start + k;
+        if (idx >= hand.length) break;
+        const card = hand[idx];
+        const col = k % COLS;
+        const row = Math.floor(k / COLS);
+        tiles.push({
+          i: idx + 1, // tid 键必须从 1 开始
+          x: col * (this.tw + TILE_GAP),
+          y: row * (this.th + TILE_GAP),
+          text: cardText(card),
+          cls: 't-' + card.color,
+          sel: idx === this.sel
+        });
+      }
+      this.tiles = tiles;
+    },
+
+    /* ---------------- 玩家操作 ---------------- */
+
+    doPlay() {
+      const s = this.game;
+      if (!s || this.over || this.needsColor) return;
+      if (s.current !== 0) {
+        this.hint('还没轮到你');
+        return;
+      }
+      const card = s.hands[0][this.sel];
+      if (!card) return;
+      if (!canPlay(s, card)) {
+        this.hint('这张牌出不了');
+        return;
+      }
+      if (isWild(card)) {
+        this.needsColor = true;
+        return;
+      }
+      this.commitPlay(this.sel, null);
+    },
+
+    commitPlay(idx, color) {
+      const r = playCard(this.game, idx, color);
+      if (!r.ok) {
+        this.hint(r.msg);
+        return;
+      }
+      this.needsColor = false;
+      this.drewThisTurn = false;
+      this.refresh();
+      this.afterAction();
+    },
+
+    pickR() {
+      this.commitPlay(this.sel, 'r');
+    },
+    pickG() {
+      this.commitPlay(this.sel, 'g');
+    },
+    pickB() {
+      this.commitPlay(this.sel, 'b');
+    },
+    pickY() {
+      this.commitPlay(this.sel, 'y');
+    },
+
+    doDraw() {
+      const s = this.game;
+      if (!s || this.over || this.needsColor) return;
+      if (s.current !== 0) {
+        this.hint('还没轮到你');
+        return;
+      }
+      if (this.drewThisTurn) {
+        // 一手只能摸一次，再点即视为过牌
+        passTurn(s);
+        this.drewThisTurn = false;
+        this.refresh();
+        this.afterAction();
+        return;
+      }
+      const r = drawOne(s);
+      if (!r.ok) {
+        this.hint('牌堆空了，过牌');
+        passTurn(s);
+        this.refresh();
+        this.afterAction();
+        return;
+      }
+      this.drewThisTurn = true;
+      if (r.playable) {
+        this.sel = s.hands[0].length - 1;
+        this.hint('摸到 ' + cardText(r.card) + '，可以直接出');
+        this.refresh();
+      } else {
+        this.hint('摸到 ' + cardText(r.card) + '，出不了，跳过');
+        passTurn(s);
+        this.drewThisTurn = false;
+        this.refresh();
+        this.afterAction();
+      }
+    },
+
+    prevSel() {
+      const s = this.game;
+      if (!s || this.over) return;
+      const n = s.hands[0].length;
+      if (!n) return;
+      this.sel = (this.sel - 1 + n) % n;
+      this.page = Math.floor(this.sel / (COLS * ROWS));
+      this.buildTiles();
+    },
+
+    nextSel() {
+      const s = this.game;
+      if (!s || this.over) return;
+      const n = s.hands[0].length;
+      if (!n) return;
+      this.sel = (this.sel + 1) % n;
+      this.page = Math.floor(this.sel / (COLS * ROWS));
+      this.buildTiles();
+    },
+
+    tapHand(evt) {
+      if (this.over || this.needsColor) return;
+      const s = this.game;
+      if (!s) return;
+      const pt = this.touchPoint(evt);
+      if (!pt) return;
+      const stepX = this.tw + TILE_GAP;
+      const stepY = this.th + TILE_GAP;
+      let col = Math.floor((pt.x - this.gx) / stepX);
+      let row = Math.floor((pt.y - this.gy) / stepY);
+      if (!this.inGrid(col, row)) {
+        const c2 = Math.floor(pt.x / stepX);
+        const r2 = Math.floor(pt.y / stepY);
+        if (this.inGrid(c2, r2)) {
+          col = c2;
+          row = r2;
+        }
+      }
+      if (!this.inGrid(col, row)) return;
+      const idx = this.page * COLS * ROWS + row * COLS + col;
+      if (idx < s.hands[0].length) {
+        this.sel = idx;
+        this.buildTiles();
+      }
+    },
+
+    inGrid(col, row) {
+      return col >= 0 && col < COLS && row >= 0 && row < ROWS;
+    },
+
+    touchPoint(evt) {
+      const list = evt && (evt.changedTouches || evt.touches);
+      const t = list && list[0];
+      if (!t) return null;
+      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
+      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
+      if (x == null || y == null) return null;
+      return { x: x, y: y };
+    },
+
+    /* ---------------- AI 回合 ---------------- */
+
+    afterAction() {
+      const s = this.game;
+      if (!s) return;
+      if (s.winner >= 0) {
+        this.refresh();
+        return;
+      }
+      if (s.current !== 0) this.scheduleAi();
+    },
+
+    scheduleAi() {
+      this.clearAi();
+      this.aiTimer = setTimeout(() => {
+        this.aiTimer = null;
+        const s = this.game;
+        if (!s || s.winner >= 0 || s.current === 0) return;
+
+        const d = aiDecide(s);
+        if (d.type === 'play') {
+          playCard(s, d.idx, d.color);
+        } else {
+          const dr = drawOne(s);
+          if (dr.ok && dr.playable) {
+            playCard(s, s.hands[s.current].length - 1, null);
+          } else {
+            passTurn(s);
+          }
+        }
+        this.refresh();
+        if (s.winner < 0 && s.current !== 0) this.scheduleAi();
+      }, 420);
+    },
+
+    clearAi() {
+      if (this.aiTimer) {
+        clearTimeout(this.aiTimer);
+        this.aiTimer = null;
+      }
+    },
+
+    /* ---------------- 导航 ---------------- */
+
+    onBack() {
+      this.clearAi();
+      if (this.phase === 'play') {
+        this.game = null;
+        this.over = false;
+        this.needsColor = false;
+        this.phase = 'menu';
+        this.title = 'UNO';
+        return;
+      }
+      router.back();
+    },
+
+    goRules() {
+      router.push({ uri: '/pages/rules' });
+    },
+
+    hint(msg) {
+      prompt.showToast({ message: msg, duration: 1200 });
+    }
+  };
+</script>
