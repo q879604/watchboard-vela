@@ -29,7 +29,8 @@
       </div>
 
       <text class="hint">11 × 11 棋盘 · 先连成五子者胜</text>
-      <text class="hint">直接点棋盘落子；点不准就用方向键 + 落子</text>
+      <text class="hint">棋盘默认放大，按住拖动可平移</text>
+      <text class="hint">点一下瞄准（出现准星），再点同一点落子</text>
       <text class="hint">双人模式：两人轮流在同一块表上操作</text>
     </div>
 
@@ -46,48 +47,73 @@
         <text class="status-text">{{ statusText }}</text>
       </div>
 
+      <div class="aimbar">
+        <text class="aim-text">{{ aimText }}</text>
+      </div>
+
       <div
-        class="board"
-        style="left: {{ bx }}px; top: {{ by }}px; width: {{ bs }}px; height: {{ bs }}px;"
-        @touchstart="onBoardTouch"
+        class="win"
+        style="left: {{ wx }}px; top: {{ wy }}px; width: {{ ww }}px; height: {{ wh }}px;"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
+        @touchend="onTouchEnd"
       >
         <div
-          class="cell"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cs }}px; height: {{ cs }}px;"
-          for="{{ cells }}"
+          class="vline"
+          style="left: {{ $item.x }}px; width: 2px; height: {{ wh }}px;"
+          for="{{ vlines }}"
+          tid="i"
+        ></div>
+        <div
+          class="hline"
+          style="top: {{ $item.y }}px; width: {{ ww }}px; height: 2px;"
+          for="{{ hlines }}"
+          tid="i"
+        ></div>
+        <div
+          class="stone {{ $item.cls }}"
+          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ $item.d }}px; height: {{ $item.d }}px;"
+          for="{{ stones }}"
           tid="i"
         >
-          <div class="cursor" if="{{ $item.cur }}"></div>
-          <div class="stone stone-b" if="{{ $item.v === 1 }}"></div>
-          <div class="stone stone-w" if="{{ $item.v === 2 }}"></div>
-          <div class="mark" if="{{ $item.last }}"></div>
+          <div class="lastmark" if="{{ $item.last }}"></div>
+        </div>
+        <div
+          class="aim {{ aimCls }}"
+          if="{{ hasAim }}"
+          style="left: {{ aimX }}px; top: {{ aimY }}px; width: {{ aimD }}px; height: {{ aimD }}px;"
+        >
+          <div class="aimdot"></div>
         </div>
       </div>
 
-      <div class="ops" style="top: {{ opsY }}px;">
-        <div class="dbtn" onclick="curLeft">
+      <div class="pad" style="top: {{ padY }}px;">
+        <div class="dbtn" onclick="nudgeLeft">
           <text class="dtext">左</text>
         </div>
-        <div class="dbtn" onclick="curUp">
+        <div class="dbtn" onclick="nudgeUp">
           <text class="dtext">上</text>
         </div>
-        <div class="dbtn dbtn-main" onclick="placeAtCursor">
+        <div class="dbtn dbtn-main" onclick="placeAtAim">
           <text class="dtext dtext-main">落子</text>
         </div>
-        <div class="dbtn" onclick="curDown">
+        <div class="dbtn" onclick="nudgeDown">
           <text class="dtext">下</text>
         </div>
-        <div class="dbtn" onclick="curRight">
+        <div class="dbtn" onclick="nudgeRight">
           <text class="dtext">右</text>
         </div>
       </div>
 
-      <div class="ops2" style="top: {{ ops2Y }}px;">
+      <div class="pad2" style="top: {{ pad2Y }}px;">
         <div class="sbtn" onclick="undo">
           <text class="stext">悔棋</text>
         </div>
         <div class="sbtn" onclick="restart">
           <text class="stext">重开</text>
+        </div>
+        <div class="sbtn" onclick="zoomCycle">
+          <text class="stext">缩放 {{ zoomName }}</text>
         </div>
         <div class="sbtn" onclick="goMenu">
           <text class="stext">菜单</text>
@@ -108,7 +134,7 @@
 
   .status {
     width: 100%;
-    height: 26px;
+    height: 24px;
     justify-content: center;
     align-items: center;
   }
@@ -119,24 +145,42 @@
     color: #ffffff;
   }
 
-  /* 棋盘：底色深 → 格子间露出的 1px 即网格线 */
-  .board {
-    position: absolute;
-    background-color: #8a6a3a;
-    border-radius: 4px;
-  }
-
-  .cell {
-    position: absolute;
-    background-color: #e9d3a6;
+  .aimbar {
+    width: 100%;
+    height: 22px;
     justify-content: center;
     align-items: center;
   }
 
+  .aim-text {
+    font-size: 13px;
+    color: #eaffea;
+  }
+
+  /* 棋盘视口：底色浅木色，网格线画在上面，超出视口的格子不渲染（省性能） */
+  .win {
+    position: absolute;
+    background-color: #e9d3a6;
+    border-radius: 6px;
+  }
+
+  .vline {
+    position: absolute;
+    top: 0;
+    background-color: #8a6a3a;
+  }
+
+  .hline {
+    position: absolute;
+    left: 0;
+    background-color: #8a6a3a;
+  }
+
   .stone {
-    width: 82%;
-    height: 82%;
+    position: absolute;
     border-radius: 50%;
+    justify-content: center;
+    align-items: center;
   }
 
   .stone-b {
@@ -147,25 +191,35 @@
     background-color: #f7f7f7;
   }
 
-  /* 最后一手标记 */
-  .mark {
-    position: absolute;
-    width: 24%;
-    height: 24%;
+  .lastmark {
+    width: 26%;
+    height: 26%;
     border-radius: 50%;
     background-color: #e8422f;
   }
 
-  /* 光标（方向键定位用，仅空格子显示） */
-  .cursor {
+  /* 瞄准准星：半透明圆 + 中心点 */
+  .aim {
     position: absolute;
-    width: 86%;
-    height: 86%;
     border-radius: 50%;
-    background-color: rgba(60, 30, 0, 0.2);
+    background-color: rgba(23, 51, 29, 0.28);
+    justify-content: center;
+    align-items: center;
   }
 
-  .ops {
+  /* 瞄到已经有子的位置 → 红色警告 */
+  .aim-hit {
+    background-color: rgba(232, 66, 47, 0.45);
+  }
+
+  .aimdot {
+    width: 22%;
+    height: 22%;
+    border-radius: 50%;
+    background-color: #ffffff;
+  }
+
+  .pad {
     position: absolute;
     left: 0;
     width: 100%;
@@ -175,7 +229,7 @@
     align-items: center;
   }
 
-  .ops2 {
+  .pad2 {
     position: absolute;
     left: 0;
     width: 100%;
@@ -186,7 +240,7 @@
   }
 
   .dbtn {
-    width: 56px;
+    width: 52px;
     height: 30px;
     border-radius: 15px;
     background-color: rgba(255, 255, 255, 0.9);
@@ -197,7 +251,7 @@
   }
 
   .dbtn-main {
-    width: 66px;
+    width: 64px;
     background-color: #17331d;
   }
 
@@ -212,18 +266,18 @@
   }
 
   .sbtn {
-    width: 72px;
+    width: 70px;
     height: 30px;
     border-radius: 15px;
     background-color: rgba(255, 255, 255, 0.75);
     justify-content: center;
     align-items: center;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 3px;
+    margin-right: 3px;
   }
 
   .stext {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     color: #17331d;
   }
@@ -247,45 +301,77 @@
   } from '../../common/gomoku-ai';
 
   const HEADER_H = 38;
-  const STATUS_H = 26;
-  const ROW_H = 30;
+  const STATUS_H = 24;
+  const AIM_H = 22;
+  const PAD_H = 34;
+  const ZOOM_COLS = [5, 6, 8]; // 视口横向可见格数：越大格子越小
+  const ZOOM_NAMES = ['大', '中', '小'];
+
+  function clamp(v, lo, hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+  }
 
   export default {
     private: {
-      phase: 'menu', // menu | play
-      mode: 'ai', // ai | pvp
+      phase: 'menu',
+      mode: 'ai',
       level: 'normal',
       levelName: '普通',
 
       boardN: 11,
       board: [],
-      cells: [],
       history: [],
       turn: BLACK,
-      winner: 0, // 0 进行中 / 1 黑胜 / 2 白胜 / -1 平局
+      winner: 0,
       lastIdx: -1,
-      cursor: { r: 5, c: 5 },
-      showCursor: true,
 
-      // 布局
-      cs: 29,
-      bs: 319,
-      bx: 8,
-      by: 66,
-      opsY: 391,
-      ops2Y: 425,
+      // 视口与缩放
+      scrW: 336,
+      scrH: 480,
+      zoomIdx: 1,
+      zoomName: '中',
+      cs: 54, // 一格边长（px）
+      wx: 4,
+      wy: 84,
+      ww: 328,
+      wh: 314,
+      px: 0, // 平移（px）
+      py: 0,
+      padY: 402,
+      pad2Y: 436,
       listW: 320,
+
+      // 渲染列表
+      vlines: [],
+      hlines: [],
+      stones: [],
+
+      // 瞄准
+      aim: null,
+      hasAim: false,
+      aimX: 0,
+      aimY: 0,
+      aimD: 54,
+      aimCls: 'aim',
+      aimText: '拖动可平移棋盘 · 点一下瞄准，再点一下落子',
+
+      // 手势
+      drag: false,
+      downX: 0,
+      downY: 0,
+      lastX: 0,
+      lastY: 0,
 
       title: '五子棋',
       statusText: '',
-
       aiTimer: null
     },
 
     onInit() {
       const app = this.$app && this.$app.$def && this.$app.$def.data;
-      const n = (app && app.boardN) || 11;
-      this.boardN = n;
+      this.boardN = (app && app.boardN) || 11;
       this.resetState();
       this.applyLayout(336, 480, true);
       device.getInfo({
@@ -311,57 +397,135 @@
     /* ---------------- 布局 ---------------- */
 
     applyLayout(w, h, silent) {
-      const n = this.boardN;
-      const cs = Math.max(12, Math.floor((w - 10) / n));
-      const bs = cs * n;
-      const bx = Math.floor((w - bs) / 2);
-      let by = HEADER_H + STATUS_H + 2;
-      let opsY = by + bs + 6;
-      let ops2Y = opsY + ROW_H + 4;
+      this.scrW = w;
+      this.scrH = h;
 
-      // 竖向剩余空间较多时（胶囊屏）整体居中
-      const extra = Math.floor((h - (ops2Y + ROW_H)) / 2) - 2;
-      if (extra > 0) {
-        by += extra;
-        opsY += extra;
-        ops2Y += extra;
-      }
+      const wx = 4;
+      const ww = w - 8;
+      const wy = HEADER_H + STATUS_H + AIM_H + 2;
+      const rows = 2 * PAD_H + 6;
+      const wh = Math.max(140, h - wy - rows - 6);
 
+      const cols = ZOOM_COLS[this.zoomIdx];
+      const cs = Math.max(26, Math.floor(ww / cols));
+
+      this.wx = wx;
+      this.ww = ww;
+      this.wy = wy;
+      this.wh = wh;
       this.cs = cs;
-      this.bs = bs;
-      this.bx = bx;
-      this.by = by;
-      this.opsY = opsY;
-      this.ops2Y = ops2Y;
+      this.zoomName = ZOOM_NAMES[this.zoomIdx];
+      this.aimD = cs;
+
+      // 竖向居中（胶囊屏剩余空间多）
+      const slack = h - (wy + wh + rows + 6);
+      let shift = 0;
+      if (slack > 20) shift = Math.floor((slack - 20) / 2);
+      this.padY = wy + wh + 4 + shift;
+      this.pad2Y = this.padY + PAD_H;
+
       this.listW = w - 24;
-      this.buildCells();
+      this.clampPan();
+      this.render();
       if (!silent) this.refresh();
     },
 
-    buildCells() {
+    maxPanX() {
+      return Math.max(0, (this.boardN - 1) * this.cs + 8 - this.ww);
+    },
+
+    maxPanY() {
+      return Math.max(0, (this.boardN - 1) * this.cs + 8 - this.wh);
+    },
+
+    clampPan() {
+      this.px = clamp(this.px, 0, this.maxPanX());
+      this.py = clamp(this.py, 0, this.maxPanY());
+    },
+
+    centerOn(r, c) {
+      this.px = clamp(c * this.cs + this.cs / 2 - this.ww / 2, 0, this.maxPanX());
+      this.py = clamp(r * this.cs + this.cs / 2 - this.wh / 2, 0, this.maxPanY());
+    },
+
+    ensureVisible(r, c) {
+      const x = c * this.cs;
+      const y = r * this.cs;
+      const pad = this.cs + 6;
+      if (x < this.px + pad) this.px = x - pad;
+      else if (x > this.px + this.ww - pad) this.px = x - this.ww + pad;
+      if (y < this.py + pad) this.py = y - pad;
+      else if (y > this.py + this.wh - pad) this.py = y - this.wh + pad;
+      this.clampPan();
+    },
+
+    /* ---------------- 渲染（只画可见范围，省性能） ---------------- */
+
+    render() {
       const n = this.boardN;
       const cs = this.cs;
-      const cells = [];
-      for (let r = 0; r < n; r++) {
-        for (let c = 0; c < n; c++) {
-          const i = r * n + c;
-          const v = this.board[i];
-          cells.push({
-            i: i + 1, // tid 键必须从 1 开始：键 0 会让首项补丁失效
-            x: c * cs,
-            y: r * cs,
-            v: v,
-            last: i === this.lastIdx && v !== 0,
-            cur:
-              v === 0 &&
-              this.showCursor &&
-              !!this.cursor &&
-              this.cursor.r === r &&
-              this.cursor.c === c
+      const px = this.px;
+      const py = this.py;
+      const d = Math.max(12, cs - 6);
+
+      const c0 = Math.max(0, Math.floor(px / cs) - 1);
+      const c1 = Math.min(n - 1, Math.ceil((px + this.ww) / cs) + 1);
+      const r0 = Math.max(0, Math.floor(py / cs) - 1);
+      const r1 = Math.min(n - 1, Math.ceil((py + this.wh) / cs) + 1);
+
+      const vlines = [];
+      for (let c = c0; c <= c1; c++) {
+        vlines.push({ i: c * 2 + 1, x: c * cs - px });
+      }
+      const hlines = [];
+      for (let r = r0; r <= r1; r++) {
+        hlines.push({ i: r * 2 + 1, y: r * cs - py });
+      }
+
+      const stones = [];
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) {
+          const idx = r * n + c;
+          const v = this.board[idx];
+          if (v === 0) continue;
+          stones.push({
+            i: idx + 1,
+            x: c * cs - px + 1 - d / 2,
+            y: r * cs - py + 1 - d / 2,
+            d: d,
+            cls: v === BLACK ? 'stone-b' : 'stone-w',
+            last: idx === this.lastIdx
           });
         }
       }
-      this.cells = cells;
+
+      this.vlines = vlines;
+      this.hlines = hlines;
+      this.stones = stones;
+
+      if (this.aim) {
+        const a = this.aim;
+        const occ = this.board[a.r * n + a.c] !== 0;
+        this.hasAim = true;
+        this.aimX = a.c * cs - px + 1 - cs / 2;
+        this.aimY = a.r * cs - py + 1 - cs / 2;
+        this.aimD = cs;
+        this.aimCls = occ ? 'aim aim-hit' : 'aim';
+      } else {
+        this.hasAim = false;
+      }
+      this.updateAimText();
+    },
+
+    updateAimText() {
+      if (!this.aim) {
+        this.aimText = '拖动可平移棋盘 · 点一下瞄准，再点一下落子';
+        return;
+      }
+      const n = this.boardN;
+      const occ = this.board[this.aim.r * n + this.aim.c] !== 0;
+      this.aimText =
+        '瞄准 ' + (this.aim.r + 1) + '行' + (this.aim.c + 1) + '列' + (occ ? ' · 已有子' : ' · 再点一次落子');
     },
 
     /* ---------------- 状态 ---------------- */
@@ -373,9 +537,9 @@
       this.turn = BLACK;
       this.winner = 0;
       this.lastIdx = -1;
-      this.cursor = { r: Math.floor(n / 2), c: Math.floor(n / 2) };
-      this.showCursor = true;
-      this.buildCells();
+      this.aim = null;
+      this.centerOn(Math.floor(n / 2), Math.floor(n / 2));
+      this.render();
     },
 
     refresh() {
@@ -387,7 +551,7 @@
       else if (this.mode === 'ai')
         this.statusText = this.turn === WHITE ? 'AI 思考中…' : '轮到你 · 执黑';
       else this.statusText = this.turn === BLACK ? '轮到 黑方 落子' : '轮到 白方 落子';
-      this.buildCells();
+      this.render();
     },
 
     canPlay() {
@@ -396,19 +560,19 @@
       return true;
     },
 
-    /* ---------------- 对局流程 ---------------- */
+    /* ---------------- 流程 ---------------- */
 
     startAi() {
       this.mode = 'ai';
-      this.resetState();
       this.phase = 'play';
+      this.resetState();
       this.refresh();
     },
 
     startPvp() {
       this.mode = 'pvp';
-      this.resetState();
       this.phase = 'play';
+      this.resetState();
       this.refresh();
     },
 
@@ -417,6 +581,15 @@
       const next = LEVEL_ORDER[(cur + 1) % LEVEL_ORDER.length];
       this.level = next;
       this.levelName = LEVEL_LABELS[next];
+    },
+
+    zoomCycle() {
+      this.zoomIdx = (this.zoomIdx + 1) % ZOOM_COLS.length;
+      this.applyLayout(this.scrW, this.scrH, true);
+      const a = this.aim || { r: Math.floor(this.boardN / 2), c: Math.floor(this.boardN / 2) };
+      this.centerOn(a.r, a.c);
+      this.render();
+      this.hint('缩放：' + this.zoomName);
     },
 
     goMenu() {
@@ -433,6 +606,7 @@
       this.clearAi();
       this.resetState();
       this.refresh();
+      this.hint('已重开');
     },
 
     undo() {
@@ -441,7 +615,6 @@
         this.hint('还没有落子');
         return;
       }
-      // 单人模式：把「AI + 自己」这一回合一起撤掉
       this.history.pop();
       if (this.mode === 'ai' && this.history.length && this.history[this.history.length - 1].p === WHITE) {
         this.history.pop();
@@ -463,15 +636,17 @@
         this.board[m.i] = m.p;
         this.lastIdx = m.i;
         turn = opponentOf(m.p);
-        if (isWin(this.board, n, Math.floor(m.i / n), m.i % n, m.p)) {
-          this.winner = m.p;
-        }
+        if (isWin(this.board, n, Math.floor(m.i / n), m.i % n, m.p)) this.winner = m.p;
       }
       this.turn = turn;
       if (this.lastIdx >= 0) {
-        this.cursor = { r: Math.floor(this.lastIdx / n), c: this.lastIdx % n };
+        const r = Math.floor(this.lastIdx / n);
+        const c = this.lastIdx % n;
+        this.aim = { r: r, c: c };
+        this.ensureVisible(r, c);
       } else {
-        this.cursor = { r: Math.floor(n / 2), c: Math.floor(n / 2) };
+        this.aim = null;
+        this.centerOn(Math.floor(n / 2), Math.floor(n / 2));
       }
       this.refresh();
     },
@@ -496,7 +671,8 @@
         this.turn = opponentOf(player);
         this.buzz(false);
       }
-      this.cursor = { r: r, c: c };
+      this.aim = { r: r, c: c };
+      this.ensureVisible(r, c);
       this.refresh();
       return true;
     },
@@ -513,36 +689,81 @@
       }
     },
 
-    placeAtCursor() {
+    placeAtAim() {
       if (!this.canPlay()) return;
-      this.tryPlace(this.cursor.r, this.cursor.c);
-    },
-
-    /* 点棋盘落子：坐标按「视口坐标 − 棋盘偏移」换算，越界时退回相对坐标再试一次 */
-    onBoardTouch(evt) {
-      if (!this.canPlay()) return;
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const n = this.boardN;
-      const cs = this.cs;
-
-      let c = Math.floor((pt.x - this.bx) / cs);
-      let r = Math.floor((pt.y - this.by) / cs);
-      if (!this.inRange(r, n) || !this.inRange(c, n)) {
-        const c2 = Math.floor(pt.x / cs);
-        const r2 = Math.floor(pt.y / cs);
-        if (this.inRange(r2, n) && this.inRange(c2, n)) {
-          r = r2;
-          c = c2;
-        }
+      if (!this.aim) {
+        const m = Math.floor(this.boardN / 2);
+        this.aim = { r: m, c: m };
       }
-      if (!this.inRange(r, n) || !this.inRange(c, n)) return;
-      this.showCursor = false;
-      this.tryPlace(r, c);
+      this.tryPlace(this.aim.r, this.aim.c);
     },
 
-    inRange(v, n) {
-      return v >= 0 && v < n;
+    /* ---------------- 手势：拖动平移 + 点按瞄准 ---------------- */
+
+    onTouchStart(evt) {
+      const p = this.touchPoint(evt);
+      if (!p) return;
+      this.drag = false;
+      this.downX = p.x;
+      this.downY = p.y;
+      this.lastX = p.x;
+      this.lastY = p.y;
+    },
+
+    onTouchMove(evt) {
+      const p = this.touchPoint(evt);
+      if (!p) return;
+      const dx = p.x - this.lastX;
+      const dy = p.y - this.lastY;
+      this.lastX = p.x;
+      this.lastY = p.y;
+      if (!this.drag) {
+        if (Math.abs(p.x - this.downX) + Math.abs(p.y - this.downY) <= 10) return;
+        this.drag = true;
+      }
+      this.px -= dx;
+      this.py -= dy;
+      this.clampPan();
+      this.render();
+    },
+
+    onTouchEnd(evt) {
+      if (this.drag) {
+        this.drag = false;
+        return;
+      }
+      const p = this.touchPoint(evt);
+      if (!p) return;
+      this.handleTap(p.x, p.y);
+    },
+
+    handleTap(x, y) {
+      let hit = this.hitCell(x, y, false);
+      if (!hit) hit = this.hitCell(x, y, true); // 兼容坐标参照系差异
+      if (!hit) return;
+      const same = this.aim && this.aim.r === hit.r && this.aim.c === hit.c;
+      this.aim = { r: hit.r, c: hit.c };
+      this.ensureVisible(hit.r, hit.c);
+      if (same) {
+        if (this.canPlay()) this.tryPlace(hit.r, hit.c);
+        return;
+      }
+      this.render();
+    },
+
+    hitCell(x, y, local) {
+      const lx = local ? x : x - this.wx;
+      const ly = local ? y : y - this.wy;
+      if (
+        !local &&
+        (lx < -this.cs * 2 || ly < -this.cs * 2 || lx > this.ww + this.cs * 2 || ly > this.wh + this.cs * 2)
+      ) {
+        return null;
+      }
+      const c = Math.round((lx + this.px - 1) / this.cs);
+      const r = Math.round((ly + this.py - 1) / this.cs);
+      if (r < 0 || c < 0 || r >= this.boardN || c >= this.boardN) return null;
+      return { r: r, c: c };
     },
 
     touchPoint(evt) {
@@ -555,33 +776,34 @@
       return { x: x, y: y };
     },
 
-    /* ---------------- 光标 / 方向键 ---------------- */
+    /* ---------------- 方向键微调准星 ---------------- */
 
-    moveCursor(dr, dc) {
-      if (!this.canPlay()) return;
+    moveAim(dr, dc) {
       const n = this.boardN;
-      let r = this.cursor.r + dr;
-      let c = this.cursor.c + dc;
-      if (r < 0) r = 0;
-      if (c < 0) c = 0;
-      if (r > n - 1) r = n - 1;
-      if (c > n - 1) c = n - 1;
-      this.cursor = { r: r, c: c };
-      this.showCursor = true;
-      this.buildCells();
+      if (!this.aim) {
+        const m = Math.floor(n / 2);
+        this.aim = { r: m, c: m };
+      } else {
+        this.aim = {
+          r: clamp(this.aim.r + dr, 0, n - 1),
+          c: clamp(this.aim.c + dc, 0, n - 1)
+        };
+      }
+      this.ensureVisible(this.aim.r, this.aim.c);
+      this.render();
     },
 
-    curLeft() {
-      this.moveCursor(0, -1);
+    nudgeLeft() {
+      this.moveAim(0, -1);
     },
-    curRight() {
-      this.moveCursor(0, 1);
+    nudgeRight() {
+      this.moveAim(0, 1);
     },
-    curUp() {
-      this.moveCursor(-1, 0);
+    nudgeUp() {
+      this.moveAim(-1, 0);
     },
-    curDown() {
-      this.moveCursor(1, 0);
+    nudgeDown() {
+      this.moveAim(1, 0);
     },
 
     /* ---------------- AI ---------------- */
@@ -594,12 +816,15 @@
         const n = this.boardN;
         const idx = chooseMove(this.board, n, WHITE, this.level);
         if (idx < 0) {
-          // 棋盘已满：判和棋
           this.winner = -1;
           this.refresh();
           return;
         }
-        this.commit(Math.floor(idx / n), idx % n);
+        const r = Math.floor(idx / n);
+        const c = idx % n;
+        this.commit(r, c);
+        this.ensureVisible(r, c);
+        this.render();
       }, 320);
     },
 
