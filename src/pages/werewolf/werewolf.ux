@@ -7,8 +7,8 @@
       <text class="header-title">狼人杀</text>
     </div>
 
-    <!-- 菜单 -->
     <div class="screen" if="{{ stage === 'menu' }}">
+      <div class="grow"></div>
       <div class="countbox" style="width: {{ listW }}px;">
         <div class="cbtn" onclick="minus">
           <text class="ctext">－</text>
@@ -28,13 +28,13 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">5 ~ 8 人：狼人 1~2 · 预言家 · 女巫 · 其余平民</text>
-      <text class="hint">依次传阅看身份，夜晚由主持人操作</text>
+      <div class="grow"></div>
+      <text class="hint">5 ~ 8 人 · 传阅看身份 · 主持人操作夜晚</text>
     </div>
 
-    <!-- 身份传阅 -->
     <div class="screen" if="{{ stage === 'roles' }}">
-      <text class="step">{{ holderText }}</text>
+      <div class="grow"></div>
+      <text class="info">{{ holderText }}</text>
       <text class="bigword" if="{{ revealed }}">{{ holderRole }}</text>
       <text class="cover" if="{{ revealed === false }}">身份已隐藏</text>
       <div class="list" style="width: {{ listW }}px;">
@@ -47,42 +47,48 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">看完交给下一位，不要让别人看到</text>
+      <div class="grow"></div>
+      <text class="hint">看完交给下一位，别让人看到</text>
     </div>
 
-    <!-- 夜晚 / 白天 共用玩家格子 -->
     <div class="screen" if="{{ stage === 'night' || stage === 'day' }}">
-      <text class="step">{{ nightTitle || dayTitle }}</text>
-      <text class="info">{{ nightInfo || dayInfo }}</text>
+      <text class="info">{{ nightTitle || dayTitle }}</text>
+      <text class="sub">{{ nightInfo || dayInfo }}</text>
 
-      <div class="chipwrap">
-        <div class="chip {{ c0cls }}" style="left: {{ q0x }}px; top: {{ q0y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt0" if="{{ has0 }}">
-          <text class="chiptext {{ c0tcls }}">{{ c0t }}</text>
+      <div class="grow"></div>
+
+      <div class="slots">
+        <div class="srow">
+          <div class="{{ c0 }}" onclick="tgt0">
+            <text class="{{ c0c }}">{{ c0t }}</text>
+          </div>
+          <div class="{{ c1 }}" onclick="tgt1">
+            <text class="{{ c1c }}">{{ c1t }}</text>
+          </div>
+          <div class="{{ c2 }}" onclick="tgt2">
+            <text class="{{ c2c }}">{{ c2t }}</text>
+          </div>
+          <div class="{{ c3 }}" onclick="tgt3">
+            <text class="{{ c3c }}">{{ c3t }}</text>
+          </div>
         </div>
-        <div class="chip {{ c1cls }}" style="left: {{ q1x }}px; top: {{ q1y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt1" if="{{ has1 }}">
-          <text class="chiptext {{ c1tcls }}">{{ c1t }}</text>
-        </div>
-        <div class="chip {{ c2cls }}" style="left: {{ q2x }}px; top: {{ q2y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt2" if="{{ has2 }}">
-          <text class="chiptext {{ c2tcls }}">{{ c2t }}</text>
-        </div>
-        <div class="chip {{ c3cls }}" style="left: {{ q3x }}px; top: {{ q3y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt3" if="{{ has3 }}">
-          <text class="chiptext {{ c3tcls }}">{{ c3t }}</text>
-        </div>
-        <div class="chip {{ c4cls }}" style="left: {{ q4x }}px; top: {{ q4y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt4" if="{{ has4 }}">
-          <text class="chiptext {{ c4tcls }}">{{ c4t }}</text>
-        </div>
-        <div class="chip {{ c5cls }}" style="left: {{ q5x }}px; top: {{ q5y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt5" if="{{ has5 }}">
-          <text class="chiptext {{ c5tcls }}">{{ c5t }}</text>
-        </div>
-        <div class="chip {{ c6cls }}" style="left: {{ q6x }}px; top: {{ q6y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt6" if="{{ has6 }}">
-          <text class="chiptext {{ c6tcls }}">{{ c6t }}</text>
-        </div>
-        <div class="chip {{ c7cls }}" style="left: {{ q7x }}px; top: {{ q7y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt7" if="{{ has7 }}">
-          <text class="chiptext {{ c7tcls }}">{{ c7t }}</text>
+        <div class="srow">
+          <div class="{{ c4 }}" onclick="tgt4">
+            <text class="{{ c4c }}">{{ c4t }}</text>
+          </div>
+          <div class="{{ c5 }}" onclick="tgt5">
+            <text class="{{ c5c }}">{{ c5t }}</text>
+          </div>
+          <div class="{{ c6 }}" onclick="tgt6">
+            <text class="{{ c6c }}">{{ c6t }}</text>
+          </div>
+          <div class="{{ c7 }}" onclick="tgt7">
+            <text class="{{ c7c }}">{{ c7t }}</text>
+          </div>
         </div>
       </div>
 
-      <div class="ops" style="top: {{ opsY }}px;">
+      <div class="ops">
         <div class="btn btn-main" onclick="confirmAction" if="{{ stage === 'night' && (nightStep === 'wolf' || nightStep === 'seer') && !seerDone }}">
           <text class="bt bt-main">确认</text>
         </div>
@@ -108,12 +114,11 @@
       <text class="hint">{{ voteHint }}</text>
     </div>
 
-    <!-- 结算 -->
     <div class="overlay" if="{{ over }}">
       <text class="overtext">{{ overText }}</text>
-      <div class="ops2">
-        <div class="btn" onclick="startGame">
-          <text class="bt">再来一局</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="startGame">
+          <text class="bt bt-main">再来一局</text>
         </div>
         <div class="btn" onclick="onBack">
           <text class="bt">返回</text>
@@ -126,29 +131,8 @@
 <style>
   @import "../../common/theme.css";
 
-  .screen {
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .step {
-    font-size: 19px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-top: 8px;
-    margin-bottom: 4px;
-  }
-
-  .info {
-    font-size: 16px;
-    color: #eaffea;
-    margin-bottom: 8px;
-  }
-
   .bigword {
-    font-size: 44px;
+    font-size: 46px;
     font-weight: bold;
     color: #ffffff;
     margin-top: 12px;
@@ -161,75 +145,6 @@
     color: #d8f5d8;
     margin-top: 14px;
     margin-bottom: 20px;
-  }
-
-  .countbox {
-    height: 60px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.94);
-    border-radius: 14px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-bottom: 12px;
-  }
-
-  .cbtn {
-    width: 56px;
-    height: 44px;
-    border-radius: 12px;
-    background-color: #17331d;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ctext {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ffffff;
-  }
-
-  .cnum {
-    font-size: 26px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .chipwrap {
-    position: relative;
-    width: 100%;
-    height: 150px;
-  }
-
-  .chip {
-    position: absolute;
-    border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.94);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .chip-sel {
-    background-color: #2f9e44;
-  }
-
-  .chip-dead {
-    background-color: rgba(255, 255, 255, 0.35);
-  }
-
-  .chiptext {
-    font-size: 17px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .chip-seltext {
-    color: #ffffff;
-  }
-
-  .chip-deadtext {
-    color: #5d6b60;
   }
 </style>
 
@@ -251,12 +166,9 @@
     seerIdxOf
   } from '../../common/werewolf';
 
-  const TCOLS = 4;
-  const OPS_H = 46;
-
   export default {
     private: {
-      stage: 'menu', // menu | roles | night | day | over
+      stage: 'menu',
       game: null,
       playerCount: 6,
       listW: 320,
@@ -284,27 +196,25 @@
       over: false,
       overText: '',
 
-      cw2: 74,
-      ch2: 56,
-      q0x: 0, q0y: 0, q1x: 0, q1y: 0, q2x: 0, q2y: 0, q3x: 0, q3y: 0,
-      q4x: 0, q4y: 0, q5x: 0, q5y: 0, q6x: 0, q6y: 0, q7x: 0, q7y: 0,
-      c0t: '', c1t: '', c2t: '', c3t: '', c4t: '', c5t: '', c6t: '', c7t: '',
-      c0cls: 'chip', c1cls: 'chip', c2cls: 'chip', c3cls: 'chip',
-      c4cls: 'chip', c5cls: 'chip', c6cls: 'chip', c7cls: 'chip',
-      c0tcls: '', c1tcls: '', c2tcls: '', c3tcls: '', c4tcls: '', c5tcls: '', c6tcls: '', c7tcls: '',
-      has0: false, has1: false, has2: false, has3: false,
-      has4: false, has5: false, has6: false, has7: false,
-      slotIds: [-1, -1, -1, -1, -1, -1, -1, -1],
-      opsY: 420
+      c0: 'chip chip-empty', c0t: '', c0c: 'chiptext-dim',
+      c1: 'chip chip-empty', c1t: '', c1c: 'chiptext-dim',
+      c2: 'chip chip-empty', c2t: '', c2c: 'chiptext-dim',
+      c3: 'chip chip-empty', c3t: '', c3c: 'chiptext-dim',
+      c4: 'chip chip-empty', c4t: '', c4c: 'chiptext-dim',
+      c5: 'chip chip-empty', c5t: '', c5c: 'chiptext-dim',
+      c6: 'chip chip-empty', c6t: '', c6c: 'chiptext-dim',
+      c7: 'chip chip-empty', c7t: '', c7c: 'chiptext-dim',
+      ids: [-1, -1, -1, -1, -1, -1, -1, -1]
     },
 
     onInit() {
       device.getInfo({
         success: (ret) => {
-          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
+          const w = ret && ret.screenWidth;
+          if (typeof w === 'number' && w > 0) this.listW = w - 24;
         },
         fail: () => {
-          this.applyLayout(336, 480);
+          this.listW = 320;
         }
       });
     },
@@ -313,24 +223,13 @@
       return this.stage === 'roles' || this.stage === 'night' || this.stage === 'day';
     },
 
-    applyLayout(w, h) {
-      const cw2 = Math.floor((w - 60) / TCOLS);
-      const ch2 = Math.max(48, Math.floor(cw2 * 0.7));
-      const gw2 = TCOLS * cw2 + (TCOLS - 1) * 8;
-      const gx2 = Math.floor((w - gw2) / 2);
-      const gy2 = 150;
-      this.cw2 = cw2;
-      this.ch2 = ch2;
-      for (let i = 0; i < 8; i++) {
-        this['q' + i + 'x'] = gx2 + (i % TCOLS) * (cw2 + 8);
-        this['q' + i + 'y'] = gy2 + Math.floor(i / TCOLS) * (ch2 + 8);
-      }
-      this.opsY = h - OPS_H - 34;
-      this.listW = w - 24;
-      if (this.game) this.renderSlots();
+    minus() {
+      if (this.playerCount > 5) this.playerCount--;
     },
 
-    /* ---------------- 菜单 / 传阅 ---------------- */
+    plus() {
+      if (this.playerCount < 8) this.playerCount++;
+    },
 
     startGame() {
       this.game = createGame(this.playerCount);
@@ -342,14 +241,6 @@
       this.nextLabel = this.playerCount > 1 ? '下一位' : '进入夜晚';
       this.stage = 'roles';
       this.renderSlots();
-    },
-
-    minus() {
-      if (this.playerCount > 5) this.playerCount--;
-    },
-
-    plus() {
-      if (this.playerCount < 8) this.playerCount++;
     },
 
     peekRole() {
@@ -373,36 +264,35 @@
       this.nextLabel = this.holder >= this.playerCount ? '进入夜晚' : '下一位';
     },
 
-    /* ---------------- 玩家格子（原生点击） ---------------- */
+    /* ---------------- 玩家格 ---------------- */
 
     renderSlots() {
       const g = this.game;
       if (!g) return;
       const ids = [-1, -1, -1, -1, -1, -1, -1, -1];
-      for (let i = 0; i < this.playerCount && i < 8; i++) {
-        const p = g.players[i];
-        let cls = 'chip';
-        if (!p.alive) cls = 'chip chip-dead';
-        if (this.pick === i) cls = 'chip chip-sel';
-        const isSel = this.pick === i;
-        ids[i] = i;
-        this['c' + i + 't'] = (i + 1) + '号' + (p.alive ? ' ♥' + p.hp : ' 出局');
-        this['c' + i + 'cls'] = cls;
-        this['c' + i + 'tcls'] = isSel ? 'chip-seltext' : p.alive ? '' : 'chip-deadtext';
-        this['has' + i] = true;
+      for (let k = 0; k < 8; k++) {
+        if (k < this.playerCount) {
+          const p = g.players[k];
+          const sel = this.pick === k;
+          ids[k] = k;
+          this['c' + k] = !p.alive ? 'chip chip-dead' : sel ? 'chip chip-sel' : 'chip';
+          this['c' + k + 't'] = (k + 1) + '号' + (p.alive ? ' ♥' + p.hp : ' 亡');
+          this['c' + k + 'c'] = !p.alive ? 'chiptext-dim' : 'chiptext';
+        } else {
+          ids[k] = -1;
+          this['c' + k] = 'chip chip-empty';
+          this['c' + k + 't'] = '';
+          this['c' + k + 'c'] = 'chiptext-dim';
+        }
       }
-      for (let i = this.playerCount; i < 8; i++) {
-        this['has' + i] = false;
-      }
-      this.slotIds = ids;
+      this.ids = ids;
       this.refreshTitles();
     },
 
     tapSlot(k) {
       const g = this.game;
-      if (!g) return;
-      const id = this.slotIds[k];
-      if (id == null || id < 0) return;
+      const id = this.ids[k];
+      if (!g || id == null || id < 0) return;
       const p = g.players[id];
       if (!p.alive) return;
       if (this.stage === 'night') {
@@ -449,21 +339,21 @@
         this.dayTitle = '';
         if (this.nightStep === 'wolf') {
           this.nightTitle = '夜晚 · 狼人行动';
-          this.nightInfo = '点选要刀的玩家（不能选狼人自己）';
+          this.nightInfo = '点选要刀的玩家，再点「确认」';
         } else if (this.nightStep === 'seer') {
           this.nightTitle = '夜晚 · 预言家行动';
-          this.nightInfo = this.seerDone ? g.seerResult : '点选要查验的玩家';
+          this.nightInfo = this.seerDone ? g.seerResult : '点选要查验的玩家，再点「确认」';
         } else {
           this.nightTitle = '夜晚 · 女巫行动';
           const canSave = g.witchHasSave && g.wolfTarget >= 0;
           this.nightInfo =
-            (canSave ? '今晚有人被杀，可用解药' : '今晚无人被杀 / 解药已用') +
-            (g.witchHasPoison ? ' · 可用毒药（先点人再点毒药）' : '');
+            (canSave ? '今晚有人被杀' : '今晚无人被杀 / 解药已用') +
+            (g.witchHasPoison ? ' · 毒药需先点人' : '');
         }
       } else if (this.stage === 'day') {
         this.nightTitle = '';
         this.dayTitle = '白天 · 第 ' + g.round + ' 轮';
-        this.voteHint = this.voting ? (this.voter + 1) + '号 投票（不能投自己）' : '投票完成，点「进入夜晚」';
+        this.voteHint = this.voting ? (this.voter + 1) + '号 投票（不能投自己）' : '点「进入夜晚」继续';
       } else {
         this.voteHint = '';
       }
@@ -505,13 +395,11 @@
     },
 
     witchSave() {
-      const g = this.game;
-      const r = nightWitch(g, 'save');
+      const r = nightWitch(this.game, 'save');
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
-      this.nightInfo = '解药已使用';
       this.dawn();
     },
 
@@ -537,8 +425,10 @@
     dawn() {
       const g = this.game;
       const deaths = resolveNight(g);
-      if (deaths.length === 0) this.dayInfo = '昨晚是平安夜';
-      else this.dayInfo = '昨晚 ' + deaths.map((d) => d + 1).join('、') + ' 号死亡';
+      this.dayInfo =
+        deaths.length === 0
+          ? '昨晚是平安夜'
+          : '昨晚 ' + deaths.map((d) => d + 1).join('、') + ' 号死亡';
       const end = checkEnd(g);
       if (end) {
         this.finish(end);
@@ -571,8 +461,10 @@
       }
       const dead = resolveVote(g, this.votes);
       this.voting = false;
-      if (dead >= 0) this.dayInfo = (this.dayInfo || '') + ' · ' + (dead + 1) + ' 号 被投票出局';
-      else this.dayInfo = (this.dayInfo || '') + ' · 平票，无人出局';
+      this.dayInfo =
+        dead >= 0
+          ? (this.dayInfo || '') + ' · ' + (dead + 1) + ' 号被投出局'
+          : (this.dayInfo || '') + ' · 平票，无人出局';
       const end = checkEnd(g);
       if (end) {
         this.finish(end);

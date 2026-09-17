@@ -43,20 +43,13 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">七大桌游已全部可玩 · 全部纯本地运行</text>
+      <text class="hint">七大桌游 · 全部纯本地运行</text>
     </scroll>
   </div>
 </template>
 
 <style>
   @import "../../common/theme.css";
-
-  .body {
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-  }
 </style>
 
 <script>

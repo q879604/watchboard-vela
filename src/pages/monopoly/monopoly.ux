@@ -39,7 +39,8 @@
 
     <!-- 对局 -->
     <div class="screen" if="{{ phase === 'play' }}">
-      <div class="board" style="left: {{ bx }}px; top: {{ by }}px; width: {{ bs }}px; height: {{ bs }}px;">
+      <div class="boardwrap" style="width: {{ bs }}px; height: {{ bs }}px;">
+        <div class="board" style="left: 0; top: 0; width: {{ bs }}px; height: {{ bs }}px;">
         <div
           class="cell {{ $item.cls }}"
           style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cell }}px; height: {{ cell }}px;"
@@ -62,9 +63,10 @@
           <text class="cevent">{{ eventLine }}</text>
           <text class="cmoney" for="{{ moneyList }}" tid="k">{{ $item.t }}</text>
         </div>
+        </div>
       </div>
 
-      <div class="ops" style="top: {{ opsY }}px;">
+      <div class="ops">
         <div class="btn btn-main" onclick="roll" if="{{ step === 'roll' }}">
           <text class="bt bt-main">掷骰</text>
         </div>
@@ -82,7 +84,7 @@
         </div>
       </div>
 
-      <text class="log" style="top: {{ logY }}px;">{{ logLine }}</text>
+      <text class="log">{{ logLine }}</text>
 
       <div class="overlay" if="{{ over }}">
         <text class="overtext">{{ overText }}</text>
@@ -151,6 +153,11 @@
   }
 
   /* 棋盘：格子紧贴成环，中心为信息卡 */
+  .boardwrap {
+    position: relative;
+    margin-top: 6px;
+  }
+
   .board {
     position: absolute;
     background-color: #e9d3a6;
@@ -255,10 +262,8 @@
   }
 
   .ops {
-    position: absolute;
-    left: 0;
     width: 100%;
-    height: 46px;
+    height: 64px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -271,10 +276,7 @@
   }
 
   .log {
-    position: absolute;
-    left: 10px;
-    top: 0;
-    width: 316px;
+    width: 100%;
     font-size: 14px;
     color: #eafffe;
     text-align: center;

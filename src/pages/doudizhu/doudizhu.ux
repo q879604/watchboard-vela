@@ -7,8 +7,8 @@
       <text class="header-title">斗地主</text>
     </div>
 
-    <!-- 菜单 -->
     <div class="screen" if="{{ stage === 'menu' }}">
+      <div class="grow"></div>
       <div class="list" style="width: {{ listW }}px;">
         <div class="card" onclick="startGame">
           <text class="card-text">开始对局（你 + 2 AI）</text>
@@ -19,80 +19,87 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">你是 1 号位 · 地主随机分配</text>
-      <text class="hint">简化规则：无飞机/四带二，顺子须同长度</text>
+      <div class="grow"></div>
+      <text class="hint">你是 1 号位 · 地主随机</text>
     </div>
 
-    <!-- 对局 -->
     <div class="screen" if="{{ stage === 'play' }}">
-      <text class="topline">{{ topLine }}</text>
-      <text class="botline">{{ botLine }}</text>
+      <text class="info">{{ topLine }}</text>
+      <text class="sub">{{ botLine }}</text>
+      <text class="sub">{{ pendingText }}</text>
 
-      <div class="pending">
-        <text class="pending-title">{{ pendingTitle }}</text>
-        <div class="prow">
-          <div
-            class="pcard {{ $item.cls }}"
-            style="left: {{ $item.x }}px; top: 0; width: {{ pcs }}px; height: {{ pch }}px;"
-            for="{{ pendingCards }}"
-            tid="i"
-          >
-            <text class="pctext">{{ $item.text }}</text>
+      <div class="grow"></div>
+
+      <div class="hand">
+        <div class="hrow">
+          <div class="{{ s0 }}" onclick="pick0">
+            <text class="{{ s0c }}">{{ s0t }}</text>
+          </div>
+          <div class="{{ s1 }}" onclick="pick1">
+            <text class="{{ s1c }}">{{ s1t }}</text>
+          </div>
+          <div class="{{ s2 }}" onclick="pick2">
+            <text class="{{ s2c }}">{{ s2t }}</text>
+          </div>
+          <div class="{{ s3 }}" onclick="pick3">
+            <text class="{{ s3c }}">{{ s3t }}</text>
+          </div>
+          <div class="{{ s4 }}" onclick="pick4">
+            <text class="{{ s4c }}">{{ s4t }}</text>
+          </div>
+          <div class="{{ s5 }}" onclick="pick5">
+            <text class="{{ s5c }}">{{ s5t }}</text>
+          </div>
+        </div>
+        <div class="hrow">
+          <div class="{{ s6 }}" onclick="pick6">
+            <text class="{{ s6c }}">{{ s6t }}</text>
+          </div>
+          <div class="{{ s7 }}" onclick="pick7">
+            <text class="{{ s7c }}">{{ s7t }}</text>
+          </div>
+          <div class="{{ s8 }}" onclick="pick8">
+            <text class="{{ s8c }}">{{ s8t }}</text>
+          </div>
+          <div class="{{ s9 }}" onclick="pick9">
+            <text class="{{ s9c }}">{{ s9t }}</text>
+          </div>
+          <div class="{{ s10 }}" onclick="pick10">
+            <text class="{{ s10c }}">{{ s10t }}</text>
+          </div>
+          <div class="{{ s11 }}" onclick="pick11">
+            <text class="{{ s11c }}">{{ s11t }}</text>
           </div>
         </div>
       </div>
 
-      <text class="myline">{{ myLine }}</text>
-
-      <!-- 手牌：循环渲染 + 透明命中层（原生命中） -->
-      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;">
-        <div
-          class="tile {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
-          for="{{ handTiles }}"
-          tid="i"
-        >
-          <text class="tiletext {{ $item.textCls }}">{{ $item.text }}</text>
-        </div>
-
-        <div class="hit" style="left: {{ c0x }}px; top: {{ c0y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick0"></div>
-        <div class="hit" style="left: {{ c1x }}px; top: {{ c1y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick1"></div>
-        <div class="hit" style="left: {{ c2x }}px; top: {{ c2y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick2"></div>
-        <div class="hit" style="left: {{ c3x }}px; top: {{ c3y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick3"></div>
-        <div class="hit" style="left: {{ c4x }}px; top: {{ c4y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick4"></div>
-        <div class="hit" style="left: {{ c5x }}px; top: {{ c5y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick5"></div>
-        <div class="hit" style="left: {{ c6x }}px; top: {{ c6y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick6"></div>
-        <div class="hit" style="left: {{ c7x }}px; top: {{ c7y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick7"></div>
-        <div class="hit" style="left: {{ c8x }}px; top: {{ c8y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick8"></div>
-        <div class="hit" style="left: {{ c9x }}px; top: {{ c9y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick9"></div>
-        <div class="hit" style="left: {{ c10x }}px; top: {{ c10y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick10"></div>
-        <div class="hit" style="left: {{ c11x }}px; top: {{ c11y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick11"></div>
-      </div>
-
-      <div class="ops" style="top: {{ opsY }}px;">
+      <div class="ops">
         <div class="btn btn-main" onclick="doPlay" if="{{ myTurn }}">
           <text class="bt bt-main">出牌</text>
         </div>
         <div class="btn" onclick="doPass" if="{{ myTurn && hasPending }}">
           <text class="bt">不出</text>
         </div>
-        <div class="btn" onclick="clearSel" if="{{ myTurn }}">
-          <text class="bt">清空</text>
+        <div class="btn btn-s" onclick="pagePrev" if="{{ pagerOn }}">
+          <text class="bt">◀</text>
+        </div>
+        <div class="btn btn-s" onclick="pageNext" if="{{ pagerOn }}">
+          <text class="bt">▶</text>
         </div>
         <div class="btn btn-main" onclick="goNext" if="{{ myTurn === false }}">
           <text class="bt bt-main">下一步</text>
         </div>
       </div>
+    </div>
 
-      <div class="overlay" if="{{ over }}">
-        <text class="overtext">{{ overText }}</text>
-        <div class="ops2">
-          <div class="btn" onclick="startGame">
-            <text class="bt">再来一局</text>
-          </div>
-          <div class="btn" onclick="onBack">
-            <text class="bt">返回</text>
-          </div>
+    <div class="overlay" if="{{ over }}">
+      <text class="overtext">{{ overText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="startGame">
+          <text class="bt bt-main">再来一局</text>
+        </div>
+        <div class="btn" onclick="onBack">
+          <text class="bt">返回</text>
         </div>
       </div>
     </div>
@@ -101,158 +108,27 @@
 
 <style>
   @import "../../common/theme.css";
-
-  .screen {
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .topline {
-    width: 100%;
-    font-size: 15px;
-    color: #eaffea;
-    text-align: center;
-    margin-top: 4px;
-  }
-
-  .botline {
-    width: 100%;
-    font-size: 14px;
-    color: #eaffea;
-    text-align: center;
-    margin-top: 2px;
-  }
-
-  .pending {
-    margin-top: 6px;
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .pending-title {
-    font-size: 14px;
-    color: #d8f5d8;
-    margin-bottom: 3px;
-  }
-
-  .prow {
-    position: relative;
-    height: 52px;
-  }
-
-  .pcard {
-    position: absolute;
-    border-radius: 7px;
-    background-color: #ffffff;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .pctext {
-    font-size: 17px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .pc-red {
-    color: #d64545;
-  }
-
-  .myline {
-    width: 100%;
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffffff;
-    text-align: center;
-    margin-top: 8px;
-  }
-
-  .hand {
-    position: absolute;
-  }
-
-  .tile {
-    position: absolute;
-    border-radius: 7px;
-    background-color: #ffffff;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .tile-sel {
-    background-color: #17331d;
-  }
-
-  .tiletext {
-    font-size: 17px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .tiletext-red {
-    color: #d64545;
-  }
-
-  .tiletext-sel {
-    color: #ffffff;
-  }
-
-  .hit {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.001);
-  }
-
-  .ops {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 46px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ops2 {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
 </style>
 
 <script>
   import router from '@system.router';
   import device from '@system.device';
   import prompt from '@system.prompt';
-  import {
-    deal,
-    cardText,
-    parsePlay,
-    beats,
-    findPlay
-  } from '../../common/doudizhu';
+  import { deal, cardText, parsePlay, beats, findPlay } from '../../common/doudizhu';
 
-  const COLS = 6;
-  const ROWS = 2;
-  const GAP = 4;
-  const OPS_H = 46;
+  const SLOTS = 12;
 
-  function typeName(p) {
-    const names = {
-      single: '单张',
-      pair: '对子',
-      triple: '三张',
-      triple1: '三带一',
-      triple2: '三带二',
-      straight: '顺子',
-      pairrun: '连对',
-      bomb: '炸弹',
-      rocket: '火箭'
-    };
-    return names[p.type] || p.type;
-  }
+  const TYPE_NAME = {
+    single: '单张',
+    pair: '对子',
+    triple: '三张',
+    triple1: '三带一',
+    triple2: '三带二',
+    straight: '顺子',
+    pairrun: '连对',
+    bomb: '炸弹',
+    rocket: '火箭'
+  };
 
   export default {
     private: {
@@ -273,26 +149,23 @@
 
       sel: [],
       page: 0,
-      handTiles: [],
-      pendingCards: [],
-      pendingTitle: '等待出牌',
+      pagerOn: false,
       topLine: '',
       botLine: '',
-      myLine: '',
+      pendingText: '',
 
-      hx: 8,
-      hy: 300,
-      hw: 320,
-      hh: 142,
-      cw: 50,
-      ch: 67,
-      opsY: 430,
-      pcs: 36,
-      pch: 52,
-
-      c0x: 0, c0y: 0, c1x: 0, c1y: 0, c2x: 0, c2y: 0, c3x: 0, c3y: 0,
-      c4x: 0, c4y: 0, c5x: 0, c5y: 0, c6x: 0, c6y: 0, c7x: 0, c7y: 0,
-      c8x: 0, c8y: 0, c9x: 0, c9y: 0, c10x: 0, c10y: 0, c11x: 0, c11y: 0,
+      s0: 'tile tile-dim', s0t: '', s0c: 'tiletext-dim',
+      s1: 'tile tile-dim', s1t: '', s1c: 'tiletext-dim',
+      s2: 'tile tile-dim', s2t: '', s2c: 'tiletext-dim',
+      s3: 'tile tile-dim', s3t: '', s3c: 'tiletext-dim',
+      s4: 'tile tile-dim', s4t: '', s4c: 'tiletext-dim',
+      s5: 'tile tile-dim', s5t: '', s5c: 'tiletext-dim',
+      s6: 'tile tile-dim', s6t: '', s6c: 'tiletext-dim',
+      s7: 'tile tile-dim', s7t: '', s7c: 'tiletext-dim',
+      s8: 'tile tile-dim', s8t: '', s8c: 'tiletext-dim',
+      s9: 'tile tile-dim', s9t: '', s9c: 'tiletext-dim',
+      s10: 'tile tile-dim', s10t: '', s10c: 'tiletext-dim',
+      s11: 'tile tile-dim', s11t: '', s11c: 'tiletext-dim',
 
       aiTimer: null
     },
@@ -300,10 +173,11 @@
     onInit() {
       device.getInfo({
         success: (ret) => {
-          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
+          const w = ret && ret.screenWidth;
+          if (typeof w === 'number' && w > 0) this.listW = w - 24;
         },
         fail: () => {
-          this.applyLayout(336, 480);
+          this.listW = 320;
         }
       });
     },
@@ -320,41 +194,10 @@
       return this.stage === 'play';
     },
 
-    applyLayout(w, h) {
-      const cw = Math.floor((w - 16 - (COLS - 1) * GAP) / COLS);
-      const ch = Math.floor(cw * 1.34);
-      const hw = COLS * cw + (COLS - 1) * GAP;
-      const hx = Math.floor((w - hw) / 2);
-      const hh = ROWS * ch + (ROWS - 1) * GAP;
-      const opsY = h - OPS_H - 10;
-      const hy = opsY - hh - 12;
-
-      this.cw = cw;
-      this.ch = ch;
-      this.hw = hw;
-      this.hx = hx;
-      this.hy = hy;
-      this.hh = hh;
-      this.opsY = opsY;
-      this.pcs = 36;
-      this.pch = 52;
-      this.listW = w - 24;
-
-      const xs = [];
-      const ys = [];
-      for (let c = 0; c < COLS; c++) xs.push(hx + c * (cw + GAP));
-      for (let r = 0; r < ROWS; r++) ys.push(hy + r * (ch + GAP));
-      for (let i = 0; i < COLS * ROWS; i++) {
-        this['c' + i + 'x'] = xs[i % COLS];
-        this['c' + i + 'y'] = ys[Math.floor(i / COLS)];
-      }
-      if (this.game) this.renderHand();
-    },
-
     startGame() {
       this.clearAi();
       const d = deal();
-      this.hands = d.hands.map((x) => x.slice());
+      this.hands = [d.hands[0].slice(), d.hands[1].slice(), d.hands[2].slice()];
       this.bottom = d.bottom.slice();
       this.landlord = d.landlord;
       this.hands[d.landlord] = this.hands[d.landlord].concat(d.bottom);
@@ -370,50 +213,41 @@
     },
 
     renderAll() {
+      const g = this;
       this.topLine =
         '你是 1 号' + (this.landlord === 0 ? '（地主）' : '（农民）') +
-        ' · 底牌：' + this.bottom.map((x) => cardText(x)).join(' ');
+        ' · 底牌 ' + this.bottom.map((x) => cardText(x)).join(' ');
       this.botLine =
-        'AI2 剩 ' + this.hands[1].length + ' 张 · AI3 剩 ' + this.hands[2].length + ' 张';
-      this.myTurn = this.cur === 0 && !this.over;
+        'AI2 剩 ' + this.hands[1].length + ' 张 · AI3 剩 ' + this.hands[2].length +
+        ' 张 · ' + (this.cur === 0 ? '轮到你' : this.cur + 1 + '号出牌中');
       this.hasPending = !!this.pending;
       if (this.pending) {
-        this.pendingTitle =
-          (this.pending.owner + 1) + '号 出了 ' + typeName(this.pending) + '（' + this.pending.cards.length + ' 张）';
-        this.pendingCards = this.pending.cards.map((c, i) => ({
-          i: i + 1,
-          x: i * (this.pcs + 3),
-          text: cardText(c).slice(1),
-          cls: c.suit === 1 || c.suit === 3 ? 'pc-red' : ''
-        }));
+        this.pendingText =
+          (this.pending.owner + 1) + '号 出了 ' + TYPE_NAME[this.pending.type] +
+          '（' + this.pending.cards.map((c) => cardText(c).slice(1)).join(' ') + '）';
       } else {
-        this.pendingTitle = '新一轮，由 ' + (this.cur + 1) + '号 领出';
-        this.pendingCards = [];
+        this.pendingText = '新一轮 · 由 ' + (this.cur + 1) + '号 领出';
       }
-      this.myLine = this.over ? this.overText : this.myTurn ? '轮到你出牌（点牌选中，可多选）' : (this.cur + 1) + '号 出牌中…';
+      this.myTurn = this.cur === 0 && !this.over;
       this.renderHand();
     },
 
     renderHand() {
       const hand = this.hands[0] || [];
-      const per = COLS * ROWS;
-      const tiles = [];
-      const start = this.page * per;
-      for (let k = 0; k < per; k++) {
+      const start = this.page * SLOTS;
+      for (let k = 0; k < SLOTS; k++) {
         const idx = start + k;
-        if (idx >= hand.length) break;
-        const c = hand[idx];
-        const isSel = this.sel.indexOf(idx) >= 0;
-        tiles.push({
-          i: idx + 1,
-          x: (k % COLS) * (this.cw + GAP),
-          y: Math.floor(k / COLS) * (this.ch + GAP),
-          text: cardText(c).slice(1),
-          cls: c.suit === 1 || c.suit === 3 ? 'tiletext-red' : '',
-          textCls: isSel ? 'tiletext-sel' : ''
-        });
+        const has = idx < hand.length;
+        const sel = this.sel.indexOf(idx) >= 0;
+        this['s' + k] = !has ? 'tile tile-dim' : sel ? 'tile tile-sel' : 'tile';
+        this['s' + k + 't'] = has ? cardText(hand[idx]).slice(1) : '';
+        this['s' + k + 'c'] = !has
+          ? 'tiletext-dim'
+          : hand[idx].suit === 1 || hand[idx].suit === 3
+            ? 'tiletext-red'
+            : 'tiletext';
       }
-      this.handTiles = tiles;
+      this.pagerOn = hand.length > SLOTS;
     },
 
     toggleSlot(k) {
@@ -422,7 +256,7 @@
         return;
       }
       const hand = this.hands[0];
-      const idx = this.page * (COLS * ROWS) + k;
+      const idx = this.page * SLOTS + k;
       if (idx >= hand.length) return;
       const pos = this.sel.indexOf(idx);
       if (pos >= 0) this.sel.splice(pos, 1);
@@ -467,7 +301,16 @@
       this.toggleSlot(11);
     },
 
-    clearSel() {
+    pagePrev() {
+      const n = Math.max(1, Math.ceil(this.hands[0].length / SLOTS));
+      this.page = (this.page - 1 + n) % n;
+      this.sel = [];
+      this.renderHand();
+    },
+
+    pageNext() {
+      const n = Math.max(1, Math.ceil(this.hands[0].length / SLOTS));
+      this.page = (this.page + 1) % n;
       this.sel = [];
       this.renderHand();
     },
@@ -475,7 +318,7 @@
     doPlay() {
       if (!this.myTurn) return;
       if (!this.sel.length) {
-        this.hint('先点选要出的牌');
+        this.hint('先点选要出的牌（可多选）');
         return;
       }
       const cards = this.sel.map((i) => this.hands[0][i]);
@@ -489,8 +332,7 @@
         return;
       }
       const owner = this.cur;
-      const idxs = this.sel.slice().sort((a, b) => b - a);
-      idxs.forEach((i) => this.hands[0].splice(i, 1));
+      this.sel.slice().sort((a, b) => b - a).forEach((i) => this.hands[0].splice(i, 1));
       parsed.owner = owner;
       parsed.cards = cards;
       this.pending = parsed;

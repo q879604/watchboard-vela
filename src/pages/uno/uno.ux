@@ -7,8 +7,8 @@
       <text class="header-title">{{ title }}</text>
     </div>
 
-    <!-- ① 选人数 -->
     <div class="screen" if="{{ phase === 'menu' }}">
+      <div class="grow"></div>
       <div class="list" style="width: {{ listW }}px;">
         <div class="card" onclick="start2">
           <text class="card-text">2 人 · 你 + 1 AI</text>
@@ -27,95 +27,102 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
+      <div class="grow"></div>
       <text class="hint">同色 / 同数字 / 同功能牌 可出</text>
-      <text class="hint">+2 与 +4 不叠加（腕上简化）</text>
     </div>
 
-    <!-- ② 对局 -->
     <div class="screen" if="{{ phase === 'play' }}">
-      <text class="status">{{ statusText }}</text>
+      <text class="info">{{ statusText }}</text>
+      <text class="sub">{{ colorTip }}</text>
+      <text class="sub" for="{{ otherList }}" tid="k">{{ $item.t }}</text>
 
-      <div class="table">
-        <div class="topcard {{ topCls }}">
-          <text class="toptext">{{ topText }}</text>
+      <div class="grow"></div>
+
+      <div class="hand">
+        <div class="hrow">
+          <div class="{{ s0 }}" onclick="pick0">
+            <text class="{{ s0c }}">{{ s0t }}</text>
+          </div>
+          <div class="{{ s1 }}" onclick="pick1">
+            <text class="{{ s1c }}">{{ s1t }}</text>
+          </div>
+          <div class="{{ s2 }}" onclick="pick2">
+            <text class="{{ s2c }}">{{ s2t }}</text>
+          </div>
+          <div class="{{ s3 }}" onclick="pick3">
+            <text class="{{ s3c }}">{{ s3t }}</text>
+          </div>
+          <div class="{{ s4 }}" onclick="pick4">
+            <text class="{{ s4c }}">{{ s4t }}</text>
+          </div>
+          <div class="{{ s5 }}" onclick="pick5">
+            <text class="{{ s5c }}">{{ s5t }}</text>
+          </div>
         </div>
-        <div class="others">
-          <text class="other-item" for="{{ otherList }}" tid="k">{{ $item.t }}</text>
+        <div class="hrow">
+          <div class="{{ s6 }}" onclick="pick6">
+            <text class="{{ s6c }}">{{ s6t }}</text>
+          </div>
+          <div class="{{ s7 }}" onclick="pick7">
+            <text class="{{ s7c }}">{{ s7t }}</text>
+          </div>
+          <div class="{{ s8 }}" onclick="pick8">
+            <text class="{{ s8c }}">{{ s8t }}</text>
+          </div>
+          <div class="{{ s9 }}" onclick="pick9">
+            <text class="{{ s9c }}">{{ s9t }}</text>
+          </div>
+          <div class="{{ s10 }}" onclick="pick10">
+            <text class="{{ s10c }}">{{ s10t }}</text>
+          </div>
+          <div class="{{ s11 }}" onclick="pick11">
+            <text class="{{ s11c }}">{{ s11t }}</text>
+          </div>
         </div>
       </div>
 
-      <text class="colortip">{{ colorTip }}</text>
-
-      <!-- 手牌：循环渲染负责画面，透明覆盖层负责点击（原生命中，不依赖坐标） -->
-      <div class="hand" style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;">
-        <div
-          class="tile {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ tw }}px; height: {{ th }}px;"
-          for="{{ tiles }}"
-          tid="i"
-        >
-          <div class="selmark" if="{{ $item.sel }}"></div>
-          <text class="tiletext">{{ $item.text }}</text>
-        </div>
-
-        <div class="hit" style="left: {{ c0x }}px; top: {{ c0y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick0"></div>
-        <div class="hit" style="left: {{ c1x }}px; top: {{ c1y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick1"></div>
-        <div class="hit" style="left: {{ c2x }}px; top: {{ c2y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick2"></div>
-        <div class="hit" style="left: {{ c3x }}px; top: {{ c3y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick3"></div>
-        <div class="hit" style="left: {{ c4x }}px; top: {{ c4y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick4"></div>
-        <div class="hit" style="left: {{ c5x }}px; top: {{ c5y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick5"></div>
-        <div class="hit" style="left: {{ c6x }}px; top: {{ c6y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick6"></div>
-        <div class="hit" style="left: {{ c7x }}px; top: {{ c7y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick7"></div>
-        <div class="hit" style="left: {{ c8x }}px; top: {{ c8y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick8"></div>
-        <div class="hit" style="left: {{ c9x }}px; top: {{ c9y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick9"></div>
-        <div class="hit" style="left: {{ c10x }}px; top: {{ c10y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick10"></div>
-        <div class="hit" style="left: {{ c11x }}px; top: {{ c11y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick11"></div>
-      </div>
-
-      <div class="ops" style="top: {{ opsY }}px;">
+      <div class="ops">
         <div class="btn btn-main" onclick="doPlay">
           <text class="bt bt-main">出牌</text>
         </div>
         <div class="btn" onclick="doDraw">
           <text class="bt">摸牌</text>
         </div>
-        <div class="btn" onclick="prevSel">
-          <text class="bt">◀ 上一张</text>
+        <div class="btn btn-s" onclick="pagePrev" if="{{ pagerOn }}">
+          <text class="bt">◀</text>
         </div>
-        <div class="btn" onclick="nextSel">
-          <text class="bt">下一张 ▶</text>
-        </div>
-      </div>
-
-      <!-- 万能牌选色 -->
-      <div class="overlay" if="{{ needsColor }}">
-        <text class="overtext">万能牌 · 选个颜色</text>
-        <div class="colorpick">
-          <div class="cbtn c-r" onclick="pickR">
-            <text class="ct">红</text>
-          </div>
-          <div class="cbtn c-g" onclick="pickG">
-            <text class="ct">绿</text>
-          </div>
-          <div class="cbtn c-b" onclick="pickB">
-            <text class="ct">蓝</text>
-          </div>
-          <div class="cbtn c-y" onclick="pickY">
-            <text class="ct">黄</text>
-          </div>
+        <div class="btn btn-s" onclick="pageNext" if="{{ pagerOn }}">
+          <text class="bt">▶</text>
         </div>
       </div>
+    </div>
 
-      <!-- 结算 -->
-      <div class="overlay" if="{{ over }}">
-        <text class="overtext">{{ overText }}</text>
-        <div class="ops2">
-          <div class="btn" onclick="restart">
-            <text class="bt">再来一局</text>
-          </div>
-          <div class="btn" onclick="onBack">
-            <text class="bt">返回菜单</text>
-          </div>
+    <div class="overlay" if="{{ needsColor }}">
+      <text class="overtext">万能牌 · 选个颜色</text>
+      <div class="ops">
+        <div class="btn c-r" onclick="pickR">
+          <text class="bt bt-main">红</text>
+        </div>
+        <div class="btn c-g" onclick="pickG">
+          <text class="bt bt-main">绿</text>
+        </div>
+        <div class="btn c-b" onclick="pickB">
+          <text class="bt bt-main">蓝</text>
+        </div>
+        <div class="btn c-y" onclick="pickY">
+          <text class="bt bt-main">黄</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" if="{{ over }}">
+      <text class="overtext">{{ overText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="restart">
+          <text class="bt bt-main">再来一局</text>
+        </div>
+        <div class="btn" onclick="onBack">
+          <text class="bt">返回</text>
         </div>
       </div>
     </div>
@@ -124,149 +131,6 @@
 
 <style>
   @import "../../common/theme.css";
-
-  .screen {
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .status {
-    width: 100%;
-    height: 26px;
-    font-size: 17px;
-    font-weight: bold;
-    color: #ffffff;
-    text-align: center;
-  }
-
-  .table {
-    width: 100%;
-    height: 84px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .topcard {
-    width: 56px;
-    height: 76px;
-    border-radius: 10px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .toptext {
-    font-size: 28px;
-    font-weight: bold;
-    color: #ffffff;
-  }
-
-  .others {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-left: 16px;
-  }
-
-  .other-item {
-    font-size: 16px;
-    color: #ffffff;
-    margin-bottom: 3px;
-  }
-
-  .colortip {
-    width: 100%;
-    height: 24px;
-    font-size: 15px;
-    color: #eaffea;
-    text-align: center;
-  }
-
-  .hand {
-    position: absolute;
-  }
-
-  .tile {
-    position: absolute;
-    border-radius: 9px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .tiletext {
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffffff;
-  }
-
-  .selmark {
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    width: 11px;
-    height: 11px;
-    border-radius: 6px;
-    background-color: #ffffff;
-  }
-
-  /* 透明命中层：自己不做视觉，只负责原生点击 */
-  .hit {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.001);
-  }
-
-  .t-r {
-    background-color: #d64545;
-  }
-  .t-g {
-    background-color: #2f9e44;
-  }
-  .t-b {
-    background-color: #2b6cb0;
-  }
-  .t-y {
-    background-color: #d9a520;
-  }
-  .t-w {
-    background-color: #3a3f4a;
-  }
-
-  .tile-sel {
-    border-radius: 9px;
-  }
-
-  .ops {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 46px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ops2 {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .colorpick {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .cbtn {
-    width: 68px;
-    height: 68px;
-    border-radius: 16px;
-    justify-content: center;
-    align-items: center;
-    margin-left: 6px;
-    margin-right: 6px;
-  }
 
   .c-r {
     background-color: #d64545;
@@ -279,12 +143,6 @@
   }
   .c-y {
     background-color: #d9a520;
-  }
-
-  .ct {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ffffff;
   }
 </style>
 
@@ -306,11 +164,7 @@
     COLOR_NAME
   } from '../../common/uno';
 
-  const COLS = 6;
-  const ROWS = 2;
-  const GAP = 4;
-  const OPS_H = 46;
-  const HEADER_H = 52;
+  const SLOTS = 12;
 
   export default {
     private: {
@@ -322,10 +176,8 @@
       game: null,
       sel: 0,
       page: 0,
-      tiles: [],
+      pagerOn: false,
       otherList: [],
-      topText: '',
-      topCls: 't-w',
       statusText: '',
       colorTip: '',
       needsColor: false,
@@ -333,18 +185,18 @@
       overText: '',
       drewThisTurn: false,
 
-      gx: 8,
-      gy: 300,
-      gw: 320,
-      gh: 142,
-      tw: 50,
-      th: 67,
-      opsY: 430,
-
-      // 12 个命中格坐标（覆盖层用）
-      c0x: 0, c0y: 0, c1x: 0, c1y: 0, c2x: 0, c2y: 0, c3x: 0, c3y: 0,
-      c4x: 0, c4y: 0, c5x: 0, c5y: 0, c6x: 0, c6y: 0, c7x: 0, c7y: 0,
-      c8x: 0, c8y: 0, c9x: 0, c9y: 0, c10x: 0, c10y: 0, c11x: 0, c11y: 0,
+      s0: 'tile tile-dim', s0t: '', s0c: 'tiletext-dim',
+      s1: 'tile tile-dim', s1t: '', s1c: 'tiletext-dim',
+      s2: 'tile tile-dim', s2t: '', s2c: 'tiletext-dim',
+      s3: 'tile tile-dim', s3t: '', s3c: 'tiletext-dim',
+      s4: 'tile tile-dim', s4t: '', s4c: 'tiletext-dim',
+      s5: 'tile tile-dim', s5t: '', s5c: 'tiletext-dim',
+      s6: 'tile tile-dim', s6t: '', s6c: 'tiletext-dim',
+      s7: 'tile tile-dim', s7t: '', s7c: 'tiletext-dim',
+      s8: 'tile tile-dim', s8t: '', s8c: 'tiletext-dim',
+      s9: 'tile tile-dim', s9t: '', s9c: 'tiletext-dim',
+      s10: 'tile tile-dim', s10t: '', s10c: 'tiletext-dim',
+      s11: 'tile tile-dim', s11t: '', s11c: 'tiletext-dim',
 
       aiTimer: null
     },
@@ -352,10 +204,11 @@
     onInit() {
       device.getInfo({
         success: (ret) => {
-          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
+          const w = ret && ret.screenWidth;
+          if (typeof w === 'number' && w > 0) this.listW = w - 24;
         },
         fail: () => {
-          this.applyLayout(336, 480);
+          this.listW = 320;
         }
       });
     },
@@ -371,42 +224,6 @@
     onBackPress() {
       return this.phase === 'play';
     },
-
-    /* ---------------- 布局：从屏幕底部锚定，保证按钮不出屏 ---------------- */
-
-    applyLayout(w, h) {
-      const tw = Math.floor((w - 16 - (COLS - 1) * GAP) / COLS);
-      const th = Math.floor(tw * 1.34);
-      const gw = COLS * tw + (COLS - 1) * GAP;
-      const gx = Math.floor((w - gw) / 2);
-      const gh = ROWS * th + (ROWS - 1) * GAP;
-      const opsY = h - OPS_H - 10;
-      const gy = opsY - gh - 12;
-
-      this.tw = tw;
-      this.th = th;
-      this.gw = gw;
-      this.gx = gx;
-      this.gy = gy;
-      this.gh = gh;
-      this.opsY = opsY;
-      this.listW = w - 24;
-
-      // 覆盖层坐标（12 格）
-      const xs = [];
-      const ys = [];
-      for (let c = 0; c < COLS; c++) xs.push(gx + c * (tw + GAP));
-      for (let r = 0; r < ROWS; r++) ys.push(gy + r * (th + GAP));
-      for (let i = 0; i < COLS * ROWS; i++) {
-        const col = i % COLS;
-        const row = Math.floor(i / COLS);
-        this['c' + i + 'x'] = xs[col];
-        this['c' + i + 'y'] = ys[row];
-      }
-      this.buildTiles();
-    },
-
-    /* ---------------- 开局 / 渲染 ---------------- */
 
     start2() {
       this.startGame(2);
@@ -440,19 +257,14 @@
       const s = this.game;
       if (!s) return;
       this.clearAi();
-
       const t = topCard(s);
-      this.topText = cardText(t);
-      this.topCls = 't-' + t.color;
       this.colorTip = '当前色 ' + (COLOR_NAME[s.color] || '') + ' · 上家出 ' + cardText(t);
-
       const counts = handCounts(s);
       const others = [];
       for (let p = 1; p < counts.length; p++) {
         others.push({ k: p + 1, t: (p + 1) + '号 · ' + counts[p] + ' 张' });
       }
       this.otherList = others;
-
       if (s.winner === 0) {
         this.over = true;
         this.overText = '你赢了！';
@@ -462,55 +274,40 @@
         this.overText = s.winner + 1 + '号 赢了';
         this.statusText = this.overText;
       } else if (s.current === 0) {
-        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张';
+        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张（点牌选中）';
       } else {
         this.statusText = s.current + 1 + '号 出牌中…';
       }
-
       const hand = s.hands[0];
       if (this.sel > hand.length - 1) this.sel = hand.length - 1;
       if (this.sel < 0) this.sel = 0;
-      this.page = Math.floor(this.sel / (COLS * ROWS));
-      this.buildTiles();
+      this.page = Math.floor(this.sel / SLOTS);
+      this.renderHand();
     },
 
-    buildTiles() {
+    renderHand() {
       const s = this.game;
-      if (!s) {
-        this.tiles = [];
-        return;
-      }
+      if (!s) return;
       const hand = s.hands[0];
-      const per = COLS * ROWS;
-      const start = this.page * per;
-      const tiles = [];
-      for (let k = 0; k < per; k++) {
+      const start = this.page * SLOTS;
+      for (let k = 0; k < SLOTS; k++) {
         const idx = start + k;
-        if (idx >= hand.length) break;
-        const card = hand[idx];
-        const col = k % COLS;
-        const row = Math.floor(k / COLS);
-        tiles.push({
-          i: idx + 1,
-          x: col * (this.tw + GAP),
-          y: row * (this.th + GAP),
-          text: cardText(card),
-          cls: 't-' + card.color,
-          sel: idx === this.sel
-        });
+        const has = idx < hand.length;
+        const sel = idx === this.sel;
+        this['s' + k] = !has ? 'tile tile-dim' : sel ? 'tile tile-sel' : 'tile';
+        this['s' + k + 't'] = has ? cardText(hand[idx]) : '';
+        this['s' + k + 'c'] = !has ? 'tiletext-dim' : 'tiletext';
       }
-      this.tiles = tiles;
+      this.pagerOn = hand.length > SLOTS;
     },
-
-    /* ---------------- 点牌（覆盖层原生命中） ---------------- */
 
     pickSlot(k) {
       const s = this.game;
       if (!s || this.over || this.needsColor) return;
-      const idx = this.page * (COLS * ROWS) + k;
+      const idx = this.page * SLOTS + k;
       if (idx >= s.hands[0].length) return;
       this.sel = idx;
-      this.buildTiles();
+      this.renderHand();
     },
 
     pick0() {
@@ -550,7 +347,21 @@
       this.pickSlot(11);
     },
 
-    /* ---------------- 玩家操作 ---------------- */
+    pagePrev() {
+      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[0].length / SLOTS)) : 1;
+      this.page = (this.page - 1 + n) % n;
+      const idx = this.page * SLOTS;
+      if (idx < (this.game ? this.game.hands[0].length : 0)) this.sel = idx;
+      this.renderHand();
+    },
+
+    pageNext() {
+      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[0].length / SLOTS)) : 1;
+      this.page = (this.page + 1) % n;
+      const idx = this.page * SLOTS;
+      if (idx < (this.game ? this.game.hands[0].length : 0)) this.sel = idx;
+      this.renderHand();
+    },
 
     doPlay() {
       const s = this.game;
@@ -622,7 +433,7 @@
       this.drewThisTurn = true;
       if (r.playable) {
         this.sel = s.hands[0].length - 1;
-        this.page = Math.floor(this.sel / (COLS * ROWS));
+        this.page = Math.floor(this.sel / SLOTS);
         this.hint('摸到 ' + cardText(r.card) + '，可以直接出');
         this.refresh();
       } else {
@@ -633,28 +444,6 @@
         this.afterAction();
       }
     },
-
-    prevSel() {
-      const s = this.game;
-      if (!s || this.over) return;
-      const n = s.hands[0].length;
-      if (!n) return;
-      this.sel = (this.sel - 1 + n) % n;
-      this.page = Math.floor(this.sel / (COLS * ROWS));
-      this.buildTiles();
-    },
-
-    nextSel() {
-      const s = this.game;
-      if (!s || this.over) return;
-      const n = s.hands[0].length;
-      if (!n) return;
-      this.sel = (this.sel + 1) % n;
-      this.page = Math.floor(this.sel / (COLS * ROWS));
-      this.buildTiles();
-    },
-
-    /* ---------------- AI 回合 ---------------- */
 
     afterAction() {
       const s = this.game;
@@ -672,17 +461,13 @@
         this.aiTimer = null;
         const s = this.game;
         if (!s || s.winner >= 0 || s.current === 0) return;
-
         const d = aiDecide(s);
         if (d.type === 'play') {
           playCard(s, d.idx, d.color);
         } else {
           const dr = drawOne(s);
-          if (dr.ok && dr.playable) {
-            playCard(s, s.hands[s.current].length - 1, null);
-          } else {
-            passTurn(s);
-          }
+          if (dr.ok && dr.playable) playCard(s, s.hands[s.current].length - 1, null);
+          else passTurn(s);
         }
         this.refresh();
         if (s.winner < 0 && s.current !== 0) this.scheduleAi();
@@ -695,8 +480,6 @@
         this.aiTimer = null;
       }
     },
-
-    /* ---------------- 导航 ---------------- */
 
     onBack() {
       this.clearAi();
