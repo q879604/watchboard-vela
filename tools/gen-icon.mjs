@@ -1,34 +1,69 @@
+// 生成应用图标 logo.png（192×192，圆形，外部透明）
+// 设计：深绿圆底 + 米色棋盘圆 + 棕色网格 + 黑白两枚棋子
 import zlib from 'zlib';
 import fs from 'fs';
 
 const S = 192;
 const px = new Uint8Array(S * S * 4);
+const CX = (S - 1) / 2;
+const CY = (S - 1) / 2;
 
-function insideRound(x, y, x0, y0, x1, y1, r) {
-  if (x < x0 || x > x1 || y < y0 || y > y1) return false;
-  const cx = x < x0 + r ? x0 + r : x > x1 - r ? x1 - r : x;
-  const cy = y < y0 + r ? y0 + r : y > y1 - r ? y1 - r : y;
-  const dx = x - cx, dy = y - cy;
-  return dx * dx + dy * dy <= r * r;
+const OUT_R = 93; // 外圆
+const IN_R = 76; // 内盘
+const LINE_W = 2;
+
+function set(i, r, g, b, a) {
+  px[i] = r;
+  px[i + 1] = g;
+  px[i + 2] = b;
+  px[i + 3] = a;
 }
-const set = (i, r, g, b, a) => { px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = a; };
 
-const GRID = [58, 96, 134];
+// 网格线位置（在内盘上均匀 4 条，形成 4×4 的格子感）
+const GRID = [46, 74, 102, 130];
+
+// 棋子：交点上的黑白子（半径 15）
+const STONES = [
+  { x: 74, y: 74, r: 15, c: [20, 24, 28] }, // 黑子
+  { x: 102, y: 102, r: 15, c: [250, 250, 250] } // 白子
+];
+
 for (let y = 0; y < S; y++) {
   for (let x = 0; x < S; x++) {
     const i = (y * S + x) * 4;
-    if (!insideRound(x, y, 0, 0, S - 1, S - 1, 44)) { set(i, 0, 0, 0, 0); continue; }
-    set(i, 47, 158, 68, 255);                                     // 主题绿底
-    if (insideRound(x, y, 36, 36, 156, 156, 14)) {                // 棋盘
-      set(i, 233, 211, 166, 255);
-      let line = false;
-      for (const g of GRID) if (Math.abs(x - g) <= 1 || Math.abs(y - g) <= 1) line = true;
-      if (line) set(i, 138, 106, 58, 255);
+    const dx = x - CX;
+    const dy = y - CY;
+    const d2 = dx * dx + dy * dy;
+
+    // 圆外：透明（不再有方形的绿色边）
+    if (d2 > OUT_R * OUT_R) {
+      set(i, 0, 0, 0, 0);
+      continue;
     }
-    const stones = [[58, 58, 14, 20, 24, 28], [96, 96, 14, 247, 247, 247], [134, 134, 12, 20, 24, 28]];
-    for (const s of stones) {
-      const dx = x - s[0], dy = y - s[1];
-      if (dx * dx + dy * dy <= s[2] * s[2]) set(i, s[3], s[4], s[5], 255);
+    // 外圈深绿
+    set(i, 23, 51, 29, 255);
+
+    // 内盘：主题绿
+    if (d2 <= (IN_R + 4) * (IN_R + 4)) set(i, 47, 158, 68, 255);
+    if (d2 <= IN_R * IN_R) set(i, 233, 211, 166, 255);
+
+    // 网格线（内盘内）
+    if (d2 <= IN_R * IN_R) {
+      for (const g of GRID) {
+        if (Math.abs(x - g) <= LINE_W / 2 || Math.abs(y - g) <= LINE_W / 2) {
+          set(i, 138, 106, 58, 255);
+          break;
+        }
+      }
+    }
+
+    // 棋子
+    for (const s of STONES) {
+      const sdx = x - s.x;
+      const sdy = y - s.y;
+      if (sdx * sdx + sdy * sdy <= s.r * s.r) {
+        set(i, s.c[0], s.c[1], s.c[2], 255);
+      }
     }
   }
 }
@@ -64,7 +99,8 @@ function chunk(type, data) {
 const ihdr = Buffer.alloc(13);
 ihdr.writeUInt32BE(S, 0);
 ihdr.writeUInt32BE(S, 4);
-ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;
+ihdr[8] = 8;
+ihdr[9] = 6;
 const png = Buffer.concat([
   Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
   chunk('IHDR', ihdr),
@@ -72,4 +108,4 @@ const png = Buffer.concat([
   chunk('IEND', Buffer.alloc(0))
 ]);
 fs.writeFileSync('/workspace/repo/src/common/logo.png', png);
-console.log('logo.png ' + png.length + ' bytes');
+console.log('logo.png ' + png.length + ' bytes（圆形图标，外部透明）');
