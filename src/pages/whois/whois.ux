@@ -264,7 +264,7 @@
       const seq = [];
       for (let i = 1; i <= count; i++) seq.push(i);
       this.order = this.shuffle(seq);
-      this.orderText = this.order.map((n) => this.nm(n - 1)).join(' → ');
+      this.orderText = this.order.map((n) => this.nm(n - 1)).join(' 到 ');
 
       this.phase = 'reveal';
     },

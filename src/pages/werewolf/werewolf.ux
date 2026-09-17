@@ -283,7 +283,7 @@
           const sel = this.pick === k;
           ids[k] = k;
           this['c' + k] = !p.alive ? 'chip chip-dead' : sel ? 'chip chip-sel' : 'chip';
-          this['c' + k + 't'] = this.nm(k) + (p.alive ? ' ♥' + p.hp : ' 亡');
+          this['c' + k + 't'] = this.nm(k) + (p.alive ? ' ' + p.hp : ' 亡');
           this['c' + k + 'c'] = !p.alive ? 'chiptext-dim' : 'chiptext';
         } else {
           ids[k] = -1;

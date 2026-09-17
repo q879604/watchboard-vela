@@ -97,10 +97,10 @@
           <text class="bt">摸牌</text>
         </div>
         <div class="btn btn-s" onclick="pagePrev" if="{{ pagerOn }}">
-          <text class="bt">◀</text>
+          <text class="bt">上页</text>
         </div>
         <div class="btn btn-s" onclick="pageNext" if="{{ pagerOn }}">
-          <text class="bt">▶</text>
+          <text class="bt">下页</text>
         </div>
       </div>
     </div>

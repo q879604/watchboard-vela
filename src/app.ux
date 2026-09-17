@@ -3,7 +3,7 @@
     // 全局配置（页面内通过 this.$app.$def.data 访问）
     data: {
       appName: '环上桌游',
-      version: '0.2.5',
+      version: '0.2.6',
       // 五子棋棋盘边长（11 × 11，兼顾腕上点按精度与到五连的博弈深度）
       boardN: 11
     },

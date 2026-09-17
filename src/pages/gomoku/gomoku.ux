@@ -209,7 +209,7 @@
     align-items: center;
   }
 
-  /* 瞄到已经有子的位置 → 红色警告 */
+  /* 瞄到已经有子的位置 到 红色警告 */
   .aim-hit {
     background-color: rgba(232, 66, 47, 0.45);
   }

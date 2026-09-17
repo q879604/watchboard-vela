@@ -329,13 +329,17 @@
     },
 
     revealHand() {
+      // 只是「当前这位玩家接过表」：只负责取消遮罩并刷新，**不能**再调 afterTurn（会把遮罩又打开）
+      const g = this.game;
+      if (!g) return;
       this.cover = false;
       this.sel = [];
       this.page = 0;
-      this.renderHand();
-      const g = this.game;
-      if (g && g.pending) this.showResp();
-      else this.afterTurn();
+      if (g.pending) {
+        this.showResp();
+        return;
+      }
+      this.renderAll();
     },
 
     /* ---------------- 渲染 ---------------- */
@@ -526,7 +530,7 @@
 
     /* ---------------- 回合推进 ---------------- */
 
-    /** 每次行动后的统一入口：判胜负 → 处理挂起（需要谁响应就把表给谁）→ 换人 */
+    /** 每次行动后的统一入口：判胜负 到 处理挂起（需要谁响应就把表给谁）到 换人 */
     afterAction() {
       const g = this.game;
       if (!g) return;

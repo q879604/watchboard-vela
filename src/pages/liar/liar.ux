@@ -266,7 +266,7 @@
       }
       this.topLine =
         '第 ' + g.round + ' 轮 · 目标 ' + VALUE_CHARS[g.target] +
-        ' · ' + (this.viewer + 1) + '号 ♥' + p.hp +
+        ' · ' + (this.viewer + 1) + '号 ' + p.hp +
         (others.length ? ' · ' + others.join(' ') : '');
       this.midLine = g.over
         ? this.overText
@@ -399,7 +399,7 @@
         return;
       }
       if (this.mode === 'hotseat') {
-        // 一圈打满且无人喊 → 平安收轮
+        // 一圈打满且无人喊 到 平安收轮
         const al = aliveList(g);
         if (g.playedCount >= al.length) {
           passFull(g);

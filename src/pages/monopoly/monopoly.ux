@@ -27,87 +27,87 @@
     <!-- 开局设置 -->
     <div class="screen" if="{{ stage === 'setup' }}">
       <text class="info">开局设置</text>
-      <div class="countbox" style="width: {{ listW }}px;">
-        <div class="cbtn" onclick="moneyPrev">
-          <text class="ctext">◀</text>
+      <div class="setrow" style="width: {{ listW }}px;">
+        <div class="{{ c0 }}" onclick="moneyPrev">
+          <text class="ctext">－</text>
         </div>
-        <text class="cnum">资金 ¥{{ money }}</text>
-        <div class="cbtn" onclick="moneyNext">
-          <text class="ctext">▶</text>
-        </div>
-      </div>
-      <div class="countbox" style="width: {{ listW }}px;">
-        <div class="cbtn" onclick="humanPrev">
-          <text class="ctext">◀</text>
-        </div>
-        <text class="cnum">真人 {{ humans }} 人</text>
-        <div class="cbtn" onclick="humanNext">
-          <text class="ctext">▶</text>
+        <text class="setlabel">资金 ¥{{ money }}</text>
+        <div class="{{ c1 }}" onclick="moneyNext">
+          <text class="ctext">＋</text>
         </div>
       </div>
-      <div class="countbox" style="width: {{ listW }}px;">
-        <div class="cbtn" onclick="aiPrev">
-          <text class="ctext">◀</text>
+      <div class="setrow" style="width: {{ listW }}px;">
+        <div class="{{ c0 }}" onclick="humanPrev">
+          <text class="ctext">－</text>
         </div>
-        <text class="cnum">电脑 {{ ai }} 人</text>
-        <div class="cbtn" onclick="aiNext">
-          <text class="ctext">▶</text>
+        <text class="setlabel">真人 {{ humans }} 人</text>
+        <div class="{{ c1 }}" onclick="humanNext">
+          <text class="ctext">＋</text>
+        </div>
+      </div>
+      <div class="setrow" style="width: {{ listW }}px;">
+        <div class="{{ c0 }}" onclick="aiPrev">
+          <text class="ctext">－</text>
+        </div>
+        <text class="setlabel">电脑 {{ ai }} 人</text>
+        <div class="{{ c1 }}" onclick="aiNext">
+          <text class="ctext">＋</text>
         </div>
       </div>
 
       <scroll class="seats" scroll-y="true">
         <div class="seatrow" if="{{ has0 }}">
           <div class="{{ c0 }}" onclick="nm0L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n0 }}{{ t0 }}</text>
           <div class="{{ c1 }}" onclick="nm0R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
         <div class="seatrow" if="{{ has1 }}">
           <div class="{{ c0 }}" onclick="nm1L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n1 }}{{ t1 }}</text>
           <div class="{{ c1 }}" onclick="nm1R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
         <div class="seatrow" if="{{ has2 }}">
           <div class="{{ c0 }}" onclick="nm2L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n2 }}{{ t2 }}</text>
           <div class="{{ c1 }}" onclick="nm2R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
         <div class="seatrow" if="{{ has3 }}">
           <div class="{{ c0 }}" onclick="nm3L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n3 }}{{ t3 }}</text>
           <div class="{{ c1 }}" onclick="nm3R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
         <div class="seatrow" if="{{ has4 }}">
           <div class="{{ c0 }}" onclick="nm4L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n4 }}{{ t4 }}</text>
           <div class="{{ c1 }}" onclick="nm4R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
         <div class="seatrow" if="{{ has5 }}">
           <div class="{{ c0 }}" onclick="nm5L">
-            <text class="ctext">◀</text>
+            <text class="ctext">－</text>
           </div>
           <text class="seatname">{{ n5 }}{{ t5 }}</text>
           <div class="{{ c1 }}" onclick="nm5R">
-            <text class="ctext">▶</text>
+            <text class="ctext">＋</text>
           </div>
         </div>
       </scroll>
@@ -232,7 +232,24 @@
   .boardwrap {
     position: relative;
     width: 100%;
-    height: 100%;
+    flex-grow: 1;
+  }
+
+  .setrow {
+    width: 100%;
+    height: 58px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .setlabel {
+    flex-grow: 1;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
   }
 
   .tiles {
@@ -594,7 +611,7 @@
           name: c.name,
           sub: sub,
           cls: 'tile t-' + c.t,
-          dotText: here.length ? '● ' + here.join('/') + '号' : '',
+          dotText: here.length ? '' + here.join('/') + '号' : '',
           dotCls: c.t === 'prop' || c.t === 'chance' ? 'tdot dot-d' : 'tdot dot-w'
         });
       }
@@ -721,16 +738,16 @@
     innerText(ev) {
       const in2 = ev.inner;
       if (!in2) return '';
-      if (in2.type === 'buy') return ' → 可买「' + in2.name + '」';
-      if (in2.type === 'own') return ' → 自己的「' + in2.name + '」';
-      if (in2.type === 'rent') return ' → 付租 ¥' + in2.amount;
-      if (in2.type === 'tax') return ' → 缴税 ¥' + in2.amount;
-      if (in2.type === 'cash') return ' → 又捡到 ¥' + in2.amount;
-      if (in2.type === 'casino') return ' → 又到赌场！';
-      if (in2.type === 'jail') return ' → 进监狱了';
-      if (in2.type === 'chance') return ' → 机会：' + in2.card.text;
-      if (in2.type === 'road') return ' → 又在汽车站';
-      if (in2.type === 'airport') return ' → 又到机场';
+      if (in2.type === 'buy') return ' 到 可买「' + in2.name + '」';
+      if (in2.type === 'own') return ' 到 自己的「' + in2.name + '」';
+      if (in2.type === 'rent') return ' 到 付租 ¥' + in2.amount;
+      if (in2.type === 'tax') return ' 到 缴税 ¥' + in2.amount;
+      if (in2.type === 'cash') return ' 到 又捡到 ¥' + in2.amount;
+      if (in2.type === 'casino') return ' 到 又到赌场！';
+      if (in2.type === 'jail') return ' 到 进监狱了';
+      if (in2.type === 'chance') return ' 到 机会：' + in2.card.text;
+      if (in2.type === 'road') return ' 到 又在汽车站';
+      if (in2.type === 'airport') return ' 到 又到机场';
       return '';
     },
 
