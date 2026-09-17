@@ -54,7 +54,7 @@
   export default {
     private: {
       listW: 320,
-      version: '0.2.0',
+      version: '0.2.1',
       buildInfo: 'Vela 快应用'
     },
 

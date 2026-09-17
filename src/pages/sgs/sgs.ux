@@ -14,7 +14,7 @@
         <div class="cbtn" onclick="minus">
           <text class="ctext">－</text>
         </div>
-        <text class="cnum">{{ playerCount }}</text>
+        <text class="cnum">{{ playerCount }} 人</text>
         <div class="cbtn" onclick="plus">
           <text class="ctext">＋</text>
         </div>
@@ -37,7 +37,7 @@
       <text class="info">{{ infoLine }}</text>
       <text class="event">{{ eventLine }}</text>
 
-      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;" @touchstart="tapHand">
+      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;">
         <div
           class="tile {{ $item.selCls }}"
           style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
@@ -46,6 +46,19 @@
         >
           <text class="tiletext {{ $item.selTextCls }}">{{ $item.text }}</text>
         </div>
+
+        <div class="hit" style="left: {{ c0x }}px; top: {{ c0y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick0"></div>
+        <div class="hit" style="left: {{ c1x }}px; top: {{ c1y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick1"></div>
+        <div class="hit" style="left: {{ c2x }}px; top: {{ c2y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick2"></div>
+        <div class="hit" style="left: {{ c3x }}px; top: {{ c3y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick3"></div>
+        <div class="hit" style="left: {{ c4x }}px; top: {{ c4y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick4"></div>
+        <div class="hit" style="left: {{ c5x }}px; top: {{ c5y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick5"></div>
+        <div class="hit" style="left: {{ c6x }}px; top: {{ c6y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick6"></div>
+        <div class="hit" style="left: {{ c7x }}px; top: {{ c7y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick7"></div>
+        <div class="hit" style="left: {{ c8x }}px; top: {{ c8y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick8"></div>
+        <div class="hit" style="left: {{ c9x }}px; top: {{ c9y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick9"></div>
+        <div class="hit" style="left: {{ c10x }}px; top: {{ c10y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick10"></div>
+        <div class="hit" style="left: {{ c11x }}px; top: {{ c11y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick11"></div>
       </div>
 
       <div class="ops" style="top: {{ opsY }}px;">
@@ -55,11 +68,44 @@
         <div class="btn" onclick="endPlay" if="{{ myTurn && pendingNone }}">
           <text class="bt">结束出牌</text>
         </div>
-        <div class="btn" onclick="cycleSel" if="{{ myTurn && pendingNone }}">
-          <text class="bt">选牌</text>
-        </div>
         <div class="btn btn-main" onclick="aiStep" if="{{ myTurn === false && pendingNone }}">
           <text class="bt bt-main">下一步</text>
+        </div>
+      </div>
+
+      <!-- 选目标（原生点击，8 格） -->
+      <div class="overlay" if="{{ pickTarget }}">
+        <text class="overtext">{{ pickText }}</text>
+        <div class="chipwrap">
+          <div class="chip {{ chip0cls }}" style="left: {{ q0x }}px; top: {{ q0y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt0">
+            <text class="chiptext {{ chip0tcls }}">{{ chip0t }}</text>
+          </div>
+          <div class="chip {{ chip1cls }}" style="left: {{ q1x }}px; top: {{ q1y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt1">
+            <text class="chiptext {{ chip1tcls }}">{{ chip1t }}</text>
+          </div>
+          <div class="chip {{ chip2cls }}" style="left: {{ q2x }}px; top: {{ q2y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt2">
+            <text class="chiptext {{ chip2tcls }}">{{ chip2t }}</text>
+          </div>
+          <div class="chip {{ chip3cls }}" style="left: {{ q3x }}px; top: {{ q3y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt3">
+            <text class="chiptext {{ chip3tcls }}">{{ chip3t }}</text>
+          </div>
+          <div class="chip {{ chip4cls }}" style="left: {{ q4x }}px; top: {{ q4y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt4">
+            <text class="chiptext {{ chip4tcls }}">{{ chip4t }}</text>
+          </div>
+          <div class="chip {{ chip5cls }}" style="left: {{ q5x }}px; top: {{ q5y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt5">
+            <text class="chiptext {{ chip5tcls }}">{{ chip5t }}</text>
+          </div>
+          <div class="chip {{ chip6cls }}" style="left: {{ q6x }}px; top: {{ q6y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt6">
+            <text class="chiptext {{ chip6tcls }}">{{ chip6t }}</text>
+          </div>
+          <div class="chip {{ chip7cls }}" style="left: {{ q7x }}px; top: {{ q7y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt7">
+            <text class="chiptext {{ chip7tcls }}">{{ chip7t }}</text>
+          </div>
+        </div>
+        <div class="ops3">
+          <div class="btn" onclick="cancelTarget">
+            <text class="bt">取消</text>
+          </div>
         </div>
       </div>
 
@@ -67,40 +113,15 @@
       <div class="overlay" if="{{ resp }}">
         <text class="overtext">{{ respText }}</text>
         <div class="ops2">
-          <div class="btn" onclick="respYes" if="{{ respYesText }}">
-            <text class="bt">{{ respYesText }}</text>
+          <div class="btn btn-main" onclick="respYes">
+            <text class="bt bt-main">{{ respYesText }}</text>
           </div>
-          <div class="btn" onclick="respNo" if="{{ respNoText }}">
+          <div class="btn" onclick="respNo">
             <text class="bt">{{ respNoText }}</text>
           </div>
         </div>
       </div>
 
-      <!-- 选目标 -->
-      <div class="overlay" if="{{ pickTarget }}">
-        <text class="overtext">{{ pickText }}</text>
-        <div class="chiprow" style="left: {{ px }}px; top: {{ py }}px; width: {{ pw }}px; height: {{ ph }}px;">
-          <div
-            class="chip {{ $item.cls }}"
-            style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;"
-            for="{{ targetChips }}"
-            tid="i"
-            @touchstart="tapTarget"
-          >
-            <text class="chiptext">{{ $item.text }}</text>
-          </div>
-        </div>
-        <div class="ops">
-          <div class="btn btn-main" onclick="confirmTarget">
-            <text class="bt bt-main">确认</text>
-          </div>
-          <div class="btn" onclick="cancelTarget">
-            <text class="bt">取消</text>
-          </div>
-        </div>
-      </div>
-
-      <!-- 结算 -->
       <div class="overlay" if="{{ over }}">
         <text class="overtext">{{ overText }}</text>
         <div class="ops2">
@@ -136,11 +157,11 @@
 
   .info {
     width: 100%;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
     color: #ffffff;
     text-align: center;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .event {
@@ -148,11 +169,11 @@
     font-size: 14px;
     color: #eaffea;
     text-align: center;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .countbox {
-    height: 58px;
+    height: 60px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -164,8 +185,8 @@
   }
 
   .cbtn {
-    width: 52px;
-    height: 40px;
+    width: 56px;
+    height: 44px;
     border-radius: 12px;
     background-color: #17331d;
     justify-content: center;
@@ -173,13 +194,13 @@
   }
 
   .ctext {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: #ffffff;
   }
 
   .cnum {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: bold;
     color: #17331d;
   }
@@ -190,7 +211,7 @@
 
   .tile {
     position: absolute;
-    border-radius: 6px;
+    border-radius: 7px;
     background-color: #ffffff;
     justify-content: center;
     align-items: center;
@@ -201,7 +222,7 @@
   }
 
   .tiletext {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: bold;
     color: #17331d;
   }
@@ -210,11 +231,16 @@
     color: #ffffff;
   }
 
+  .hit {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.001);
+  }
+
   .ops {
     position: absolute;
     left: 0;
     width: 100%;
-    height: 34px;
+    height: 46px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -226,77 +252,39 @@
     justify-content: center;
   }
 
-  .btn {
-    width: 80px;
-    height: 34px;
-    border-radius: 17px;
-    background-color: rgba(255, 255, 255, 0.92);
-    justify-content: center;
+  .ops3 {
+    flex-direction: row;
     align-items: center;
-    margin-left: 4px;
-    margin-right: 4px;
+    justify-content: center;
+    margin-top: 16px;
   }
 
-  .btn-main {
-    background-color: #17331d;
-  }
-
-  .bt {
-    font-size: 16px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .bt-main {
-    color: #ffffff;
-  }
-
-  .chiprow {
-    position: absolute;
+  .chipwrap {
+    position: relative;
+    width: 100%;
+    height: 150px;
   }
 
   .chip {
     position: absolute;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.88);
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.94);
     justify-content: center;
     align-items: center;
   }
 
   .chip-sel {
-    background-color: #17331d;
+    background-color: #2f9e44;
   }
 
   .chiptext {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: bold;
     color: #17331d;
   }
 
   .chip-seltext {
     color: #ffffff;
-  }
-
-  .overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.78);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .overtext {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 12px;
-    text-align: center;
-    padding-left: 10px;
-    padding-right: 10px;
   }
 </style>
 
@@ -312,14 +300,14 @@
     playCard,
     respond,
     aiTakeTurn,
-    endTurn,
-    drawCards,
-    hasCard
+    endTurn
   } from '../../common/sgs';
 
-  const HEADER_H = 46;
   const COLS = 6;
-  const TILE_GAP = 3;
+  const ROWS = 2;
+  const GAP = 4;
+  const OPS_H = 46;
+  const TCOLS = 4;
 
   export default {
     private: {
@@ -341,12 +329,10 @@
       respText: '',
       respYesText: '',
       respNoText: '',
-      respAction: '',
 
       pickTarget: false,
       pickText: '',
       pickCardIdx: -1,
-      targetChips: [],
       targetPick: -1,
 
       over: false,
@@ -355,16 +341,25 @@
       hx: 8,
       hy: 300,
       hw: 320,
-      hh: 126,
+      hh: 142,
       cw: 50,
-      ch: 40,
-      opsY: 438,
-      px: 16,
-      py: 120,
-      pw: 304,
-      ph: 120,
-      cw2: 90,
-      ch2: 52,
+      ch: 67,
+      opsY: 430,
+
+      cw2: 74,
+      ch2: 56,
+      q0x: 0, q0y: 0, q1x: 0, q1y: 0, q2x: 0, q2y: 0, q3x: 0, q3y: 0,
+      q4x: 0, q4y: 0, q5x: 0, q5y: 0, q6x: 0, q6y: 0, q7x: 0, q7y: 0,
+      chip0t: '', chip1t: '', chip2t: '', chip3t: '', chip4t: '', chip5t: '', chip6t: '', chip7t: '',
+      chip0cls: 'chip', chip1cls: 'chip', chip2cls: 'chip', chip3cls: 'chip',
+      chip4cls: 'chip', chip5cls: 'chip', chip6cls: 'chip', chip7cls: 'chip',
+      chip0tcls: '', chip1tcls: '', chip2tcls: '', chip3tcls: '',
+      chip4tcls: '', chip5tcls: '', chip6tcls: '', chip7tcls: '',
+      chipIds: [-1, -1, -1, -1, -1, -1, -1, -1],
+
+      c0x: 0, c0y: 0, c1x: 0, c1y: 0, c2x: 0, c2y: 0, c3x: 0, c3y: 0,
+      c4x: 0, c4y: 0, c5x: 0, c5y: 0, c6x: 0, c6y: 0, c7x: 0, c7y: 0,
+      c8x: 0, c8y: 0, c9x: 0, c9y: 0, c10x: 0, c10y: 0, c11x: 0, c11y: 0,
 
       aiTimer: null
     },
@@ -372,9 +367,7 @@
     onInit() {
       device.getInfo({
         success: (ret) => {
-          const w = (ret && ret.screenWidth) || 336;
-          const h = (ret && ret.screenHeight) || 480;
-          this.applyLayout(w, h);
+          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
         },
         fail: () => {
           this.applyLayout(336, 480);
@@ -395,21 +388,44 @@
     },
 
     applyLayout(w, h) {
-      const cw = Math.floor((w - 12 - (COLS - 1) * TILE_GAP) / COLS);
-      const ch = Math.max(32, Math.floor(cw * 0.8));
-      const hw = COLS * cw + (COLS - 1) * TILE_GAP;
+      const cw = Math.floor((w - 16 - (COLS - 1) * GAP) / COLS);
+      const ch = Math.floor(cw * 1.34);
+      const hw = COLS * cw + (COLS - 1) * GAP;
+      const hx = Math.floor((w - hw) / 2);
+      const hh = ROWS * ch + (ROWS - 1) * GAP;
+      const opsY = h - OPS_H - 10;
+      const hy = opsY - hh - 12;
+
       this.cw = cw;
       this.ch = ch;
       this.hw = hw;
-      this.hx = Math.floor((w - hw) / 2);
-      this.hy = h - 152;
-      this.hh = 3 * ch + 2 * TILE_GAP;
-      this.opsY = this.hy + this.hh + 8;
-      this.cw2 = Math.floor((w - 40) / 3);
-      this.ch2 = Math.max(44, Math.floor(this.cw2 * 0.55));
-      this.pw = 3 * this.cw2 + 12;
-      this.px = Math.floor((w - this.pw) / 2);
+      this.hx = hx;
+      this.hy = hy;
+      this.hh = hh;
+      this.opsY = opsY;
       this.listW = w - 24;
+
+      const xs = [];
+      const ys = [];
+      for (let c = 0; c < COLS; c++) xs.push(hx + c * (cw + GAP));
+      for (let r = 0; r < ROWS; r++) ys.push(hy + r * (ch + GAP));
+      for (let i = 0; i < COLS * ROWS; i++) {
+        this['c' + i + 'x'] = xs[i % COLS];
+        this['c' + i + 'y'] = ys[Math.floor(i / COLS)];
+      }
+
+      // 目标选择 8 格（4 列 × 2 行）
+      const cw2 = Math.floor((w - 60) / TCOLS);
+      const ch2 = Math.max(48, Math.floor(cw2 * 0.7));
+      const gw2 = TCOLS * cw2 + (TCOLS - 1) * 8;
+      const gx2 = Math.floor((w - gw2) / 2);
+      const gy2 = Math.floor(h / 2) - ch2 - 10;
+      this.cw2 = cw2;
+      this.ch2 = ch2;
+      for (let i = 0; i < 8; i++) {
+        this['q' + i + 'x'] = gx2 + (i % TCOLS) * (cw2 + 8);
+        this['q' + i + 'y'] = gy2 + Math.floor(i / TCOLS) * (ch2 + 8);
+      }
       if (this.game) this.renderHand();
     },
 
@@ -435,41 +451,37 @@
       this.afterTurn();
     },
 
-    /* ---------------- 渲染 ---------------- */
-
     renderAll() {
-      const s = this.game;
-      if (!s) return;
-      const p = s.players[0];
+      const g = this.game;
+      if (!g) return;
+      const p = g.players[0];
       this.infoLine =
-        '你：' + ROLE_NAME[p.role] + ' HP ' + p.hp + ' · 手牌 ' + p.hand.length +
-        ' · 现在 ' + (s.current + 1) + '号';
-      this.eventLine = s.events[s.events.length - 1] || '';
-      this.myTurn = s.current === 0 && s.players[0].alive && !s.winner;
-      this.pendingNone = !s.pending;
+        '你：' + ROLE_NAME[p.role] + ' HP' + p.hp + ' · 手牌' + p.hand.length +
+        ' · 现在 ' + (g.current + 1) + '号';
+      this.eventLine = g.events[g.events.length - 1] || '';
+      this.myTurn = g.current === 0 && g.players[0].alive && !g.winner;
+      this.pendingNone = !g.pending;
       this.renderHand();
     },
 
     renderHand() {
-      const s = this.game;
-      if (!s) {
+      const g = this.game;
+      if (!g) {
         this.handTiles = [];
         return;
       }
-      const hand = s.players[0].hand;
-      const per = COLS * 3;
-      const tiles = [];
+      const hand = g.players[0].hand;
+      const per = COLS * ROWS;
       const start = this.page * per;
+      const tiles = [];
       for (let k = 0; k < per; k++) {
         const idx = start + k;
         if (idx >= hand.length) break;
-        const col = k % COLS;
-        const row = Math.floor(k / COLS);
         const isSel = this.sel.indexOf(idx) >= 0;
         tiles.push({
           i: idx + 1,
-          x: col * (this.cw + TILE_GAP),
-          y: row * (this.ch + TILE_GAP),
+          x: (k % COLS) * (this.cw + GAP),
+          y: Math.floor(k / COLS) * (this.ch + GAP),
           text: CARD_NAME[hand[idx].t],
           selCls: isSel ? 'tile-sel' : '',
           selTextCls: isSel ? 'tiletext-sel' : ''
@@ -478,62 +490,66 @@
       this.handTiles = tiles;
     },
 
-    tapHand(evt) {
-      if (!this.myTurn || this.game.pending) return;
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const stepX = this.cw + TILE_GAP;
-      const stepY = this.ch + TILE_GAP;
-      let col = Math.floor((pt.x - this.hx) / stepX);
-      let row = Math.floor((pt.y - this.hy) / stepY);
-      if (!this.inGrid(col, row)) {
-        const c2 = Math.floor(pt.x / stepX);
-        const r2 = Math.floor(pt.y / stepY);
-        if (this.inGrid(c2, r2)) {
-          col = c2;
-          row = r2;
-        }
-      }
-      if (!this.inGrid(col, row)) return;
-      const idx = this.page * COLS * 3 + row * COLS + col;
-      if (idx >= this.game.players[0].hand.length) return;
-      const pos = this.sel.indexOf(idx);
-      if (pos >= 0) this.sel.splice(pos, 1);
-      else this.sel.push(idx);
+    selectSlot(k) {
+      const g = this.game;
+      if (!g || !this.myTurn || g.pending) return;
+      const idx = this.page * (COLS * ROWS) + k;
+      if (idx >= g.players[0].hand.length) return;
+      this.sel = [idx];
       this.renderHand();
     },
 
-    inGrid(col, row) {
-      return col >= 0 && col < COLS && row >= 0 && row < 3;
+    pick0() {
+      this.selectSlot(0);
     },
-
-    cycleSel() {
-      this.sel = [];
-      this.page = (this.page + 1) % Math.max(1, Math.ceil(this.game.players[0].hand.length / (COLS * 3)));
-      this.renderHand();
+    pick1() {
+      this.selectSlot(1);
     },
-
-    /* ---------------- 出牌 ---------------- */
+    pick2() {
+      this.selectSlot(2);
+    },
+    pick3() {
+      this.selectSlot(3);
+    },
+    pick4() {
+      this.selectSlot(4);
+    },
+    pick5() {
+      this.selectSlot(5);
+    },
+    pick6() {
+      this.selectSlot(6);
+    },
+    pick7() {
+      this.selectSlot(7);
+    },
+    pick8() {
+      this.selectSlot(8);
+    },
+    pick9() {
+      this.selectSlot(9);
+    },
+    pick10() {
+      this.selectSlot(10);
+    },
+    pick11() {
+      this.selectSlot(11);
+    },
 
     doPlay() {
-      const s0 = this.game;
-      if (!this.myTurn || s0.pending) return;
+      const g = this.game;
+      if (!g || !this.myTurn || g.pending) return;
       if (!this.sel.length) {
-        this.hint('先点选要出的牌');
-        return;
-      }
-      if (this.sel.length > 1) {
-        this.hint('一次只能出一张牌');
+        this.hint('先点一张牌');
         return;
       }
       const idx = this.sel[0];
-      const card = s0.players[0].hand[idx];
+      const card = g.players[0].hand[idx];
       if (card.t === 'sha' || card.t === 'juedou' || card.t === 'chai' || card.t === 'shun') {
-        // 需要选目标
         this.pickCardIdx = idx;
-        this.pickText = '选择「' + CARD_NAME[card.t] + '」的目标';
+        this.pickText = '「' + CARD_NAME[card.t] + '」选目标';
         this.targetPick = -1;
-        this.buildTargetChipthis.game;
+        this.buildTargets();
         this.pickTarget = true;
         return;
       }
@@ -541,8 +557,8 @@
     },
 
     commitPlay(idx, target) {
-      const s0 = this.game;
-      const r = playCard(s0, 0, idx, target);
+      const g = this.game;
+      const r = playCard(g, 0, idx, target);
       if (!r.ok) {
         this.hint(r.msg);
         return;
@@ -555,69 +571,68 @@
     },
 
     endPlay() {
-      const s0 = this.game;
-      if (!this.myTurn || s0.pending) return;
+      const g = this.game;
+      if (!g || !this.myTurn || g.pending) return;
       this.sel = [];
-      endTurn(s0);
+      endTurn(g);
       this.renderAll();
       this.afterTurn();
     },
 
-    /* ---------------- 选目标 ---------------- */
+    /* ---------------- 目标选择 ---------------- */
 
-    buildTargetChips() {
-      const s0 = this.game;
-      const chips = [];
-      const alive = aliveList(s0).filter((x) => x !== 0);
-      for (let k = 0; k < alive.length; k++) {
+    buildTargets() {
+      const g = this.game;
+      const alive = aliveList(g).filter((x) => x !== 0);
+      const ids = [-1, -1, -1, -1, -1, -1, -1, -1];
+      for (let k = 0; k < alive.length && k < 8; k++) {
         const id = alive[k];
-        const p = s0.players[id];
-        chips.push({
-          i: k + 1,
-          id: id,
-          x: (k % 3) * (this.cw2 + 6),
-          y: Math.floor(k / 3) * (this.ch2 + 6),
-          text: (id + 1) + '号 HP' + p.hp,
-          cls: this.targetPick === id ? 'chip chip-sel' : 'chip',
-          textCls: this.targetPick === id ? 'chip-seltext' : ''
-        });
+        ids[k] = id;
+        const p = g.players[id];
+        this['chip' + k + 't'] = (id + 1) + '号 HP' + p.hp;
+        this['chip' + k + 'cls'] = this.targetPick === id ? 'chip chip-sel' : 'chip';
+        this['chip' + k + 'tcls'] = this.targetPick === id ? 'chip-seltext' : '';
       }
-      this.targetChips = chips;
+      for (let k = alive.length; k < 8; k++) {
+        this['chip' + k + 't'] = '';
+        this['chip' + k + 'cls'] = 'chip';
+        this['chip' + k + 'tcls'] = '';
+      }
+      this.chipIds = ids;
     },
 
-    tapTarget(evt) {
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const stepX = this.cw2 + 6;
-      const stepY = this.ch2 + 6;
-      let col = Math.floor((pt.x - this.px) / stepX);
-      let row = Math.floor((pt.y - this.py) / stepY);
-      if (!this.inGrid2(col, row)) {
-        const c2 = Math.floor(pt.x / stepX);
-        const r2 = Math.floor(pt.y / stepY);
-        if (this.inGrid2(c2, r2)) {
-          col = c2;
-          row = r2;
-        }
-      }
-      if (!this.inGrid2(col, row)) return;
-      const k = row * 3 + col;
-      const chip = this.targetChips[k];
-      if (!chip) return;
-      this.targetPick = chip.id;
-      this.buildTargetChipthis.game;
-    },
-
-    inGrid2(col, row) {
-      return col >= 0 && col < 3 && row >= 0 && row < 3;
-    },
-
-    confirmTarget() {
-      if (this.targetPick < 0) {
-        this.hint('先选目标');
-        return;
-      }
+    tapTargetSlot(k) {
+      const id = this.chipIds[k];
+      if (id == null || id < 0) return;
+      this.targetPick = id;
+      this.buildTargets();
+      // 选好即出（少一步确认）
       this.commitPlay(this.pickCardIdx, this.targetPick);
+    },
+
+    tgt0() {
+      this.tapTargetSlot(0);
+    },
+    tgt1() {
+      this.tapTargetSlot(1);
+    },
+    tgt2() {
+      this.tapTargetSlot(2);
+    },
+    tgt3() {
+      this.tapTargetSlot(3);
+    },
+    tgt4() {
+      this.tapTargetSlot(4);
+    },
+    tgt5() {
+      this.tapTargetSlot(5);
+    },
+    tgt6() {
+      this.tapTargetSlot(6);
+    },
+    tgt7() {
+      this.tapTargetSlot(7);
     },
 
     cancelTarget() {
@@ -625,20 +640,20 @@
       this.pickCardIdx = -1;
     },
 
-    /* ---------------- 响应（出闪/吃桃/决斗） ---------------- */
+    /* ---------------- 响应 ---------------- */
 
     afterTurn() {
-      const s0 = this.game;
-      if (!s0) return;
-      if (s0.pending) {
+      const g = this.game;
+      if (!g) return;
+      if (g.pending) {
         this.showResp();
         return;
       }
-      if (s0.winner) {
+      if (g.winner) {
         this.finish();
         return;
       }
-      if (s0.current === 0) {
+      if (g.current === 0) {
         this.renderAll();
         return;
       }
@@ -646,8 +661,8 @@
     },
 
     showResp() {
-      const s0 = this.game;
-      const pend = s0.pending;
+      const g = this.game;
+      const pend = g.pending;
       if (!pend) {
         this.resp = false;
         return;
@@ -657,32 +672,27 @@
         this.respText = '有人对你出杀！';
         this.respYesText = '出闪';
         this.respNoText = '掉血';
-        this.respAction = 'shan';
       } else if (pend.type === 'tao') {
         this.respText = '你濒死了！';
         this.respYesText = '吃桃';
         this.respNoText = '不救';
-        this.respAction = 'tao';
       } else {
-        this.respText = '决斗中！你出杀吗？';
+        this.respText = '决斗中！出杀吗？';
         this.respYesText = '出杀';
         this.respNoText = '认输';
-        this.respAction = 'juedou';
       }
       this.renderAll();
     },
 
     respYes() {
-      const s0 = this.game;
-      respond(s0, true);
+      respond(this.game, true);
       this.resp = false;
       this.renderAll();
       this.afterTurn();
     },
 
     respNo() {
-      const s0 = this.game;
-      respond(s0, false);
+      respond(this.game, false);
       this.resp = false;
       this.renderAll();
       this.afterTurn();
@@ -694,35 +704,28 @@
       this.clearAi();
       this.aiTimer = setTimeout(() => {
         this.aiTimer = null;
-        const s0 = this.game;
-        if (!s0 || s0.winner) return;
-        if (s0.pending) {
+        const g = this.game;
+        if (!g || g.winner) return;
+        if (g.pending) {
           this.showResp();
           return;
         }
-        if (s0.current === 0) {
+        if (g.current === 0) {
           this.renderAll();
           return;
         }
-        const done = aiTakeTurn(s0, s0.current);
+        aiTakeTurn(g, g.current);
         this.renderAll();
-        if (s0.winner) {
+        if (g.winner) {
           this.finish();
           return;
         }
-        if (s0.pending) {
+        if (g.pending) {
           this.showResp();
           return;
         }
-        if (done) {
-          // 下一个
-          if (s0.current === 0) this.renderAll();
-          else this.scheduleAi();
-        } else {
-          // 未完成但无挂起（罕见），继续驱动
-          if (s0.current !== 0) this.scheduleAi();
-        }
-      }, 750);
+        if (g.current !== 0) this.scheduleAi();
+      }, 620);
     },
 
     aiStep() {
@@ -738,10 +741,10 @@
     },
 
     finish() {
-      const s0 = this.game;
+      const g = this.game;
       this.over = true;
-      if (s0.winner === 'fan') this.overText = '反贼阵营获胜！';
-      else if (s0.winner === 'nei') this.overText = '内奸获胜！';
+      if (g.winner === 'fan') this.overText = '反贼阵营获胜！';
+      else if (g.winner === 'nei') this.overText = '内奸获胜！';
       else this.overText = '主公 / 忠臣阵营获胜！';
       this.resp = false;
       this.renderAll();
@@ -761,20 +764,8 @@
       router.push({ uri: '/pages/rules' });
     },
 
-    touchPoint(evt) {
-      const list = evt && (evt.changedTouches || evt.touches);
-      const t = list && list[0];
-      if (!t) return null;
-      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
-      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
-      if (x == null || y == null) return null;
-      return { x: x, y: y };
-    },
-
     hint(msg) {
       prompt.showToast({ message: msg, duration: 1200 });
     }
   };
-
-
 </script>

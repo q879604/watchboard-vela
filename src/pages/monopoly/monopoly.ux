@@ -36,7 +36,7 @@
       <div class="board" style="left: {{ bx }}px; top: {{ by }}px; width: {{ bs }}px; height: {{ bs }}px;">
         <div
           class="cell {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cs }}px; height: {{ cs }}px;"
+          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ ccs }}px; height: {{ ccs }}px;"
           for="{{ cells }}"
           tid="i"
         >
@@ -71,7 +71,7 @@
         </div>
       </div>
 
-      <text class="log">{{ logLine }}</text>
+      <text class="log" style="top: {{ logY }}px;">{{ logLine }}</text>
 
       <!-- 结算 -->
       <div class="overlay" if="{{ over }}">
@@ -193,7 +193,7 @@
     position: absolute;
     left: 0;
     width: 100%;
-    height: 34px;
+    height: 46px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -206,9 +206,9 @@
   }
 
   .btn {
-    width: 76px;
-    height: 34px;
-    border-radius: 17px;
+    width: 92px;
+    height: 46px;
+    border-radius: 23px;
     background-color: rgba(255, 255, 255, 0.92);
     justify-content: center;
     align-items: center;
@@ -221,7 +221,7 @@
   }
 
   .bt {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #17331d;
   }
@@ -233,9 +233,9 @@
   .log {
     position: absolute;
     left: 10px;
-    top: 398px;
+    top: 0;
     width: 316px;
-    font-size: 13px;
+    font-size: 14px;
     color: #eaffea;
     text-align: center;
   }
@@ -311,7 +311,9 @@
 
       diceText: '',
       pendingBuy: null,
-      opsY: 372
+      opsY: 372,
+      logY: 340,
+      ccs: 44
     },
 
     onInit() {
@@ -333,15 +335,14 @@
     },
 
     applyLayout(w, h) {
-      const bs = Math.min(w - 36, 304);
+      const bs = Math.min(w - 24, 316);
       const bx = Math.floor((w - bs) / 2);
       const cs = Math.max(28, Math.floor(bs / 6));
-      let by = HEADER_H + 6;
-      const opsY = by + bs + 14;
-      // 胶囊屏竖向居中
-      const slack = h - (opsY + 40);
-      if (slack > 20) by += Math.floor((slack - 20) / 2);
+      const opsY = h - 46 - 10;
+      const by = HEADER_H + 6;
 
+      this.logY = opsY - 26;
+      this.ccs = Math.max(20, cs - 8);
       this.bs = bs;
       this.bx = bx;
       this.cs = cs;
@@ -380,7 +381,7 @@
       const s = this.game;
       const bs = this.bs;
       const cs = this.cs;
-      const half = Math.floor(cs / 2);
+      const half = Math.floor(this.ccs / 2);
       const pts = ringPositions(bs);
       const cells = [];
       for (let i = 0; i < CELL_COUNT; i++) {

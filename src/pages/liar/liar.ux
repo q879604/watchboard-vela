@@ -14,7 +14,7 @@
         <div class="cbtn" onclick="minus">
           <text class="ctext">－</text>
         </div>
-        <text class="cnum">{{ playerCount }}</text>
+        <text class="cnum">{{ playerCount }} 人</text>
         <div class="cbtn" onclick="plus">
           <text class="ctext">＋</text>
         </div>
@@ -38,22 +38,35 @@
       <text class="midline">{{ midLine }}</text>
       <text class="log">{{ logLine }}</text>
 
-      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;" @touchstart="tapHand">
+      <div class="hand" style="left: {{ hx }}px; top: {{ hy }}px; width: {{ hw }}px; height: {{ hh }}px;">
         <div
           class="tile {{ $item.selCls }}"
           style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
           for="{{ handTiles }}"
           tid="i"
         >
-          <text class="tiletext {{ $item.textCls }} {{ $item.selTextCls }}">{{ $item.text }}</text>
+          <text class="tiletext {{ $item.cls }} {{ $item.selTextCls }}">{{ $item.text }}</text>
         </div>
+
+        <div class="hit" style="left: {{ c0x }}px; top: {{ c0y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick0"></div>
+        <div class="hit" style="left: {{ c1x }}px; top: {{ c1y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick1"></div>
+        <div class="hit" style="left: {{ c2x }}px; top: {{ c2y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick2"></div>
+        <div class="hit" style="left: {{ c3x }}px; top: {{ c3y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick3"></div>
+        <div class="hit" style="left: {{ c4x }}px; top: {{ c4y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick4"></div>
+        <div class="hit" style="left: {{ c5x }}px; top: {{ c5y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick5"></div>
+        <div class="hit" style="left: {{ c6x }}px; top: {{ c6y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick6"></div>
+        <div class="hit" style="left: {{ c7x }}px; top: {{ c7y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick7"></div>
+        <div class="hit" style="left: {{ c8x }}px; top: {{ c8y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick8"></div>
+        <div class="hit" style="left: {{ c9x }}px; top: {{ c9y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick9"></div>
+        <div class="hit" style="left: {{ c10x }}px; top: {{ c10y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick10"></div>
+        <div class="hit" style="left: {{ c11x }}px; top: {{ c11y }}px; width: {{ cw }}px; height: {{ ch }}px;" onclick="pick11"></div>
       </div>
 
       <div class="ops" style="top: {{ opsY }}px;">
         <div class="btn btn-main" onclick="doPlay" if="{{ myTurn }}">
           <text class="bt bt-main">出牌</text>
         </div>
-        <div class="btn" onclick="doCall" if="{{ myTurn && canCall }}">
+        <div class="btn" onclick="doCall" if="{{ canCall }}">
           <text class="bt">喊骗子！</text>
         </div>
         <div class="btn btn-main" onclick="aiStep" if="{{ myTurn === false }}">
@@ -61,7 +74,6 @@
         </div>
       </div>
 
-      <!-- 结算 -->
       <div class="overlay" if="{{ over }}">
         <text class="overtext">{{ overText }}</text>
         <div class="ops2">
@@ -101,27 +113,27 @@
     font-weight: bold;
     color: #ffffff;
     text-align: center;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .midline {
     width: 100%;
-    font-size: 14px;
+    font-size: 15px;
     color: #eaffea;
     text-align: center;
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   .log {
     width: 100%;
-    font-size: 13px;
+    font-size: 14px;
     color: #d8f5d8;
     text-align: center;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .countbox {
-    height: 58px;
+    height: 60px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -133,8 +145,8 @@
   }
 
   .cbtn {
-    width: 52px;
-    height: 40px;
+    width: 56px;
+    height: 44px;
     border-radius: 12px;
     background-color: #17331d;
     justify-content: center;
@@ -142,13 +154,13 @@
   }
 
   .ctext {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: #ffffff;
   }
 
   .cnum {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: bold;
     color: #17331d;
   }
@@ -159,7 +171,7 @@
 
   .tile {
     position: absolute;
-    border-radius: 6px;
+    border-radius: 7px;
     background-color: #ffffff;
     justify-content: center;
     align-items: center;
@@ -170,7 +182,7 @@
   }
 
   .tiletext {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     color: #17331d;
   }
@@ -183,11 +195,16 @@
     color: #ffffff;
   }
 
+  .hit {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.001);
+  }
+
   .ops {
     position: absolute;
     left: 0;
     width: 100%;
-    height: 34px;
+    height: 46px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -197,50 +214,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
-
-  .btn {
-    width: 84px;
-    height: 34px;
-    border-radius: 17px;
-    background-color: rgba(255, 255, 255, 0.92);
-    justify-content: center;
-    align-items: center;
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-
-  .btn-main {
-    background-color: #17331d;
-  }
-
-  .bt {
-    font-size: 16px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .bt-main {
-    color: #ffffff;
-  }
-
-  .overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.74);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .overtext {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 16px;
   }
 </style>
 
@@ -260,9 +233,10 @@
     aiAction
   } from '../../common/liar';
 
-  const HEADER_H = 46;
-  const COLS = 5;
-  const TILE_GAP = 3;
+  const COLS = 6;
+  const ROWS = 2;
+  const GAP = 4;
+  const OPS_H = 46;
 
   export default {
     private: {
@@ -285,10 +259,14 @@
       hx: 8,
       hy: 300,
       hw: 320,
-      hh: 126,
-      cw: 60,
-      ch: 40,
-      opsY: 438,
+      hh: 142,
+      cw: 50,
+      ch: 67,
+      opsY: 430,
+
+      c0x: 0, c0y: 0, c1x: 0, c1y: 0, c2x: 0, c2y: 0, c3x: 0, c3y: 0,
+      c4x: 0, c4y: 0, c5x: 0, c5y: 0, c6x: 0, c6y: 0, c7x: 0, c7y: 0,
+      c8x: 0, c8y: 0, c9x: 0, c9y: 0, c10x: 0, c10y: 0, c11x: 0, c11y: 0,
 
       aiTimer: null
     },
@@ -296,9 +274,7 @@
     onInit() {
       device.getInfo({
         success: (ret) => {
-          const w = (ret && ret.screenWidth) || 336;
-          const h = (ret && ret.screenHeight) || 480;
-          this.applyLayout(w, h);
+          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
         },
         fail: () => {
           this.applyLayout(336, 480);
@@ -319,17 +295,31 @@
     },
 
     applyLayout(w, h) {
-      const cw = Math.floor((w - 12 - (COLS - 1) * TILE_GAP) / COLS);
-      const ch = Math.max(32, Math.floor(cw * 0.66));
-      const hw = COLS * cw + (COLS - 1) * TILE_GAP;
+      const cw = Math.floor((w - 16 - (COLS - 1) * GAP) / COLS);
+      const ch = Math.floor(cw * 1.34);
+      const hw = COLS * cw + (COLS - 1) * GAP;
+      const hx = Math.floor((w - hw) / 2);
+      const hh = ROWS * ch + (ROWS - 1) * GAP;
+      const opsY = h - OPS_H - 10;
+      const hy = opsY - hh - 12;
+
       this.cw = cw;
       this.ch = ch;
       this.hw = hw;
-      this.hx = Math.floor((w - hw) / 2);
-      this.hy = h - 132;
-      this.hh = 2 * ch + TILE_GAP;
-      this.opsY = this.hy + this.hh + 8;
+      this.hx = hx;
+      this.hy = hy;
+      this.hh = hh;
+      this.opsY = opsY;
       this.listW = w - 24;
+
+      const xs = [];
+      const ys = [];
+      for (let c = 0; c < COLS; c++) xs.push(hx + c * (cw + GAP));
+      for (let r = 0; r < ROWS; r++) ys.push(hy + r * (ch + GAP));
+      for (let i = 0; i < COLS * ROWS; i++) {
+        this['c' + i + 'x'] = xs[i % COLS];
+        this['c' + i + 'y'] = ys[Math.floor(i / COLS)];
+      }
       if (this.game) this.renderHand();
     },
 
@@ -352,53 +342,48 @@
       this.chain();
     },
 
-    /* ---------------- 渲染 ---------------- */
-
     renderAll() {
-      const s = this.game;
-      if (!s) return;
-      const p = s.players[0];
-      const hpLine = '你 ♥' + p.hp + ' · ';
+      const g = this.game;
+      if (!g) return;
+      const p = g.players[0];
       const others = [];
-      for (const i of aliveList(s)) {
+      for (const i of aliveList(g)) {
         if (i === 0) continue;
-        others.push((i + 1) + '号♥' + s.players[i].hp);
+        others.push((i + 1) + '号♥' + g.players[i].hp);
       }
       this.topLine =
-        '第 ' + s.round + ' 轮 · 目标点数 ' + VALUE_CHARS[s.target] + ' · ' +
-        hpLine + others.join(' ');
-      this.midLine =
-        s.over ? this.overText :
-        (s.lastPlay
-          ? (s.lastPlay.from + 1) + '号 盖了 ' + s.lastPlay.cards.length + ' 张（声称是 ' + VALUE_CHARS[s.target] + '）'
-          : '由 ' + (s.cur + 1) + '号 开始盖牌') + ' · 轮到 ' + (s.cur + 1) + '号';
-      this.logLine = s.log[0] || '';
-      this.myTurn = s.cur === 0 && !s.over && s.players[0].alive;
-      this.canCall = this.myTurn && !!s.lastPlay && s.lastPlay.from !== 0 && aliveList(s).length > 1;
+        '第 ' + g.round + ' 轮 · 目标 ' + VALUE_CHARS[g.target] + ' · 你 ♥' + p.hp +
+        (others.length ? ' · ' + others.join(' ') : '');
+      this.midLine = g.over
+        ? this.overText
+        : (g.lastPlay
+            ? (g.lastPlay.from + 1) + '号 盖了 ' + g.lastPlay.cards.length + ' 张（声称 ' + VALUE_CHARS[g.target] + '）'
+            : '由 ' + (g.cur + 1) + '号 开始盖牌') + ' · 轮到 ' + (g.cur + 1) + '号';
+      this.logLine = g.log[0] || '';
+      this.myTurn = g.cur === 0 && !g.over && g.players[0].alive;
+      this.canCall = this.myTurn && !!g.lastPlay && g.lastPlay.from !== 0 && aliveList(g).length > 1;
       this.renderHand();
     },
 
     renderHand() {
-      const s = this.game;
-      if (!s) {
+      const g = this.game;
+      if (!g) {
         this.handTiles = [];
         return;
       }
-      const hand = s.players[0].hand;
-      const per = COLS * 2;
-      const tiles = [];
+      const hand = g.players[0].hand;
+      const per = COLS * ROWS;
       const start = this.page * per;
+      const tiles = [];
       for (let k = 0; k < per; k++) {
         const idx = start + k;
         if (idx >= hand.length) break;
         const c = hand[idx];
-        const col = k % COLS;
-        const row = Math.floor(k / COLS);
         const isSel = this.sel.indexOf(idx) >= 0;
         tiles.push({
           i: idx + 1,
-          x: col * (this.cw + TILE_GAP),
-          y: row * (this.ch + TILE_GAP),
+          x: (k % COLS) * (this.cw + GAP),
+          y: Math.floor(k / COLS) * (this.ch + GAP),
           text: VALUE_CHARS[c.v],
           cls: c.suit === 1 || c.suit === 3 ? 'tiletext-red' : '',
           selCls: isSel ? 'tile-sel' : '',
@@ -408,49 +393,67 @@
       this.handTiles = tiles;
     },
 
-    tapHand(evt) {
-      if (!this.myTurn) return;
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const stepX = this.cw + TILE_GAP;
-      const stepY = this.ch + TILE_GAP;
-      let col = Math.floor((pt.x - this.hx) / stepX);
-      let row = Math.floor((pt.y - this.hy) / stepY);
-      if (!this.inGrid(col, row)) {
-        const c2 = Math.floor(pt.x / stepX);
-        const r2 = Math.floor(pt.y / stepY);
-        if (this.inGrid(c2, r2)) {
-          col = c2;
-          row = r2;
-        }
+    toggleSlot(k) {
+      const g = this.game;
+      if (!g || !this.myTurn) {
+        this.hint('还没轮到你');
+        return;
       }
-      if (!this.inGrid(col, row)) return;
-      const idx = this.page * COLS * 2 + row * COLS + col;
-      if (idx >= this.game.players[0].hand.length) return;
+      const hand = g.players[0].hand;
+      const idx = this.page * (COLS * ROWS) + k;
+      if (idx >= hand.length) return;
       const pos = this.sel.indexOf(idx);
       if (pos >= 0) this.sel.splice(pos, 1);
       else if (this.sel.length < 3) this.sel.push(idx);
+      else this.hint('最多盖 3 张');
       this.renderHand();
     },
 
-    inGrid(col, row) {
-      return col >= 0 && col < COLS && row >= 0 && row < 2;
+    pick0() {
+      this.toggleSlot(0);
+    },
+    pick1() {
+      this.toggleSlot(1);
+    },
+    pick2() {
+      this.toggleSlot(2);
+    },
+    pick3() {
+      this.toggleSlot(3);
+    },
+    pick4() {
+      this.toggleSlot(4);
+    },
+    pick5() {
+      this.toggleSlot(5);
+    },
+    pick6() {
+      this.toggleSlot(6);
+    },
+    pick7() {
+      this.toggleSlot(7);
+    },
+    pick8() {
+      this.toggleSlot(8);
+    },
+    pick9() {
+      this.toggleSlot(9);
+    },
+    pick10() {
+      this.toggleSlot(10);
+    },
+    pick11() {
+      this.toggleSlot(11);
     },
 
-    /* ---------------- 操作 ---------------- */
-
     doPlay() {
-      const s = this.game;
-      if (!this.myTurn) return;
+      const g = this.game;
+      if (!g || !this.myTurn) return;
       if (!this.sel.length) {
         this.hint('先选 1~3 张盖牌');
         return;
       }
-      if (this.sel.length > 3) {
-        this.hint('最多盖 3 张');
-        return;
-      }
-      const r = playBatch(s, 0, this.sel);
+      const r = playBatch(g, 0, this.sel);
       if (!r.ok) {
         this.hint(r.msg);
         return;
@@ -462,76 +465,74 @@
     },
 
     doCall() {
-      const s = this.game;
+      const g = this.game;
       if (!this.canCall) return;
-      const r = call(s, 0);
+      const r = call(g, 0);
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
       this.sel = [];
       this.renderAll();
-      if (s.over) {
+      if (g.over) {
         this.finish();
         return;
       }
       this.chain();
     },
 
-    /* ---------------- AI 链 ---------------- */
-
     chain() {
       this.clearAi();
       this.aiTimer = setTimeout(() => {
         this.aiTimer = null;
-        const s = this.game;
-        if (!s || s.over) return;
-        if (s.cur === 0) {
+        const g = this.game;
+        if (!g || g.over) return;
+        if (g.cur === 0) {
           this.renderAll();
           return;
         }
-        const al = aliveList(s);
-        if (s.playedCount >= al.length) {
-          passFull(s);
+        const al = aliveList(g);
+        if (g.playedCount >= al.length) {
+          passFull(g);
           this.renderAll();
-          if (s.over) {
+          if (g.over) {
             this.finish();
             return;
           }
           this.chain();
           return;
         }
-        const a = aiAction(s, s.cur);
+        const a = aiAction(g, g.cur);
         if (a.type === 'pass') {
-          if (allHandsEmpty(s)) {
-            passFull(s);
+          if (allHandsEmpty(g)) {
+            passFull(g);
             this.renderAll();
-            if (!s.over) this.chain();
+            if (!g.over) this.chain();
             return;
           }
-          s.cur = nextAlive(s, s.cur);
+          g.cur = nextAlive(g, g.cur);
           this.renderAll();
           this.chain();
           return;
         }
         if (a.type === 'call') {
-          call(s, s.cur);
+          call(g, g.cur);
           this.renderAll();
-          if (s.over) {
+          if (g.over) {
             this.finish();
             return;
           }
           this.chain();
           return;
         }
-        const r = playBatch(s, s.cur, a.idx);
+        const r = playBatch(g, g.cur, a.idx);
         if (!r.ok) {
           this.hint('AI 出牌异常');
           return;
         }
         this.renderAll();
         this.chain();
-      }, 700);
+      }, 620);
     },
 
     aiStep() {
@@ -547,9 +548,9 @@
     },
 
     finish() {
-      const s = this.game;
+      const g = this.game;
       this.over = true;
-      this.overText = s.winner >= 0 ? (s.winner + 1) + '号 获胜！' : '平局';
+      this.overText = g.winner >= 0 ? (g.winner + 1) + '号 获胜！' : '平局';
       this.renderAll();
     },
 
@@ -565,16 +566,6 @@
 
     goRules() {
       router.push({ uri: '/pages/rules' });
-    },
-
-    touchPoint(evt) {
-      const list = evt && (evt.changedTouches || evt.touches);
-      const t = list && list[0];
-      if (!t) return null;
-      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
-      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
-      if (x == null || y == null) return null;
-      return { x: x, y: y };
     },
 
     hint(msg) {

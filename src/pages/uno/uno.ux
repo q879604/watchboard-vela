@@ -46,11 +46,8 @@
 
       <text class="colortip">{{ colorTip }}</text>
 
-      <div
-        class="hand"
-        style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;"
-        @touchstart="tapHand"
-      >
+      <!-- 手牌：循环渲染负责画面，透明覆盖层负责点击（原生命中，不依赖坐标） -->
+      <div class="hand" style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;">
         <div
           class="tile {{ $item.cls }}"
           style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ tw }}px; height: {{ th }}px;"
@@ -60,20 +57,33 @@
           <div class="selmark" if="{{ $item.sel }}"></div>
           <text class="tiletext">{{ $item.text }}</text>
         </div>
+
+        <div class="hit" style="left: {{ c0x }}px; top: {{ c0y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick0"></div>
+        <div class="hit" style="left: {{ c1x }}px; top: {{ c1y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick1"></div>
+        <div class="hit" style="left: {{ c2x }}px; top: {{ c2y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick2"></div>
+        <div class="hit" style="left: {{ c3x }}px; top: {{ c3y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick3"></div>
+        <div class="hit" style="left: {{ c4x }}px; top: {{ c4y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick4"></div>
+        <div class="hit" style="left: {{ c5x }}px; top: {{ c5y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick5"></div>
+        <div class="hit" style="left: {{ c6x }}px; top: {{ c6y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick6"></div>
+        <div class="hit" style="left: {{ c7x }}px; top: {{ c7y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick7"></div>
+        <div class="hit" style="left: {{ c8x }}px; top: {{ c8y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick8"></div>
+        <div class="hit" style="left: {{ c9x }}px; top: {{ c9y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick9"></div>
+        <div class="hit" style="left: {{ c10x }}px; top: {{ c10y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick10"></div>
+        <div class="hit" style="left: {{ c11x }}px; top: {{ c11y }}px; width: {{ tw }}px; height: {{ th }}px;" onclick="pick11"></div>
       </div>
 
       <div class="ops" style="top: {{ opsY }}px;">
-        <div class="btn" onclick="doPlay">
-          <text class="bt">出牌</text>
+        <div class="btn btn-main" onclick="doPlay">
+          <text class="bt bt-main">出牌</text>
         </div>
         <div class="btn" onclick="doDraw">
           <text class="bt">摸牌</text>
         </div>
         <div class="btn" onclick="prevSel">
-          <text class="bt">上一张</text>
+          <text class="bt">◀ 上一张</text>
         </div>
         <div class="btn" onclick="nextSel">
-          <text class="bt">下一张</text>
+          <text class="bt">下一张 ▶</text>
         </div>
       </div>
 
@@ -124,8 +134,8 @@
 
   .status {
     width: 100%;
-    height: 24px;
-    font-size: 16px;
+    height: 26px;
+    font-size: 17px;
     font-weight: bold;
     color: #ffffff;
     text-align: center;
@@ -133,22 +143,22 @@
 
   .table {
     width: 100%;
-    height: 76px;
+    height: 84px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
   }
 
   .topcard {
-    width: 50px;
-    height: 66px;
+    width: 56px;
+    height: 76px;
     border-radius: 10px;
     justify-content: center;
     align-items: center;
   }
 
   .toptext {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: bold;
     color: #ffffff;
   }
@@ -156,19 +166,19 @@
   .others {
     flex-direction: column;
     align-items: flex-start;
-    padding-left: 14px;
+    padding-left: 16px;
   }
 
   .other-item {
-    font-size: 15px;
+    font-size: 16px;
     color: #ffffff;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
 
   .colortip {
     width: 100%;
-    height: 22px;
-    font-size: 14px;
+    height: 24px;
+    font-size: 15px;
     color: #eaffea;
     text-align: center;
   }
@@ -179,25 +189,31 @@
 
   .tile {
     position: absolute;
-    border-radius: 8px;
+    border-radius: 9px;
     justify-content: center;
     align-items: center;
   }
 
   .tiletext {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #ffffff;
   }
 
   .selmark {
     position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 9px;
-    height: 9px;
-    border-radius: 5px;
+    left: 5px;
+    top: 5px;
+    width: 11px;
+    height: 11px;
+    border-radius: 6px;
     background-color: #ffffff;
+  }
+
+  /* 透明命中层：自己不做视觉，只负责原生点击 */
+  .hit {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.001);
   }
 
   .t-r {
@@ -216,11 +232,15 @@
     background-color: #3a3f4a;
   }
 
+  .tile-sel {
+    border-radius: 9px;
+  }
+
   .ops {
     position: absolute;
     left: 0;
     width: 100%;
-    height: 30px;
+    height: 46px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -232,42 +252,6 @@
     justify-content: center;
   }
 
-  .btn {
-    width: 76px;
-    height: 34px;
-    border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0.92);
-    justify-content: center;
-    align-items: center;
-    margin-left: 3px;
-    margin-right: 3px;
-  }
-
-  .bt {
-    font-size: 16px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.74);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .overtext {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 14px;
-  }
-
   .colorpick {
     flex-direction: row;
     align-items: center;
@@ -275,13 +259,13 @@
   }
 
   .cbtn {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
     justify-content: center;
     align-items: center;
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-left: 6px;
+    margin-right: 6px;
   }
 
   .c-r {
@@ -298,7 +282,7 @@
   }
 
   .ct {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
     color: #ffffff;
   }
@@ -322,17 +306,15 @@
     COLOR_NAME
   } from '../../common/uno';
 
-  const HEADER_H = 46;
-  const STATUS_H = 26;
-  const TABLE_H = 82;
-  const TIP_H = 24;
   const COLS = 6;
   const ROWS = 2;
-  const TILE_GAP = 3;
+  const GAP = 4;
+  const OPS_H = 46;
+  const HEADER_H = 52;
 
   export default {
     private: {
-      phase: 'menu', // menu | play
+      phase: 'menu',
       title: 'UNO',
       listW: 320,
       playerCount: 3,
@@ -351,13 +333,18 @@
       overText: '',
       drewThisTurn: false,
 
-      gx: 7,
-      gy: 160,
-      gw: 321,
-      gh: 129,
-      tw: 51,
-      th: 63,
-      opsY: 300,
+      gx: 8,
+      gy: 300,
+      gw: 320,
+      gh: 142,
+      tw: 50,
+      th: 67,
+      opsY: 430,
+
+      // 12 个命中格坐标（覆盖层用）
+      c0x: 0, c0y: 0, c1x: 0, c1y: 0, c2x: 0, c2y: 0, c3x: 0, c3y: 0,
+      c4x: 0, c4y: 0, c5x: 0, c5y: 0, c6x: 0, c6y: 0, c7x: 0, c7y: 0,
+      c8x: 0, c8y: 0, c9x: 0, c9y: 0, c10x: 0, c10y: 0, c11x: 0, c11y: 0,
 
       aiTimer: null
     },
@@ -382,23 +369,19 @@
     },
 
     onBackPress() {
-      // 对局中拦截系统返回（防右滑误退），用左上角按钮退出
       return this.phase === 'play';
     },
 
-    /* ---------------- 布局 ---------------- */
+    /* ---------------- 布局：从屏幕底部锚定，保证按钮不出屏 ---------------- */
 
     applyLayout(w, h) {
-      const tw = Math.floor((w - 12 - (COLS - 1) * TILE_GAP) / COLS);
-      const th = Math.floor(tw * 1.25);
-      const gw = COLS * tw + (COLS - 1) * TILE_GAP;
+      const tw = Math.floor((w - 16 - (COLS - 1) * GAP) / COLS);
+      const th = Math.floor(tw * 1.34);
+      const gw = COLS * tw + (COLS - 1) * GAP;
       const gx = Math.floor((w - gw) / 2);
-      let gy = HEADER_H + STATUS_H + TABLE_H + TIP_H + 6;
-      const gh = ROWS * th + TILE_GAP;
-
-      // 竖向空间富裕时（胶囊屏）整体下移居中
-      const extra = Math.floor((h - (gy + gh + 46)) / 2) - 2;
-      if (extra > 0) gy += extra;
+      const gh = ROWS * th + (ROWS - 1) * GAP;
+      const opsY = h - OPS_H - 10;
+      const gy = opsY - gh - 12;
 
       this.tw = tw;
       this.th = th;
@@ -406,8 +389,20 @@
       this.gx = gx;
       this.gy = gy;
       this.gh = gh;
-      this.opsY = gy + gh + 10;
+      this.opsY = opsY;
       this.listW = w - 24;
+
+      // 覆盖层坐标（12 格）
+      const xs = [];
+      const ys = [];
+      for (let c = 0; c < COLS; c++) xs.push(gx + c * (tw + GAP));
+      for (let r = 0; r < ROWS; r++) ys.push(gy + r * (th + GAP));
+      for (let i = 0; i < COLS * ROWS; i++) {
+        const col = i % COLS;
+        const row = Math.floor(i / COLS);
+        this['c' + i + 'x'] = xs[col];
+        this['c' + i + 'y'] = ys[row];
+      }
       this.buildTiles();
     },
 
@@ -496,15 +491,63 @@
         const col = k % COLS;
         const row = Math.floor(k / COLS);
         tiles.push({
-          i: idx + 1, // tid 键必须从 1 开始
-          x: col * (this.tw + TILE_GAP),
-          y: row * (this.th + TILE_GAP),
+          i: idx + 1,
+          x: col * (this.tw + GAP),
+          y: row * (this.th + GAP),
           text: cardText(card),
           cls: 't-' + card.color,
           sel: idx === this.sel
         });
       }
       this.tiles = tiles;
+    },
+
+    /* ---------------- 点牌（覆盖层原生命中） ---------------- */
+
+    pickSlot(k) {
+      const s = this.game;
+      if (!s || this.over || this.needsColor) return;
+      const idx = this.page * (COLS * ROWS) + k;
+      if (idx >= s.hands[0].length) return;
+      this.sel = idx;
+      this.buildTiles();
+    },
+
+    pick0() {
+      this.pickSlot(0);
+    },
+    pick1() {
+      this.pickSlot(1);
+    },
+    pick2() {
+      this.pickSlot(2);
+    },
+    pick3() {
+      this.pickSlot(3);
+    },
+    pick4() {
+      this.pickSlot(4);
+    },
+    pick5() {
+      this.pickSlot(5);
+    },
+    pick6() {
+      this.pickSlot(6);
+    },
+    pick7() {
+      this.pickSlot(7);
+    },
+    pick8() {
+      this.pickSlot(8);
+    },
+    pick9() {
+      this.pickSlot(9);
+    },
+    pick10() {
+      this.pickSlot(10);
+    },
+    pick11() {
+      this.pickSlot(11);
     },
 
     /* ---------------- 玩家操作 ---------------- */
@@ -562,7 +605,6 @@
         return;
       }
       if (this.drewThisTurn) {
-        // 一手只能摸一次，再点即视为过牌
         passTurn(s);
         this.drewThisTurn = false;
         this.refresh();
@@ -580,6 +622,7 @@
       this.drewThisTurn = true;
       if (r.playable) {
         this.sel = s.hands[0].length - 1;
+        this.page = Math.floor(this.sel / (COLS * ROWS));
         this.hint('摸到 ' + cardText(r.card) + '，可以直接出');
         this.refresh();
       } else {
@@ -609,46 +652,6 @@
       this.sel = (this.sel + 1) % n;
       this.page = Math.floor(this.sel / (COLS * ROWS));
       this.buildTiles();
-    },
-
-    tapHand(evt) {
-      if (this.over || this.needsColor) return;
-      const s = this.game;
-      if (!s) return;
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const stepX = this.tw + TILE_GAP;
-      const stepY = this.th + TILE_GAP;
-      let col = Math.floor((pt.x - this.gx) / stepX);
-      let row = Math.floor((pt.y - this.gy) / stepY);
-      if (!this.inGrid(col, row)) {
-        const c2 = Math.floor(pt.x / stepX);
-        const r2 = Math.floor(pt.y / stepY);
-        if (this.inGrid(c2, r2)) {
-          col = c2;
-          row = r2;
-        }
-      }
-      if (!this.inGrid(col, row)) return;
-      const idx = this.page * COLS * ROWS + row * COLS + col;
-      if (idx < s.hands[0].length) {
-        this.sel = idx;
-        this.buildTiles();
-      }
-    },
-
-    inGrid(col, row) {
-      return col >= 0 && col < COLS && row >= 0 && row < ROWS;
-    },
-
-    touchPoint(evt) {
-      const list = evt && (evt.changedTouches || evt.touches);
-      const t = list && list[0];
-      if (!t) return null;
-      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
-      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
-      if (x == null || y == null) return null;
-      return { x: x, y: y };
     },
 
     /* ---------------- AI 回合 ---------------- */
@@ -683,7 +686,7 @@
         }
         this.refresh();
         if (s.winner < 0 && s.current !== 0) this.scheduleAi();
-      }, 420);
+      }, 520);
     },
 
     clearAi() {

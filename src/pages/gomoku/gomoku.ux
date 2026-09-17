@@ -223,7 +223,7 @@
     position: absolute;
     left: 0;
     width: 100%;
-    height: 34px;
+    height: 42px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -233,16 +233,16 @@
     position: absolute;
     left: 0;
     width: 100%;
-    height: 34px;
+    height: 42px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
   }
 
   .dbtn {
-    width: 60px;
-    height: 34px;
-    border-radius: 17px;
+    width: 70px;
+    height: 42px;
+    border-radius: 21px;
     background-color: rgba(255, 255, 255, 0.9);
     justify-content: center;
     align-items: center;
@@ -251,12 +251,12 @@
   }
 
   .dbtn-main {
-    width: 68px;
+    width: 78px;
     background-color: #17331d;
   }
 
   .dtext {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #17331d;
   }
@@ -266,9 +266,9 @@
   }
 
   .sbtn {
-    width: 76px;
-    height: 34px;
-    border-radius: 15px;
+    width: 88px;
+    height: 42px;
+    border-radius: 21px;
     background-color: rgba(255, 255, 255, 0.75);
     justify-content: center;
     align-items: center;
@@ -277,7 +277,7 @@
   }
 
   .stext {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: bold;
     color: #17331d;
   }
@@ -303,7 +303,7 @@
   const HEADER_H = 46;
   const STATUS_H = 26;
   const AIM_H = 24;
-  const PAD_H = 36;
+  const PAD_H = 42;
   const ZOOM_COLS = [5, 6, 8]; // 视口横向可见格数：越大格子越小
   const ZOOM_NAMES = ['大', '中', '小'];
 
@@ -419,12 +419,11 @@
       this.zoomName = ZOOM_NAMES[this.zoomIdx];
       this.aimD = cs;
 
-      // 竖向居中（胶囊屏剩余空间多）
-      const slack = h - (wy + wh + rows + 6);
-      let shift = 0;
-      if (slack > 20) shift = Math.floor((slack - 20) / 2);
-      this.padY = wy + wh + 4 + shift;
-      this.pad2Y = this.padY + PAD_H;
+      // 从底部锚定两行按钮，保证永远在屏内
+      this.pad2Y = h - PAD_H - 8;
+      this.padY = this.pad2Y - PAD_H - 6;
+      // 棋盘视口高度 = 顶部到按钮之间
+      this.wh = Math.max(120, this.padY - wy - 10);
 
       this.listW = w - 24;
       this.clampPan();
@@ -708,13 +707,13 @@
 
     renderThrottled() {
       const now = Date.now();
-      if (!this.__lastRender || now - this.__lastRender >= 30) {
+      if (!this.__lastRender || now - this.__lastRender >= 40) {
         this.__lastRender = now;
         this.render();
         return;
       }
       if (this.__renderTimer) return;
-      const wait = 30 - (now - this.__lastRender);
+      const wait = 40 - (now - this.__lastRender);
       this.__renderTimer = setTimeout(() => {
         this.__renderTimer = null;
         this.__lastRender = Date.now();
@@ -749,9 +748,10 @@
       this.lastX = p.x;
       this.lastY = p.y;
       if (!this.drag) {
-        if (Math.abs(p.x - this.downX) + Math.abs(p.y - this.downY) <= 10) return;
+        if (Math.abs(p.x - this.downX) + Math.abs(p.y - this.downY) <= 14) return;
         this.drag = true;
       }
+      if (!dx && !dy) return;
       this.px -= dx;
       this.py -= dy;
       this.clampPan();

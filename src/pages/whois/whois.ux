@@ -87,7 +87,7 @@
   }
 
   .step {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: bold;
     color: #ffffff;
     margin-top: 6px;
@@ -95,7 +95,7 @@
   }
 
   .bigword {
-    font-size: 38px;
+    font-size: 46px;
     font-weight: bold;
     color: #ffffff;
     margin-top: 6px;
@@ -111,7 +111,7 @@
   }
 
   .countbox {
-    height: 58px;
+    height: 68px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -123,22 +123,22 @@
   }
 
   .cbtn {
-    width: 52px;
-    height: 40px;
-    border-radius: 12px;
+    width: 64px;
+    height: 52px;
+    border-radius: 14px;
     background-color: #17331d;
     justify-content: center;
     align-items: center;
   }
 
   .ctext {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: bold;
     color: #ffffff;
   }
 
   .cnum {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
     color: #17331d;
   }

@@ -29,7 +29,7 @@
         </div>
       </div>
       <text class="hint">5 ~ 8 人：狼人 1~2 · 预言家 · 女巫 · 其余平民</text>
-      <text class="hint">同一块表依次传阅看身份，夜晚由主持人操作</text>
+      <text class="hint">依次传阅看身份，夜晚由主持人操作</text>
     </div>
 
     <!-- 身份传阅 -->
@@ -47,67 +47,61 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">看完交给下一位，不要让旁人看到</text>
+      <text class="hint">看完交给下一位，不要让别人看到</text>
     </div>
 
-    <!-- 夜晚 -->
-    <div class="screen" if="{{ stage === 'night' }}">
-      <text class="step">{{ nightTitle }}</text>
-      <text class="info">{{ nightInfo }}</text>
-      <div class="chiprow" style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;">
-        <div
-          class="chip {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
-          for="{{ chips }}"
-          tid="i"
-          @touchstart="tapChip"
-        >
-          <text class="chiptext">{{ $item.text }}</text>
+    <!-- 夜晚 / 白天 共用玩家格子 -->
+    <div class="screen" if="{{ stage === 'night' || stage === 'day' }}">
+      <text class="step">{{ nightTitle || dayTitle }}</text>
+      <text class="info">{{ nightInfo || dayInfo }}</text>
+
+      <div class="chipwrap">
+        <div class="chip {{ c0cls }}" style="left: {{ q0x }}px; top: {{ q0y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt0" if="{{ has0 }}">
+          <text class="chiptext {{ c0tcls }}">{{ c0t }}</text>
+        </div>
+        <div class="chip {{ c1cls }}" style="left: {{ q1x }}px; top: {{ q1y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt1" if="{{ has1 }}">
+          <text class="chiptext {{ c1tcls }}">{{ c1t }}</text>
+        </div>
+        <div class="chip {{ c2cls }}" style="left: {{ q2x }}px; top: {{ q2y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt2" if="{{ has2 }}">
+          <text class="chiptext {{ c2tcls }}">{{ c2t }}</text>
+        </div>
+        <div class="chip {{ c3cls }}" style="left: {{ q3x }}px; top: {{ q3y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt3" if="{{ has3 }}">
+          <text class="chiptext {{ c3tcls }}">{{ c3t }}</text>
+        </div>
+        <div class="chip {{ c4cls }}" style="left: {{ q4x }}px; top: {{ q4y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt4" if="{{ has4 }}">
+          <text class="chiptext {{ c4tcls }}">{{ c4t }}</text>
+        </div>
+        <div class="chip {{ c5cls }}" style="left: {{ q5x }}px; top: {{ q5y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt5" if="{{ has5 }}">
+          <text class="chiptext {{ c5tcls }}">{{ c5t }}</text>
+        </div>
+        <div class="chip {{ c6cls }}" style="left: {{ q6x }}px; top: {{ q6y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt6" if="{{ has6 }}">
+          <text class="chiptext {{ c6tcls }}">{{ c6t }}</text>
+        </div>
+        <div class="chip {{ c7cls }}" style="left: {{ q7x }}px; top: {{ q7y }}px; width: {{ cw2 }}px; height: {{ ch2 }}px;" onclick="tgt7" if="{{ has7 }}">
+          <text class="chiptext {{ c7tcls }}">{{ c7t }}</text>
         </div>
       </div>
+
       <div class="ops" style="top: {{ opsY }}px;">
-        <div class="btn btn-main" onclick="confirmAction" if="{{ nightStep === 'wolf' || nightStep === 'seer' }}">
+        <div class="btn btn-main" onclick="confirmAction" if="{{ stage === 'night' && (nightStep === 'wolf' || nightStep === 'seer') && !seerDone }}">
           <text class="bt bt-main">确认</text>
         </div>
-        <div class="btn" onclick="witchSave" if="{{ nightStep === 'witch' }}">
-          <text class="bt">解药</text>
-        </div>
-        <div class="btn" onclick="witchPoison" if="{{ nightStep === 'witch' }}">
-          <text class="bt">毒药</text>
-        </div>
-        <div class="btn" onclick="witchSkip" if="{{ nightStep === 'witch' }}">
-          <text class="bt">跳过</text>
-        </div>
-        <div class="btn" onclick="nextNightStep" if="{{ nightStep === 'seer' && seerDone }}">
+        <div class="btn" onclick="nextNightStep" if="{{ stage === 'night' && nightStep === 'seer' && seerDone }}">
           <text class="bt">下一步</text>
         </div>
-        <div class="btn" onclick="dawn" if="{{ nightStep === 'witch' && witchDone }}">
-          <text class="bt">天亮</text>
+        <div class="btn" onclick="witchSave" if="{{ stage === 'night' && nightStep === 'witch' }}">
+          <text class="bt">解药</text>
         </div>
-      </div>
-      <text class="hint">夜晚行动请由主持人操作，其他人别看表</text>
-    </div>
-
-    <!-- 白天 -->
-    <div class="screen" if="{{ stage === 'day' }}">
-      <text class="step">{{ dayTitle }}</text>
-      <text class="info">{{ dayInfo }}</text>
-      <div class="chiprow" style="left: {{ gx }}px; top: {{ gy }}px; width: {{ gw }}px; height: {{ gh }}px;">
-        <div
-          class="chip {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cw }}px; height: {{ ch }}px;"
-          for="{{ chips }}"
-          tid="i"
-          @touchstart="tapChip"
-        >
-          <text class="chiptext">{{ $item.text }}</text>
+        <div class="btn" onclick="witchPoison" if="{{ stage === 'night' && nightStep === 'witch' }}">
+          <text class="bt">毒药</text>
         </div>
-      </div>
-      <div class="ops" style="top: {{ opsY }}px;">
-        <div class="btn btn-main" onclick="confirmVote" if="{{ voting }}">
-          <text class="bt bt-main">确认投票</text>
+        <div class="btn" onclick="witchSkip" if="{{ stage === 'night' && nightStep === 'witch' }}">
+          <text class="bt">跳过</text>
         </div>
-        <div class="btn btn-main" onclick="goNight" if="{{ voting === false }}">
+        <div class="btn btn-main" onclick="confirmVote" if="{{ stage === 'day' && voting }}">
+          <text class="bt bt-main">投给他</text>
+        </div>
+        <div class="btn btn-main" onclick="goNight" if="{{ stage === 'day' && voting === false }}">
           <text class="bt bt-main">进入夜晚</text>
         </div>
       </div>
@@ -139,41 +133,8 @@
     align-items: center;
   }
 
-  .countbox {
-    height: 56px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.94);
-    border-radius: 14px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-bottom: 10px;
-  }
-
-  .cbtn {
-    width: 52px;
-    height: 40px;
-    border-radius: 12px;
-    background-color: #17331d;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ctext {
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffffff;
-  }
-
-  .cnum {
-    font-size: 24px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
   .step {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: bold;
     color: #ffffff;
     margin-top: 8px;
@@ -181,49 +142,84 @@
   }
 
   .info {
-    font-size: 15px;
+    font-size: 16px;
     color: #eaffea;
     margin-bottom: 8px;
   }
 
   .bigword {
-    font-size: 40px;
+    font-size: 44px;
     font-weight: bold;
     color: #ffffff;
-    margin-top: 6px;
-    margin-bottom: 12px;
+    margin-top: 12px;
+    margin-bottom: 18px;
   }
 
   .cover {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: #d8f5d8;
-    margin-top: 10px;
-    margin-bottom: 16px;
+    margin-top: 14px;
+    margin-bottom: 20px;
   }
 
-  .chiprow {
-    position: absolute;
+  .countbox {
+    height: 60px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.94);
+    border-radius: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 12px;
+  }
+
+  .cbtn {
+    width: 56px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: #17331d;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ctext {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .cnum {
+    font-size: 26px;
+    font-weight: bold;
+    color: #17331d;
+  }
+
+  .chipwrap {
+    position: relative;
+    width: 100%;
+    height: 150px;
   }
 
   .chip {
     position: absolute;
     border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.88);
+    background-color: rgba(255, 255, 255, 0.94);
     justify-content: center;
     align-items: center;
   }
 
   .chip-sel {
-    background-color: #17331d;
+    background-color: #2f9e44;
   }
 
   .chip-dead {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.35);
   }
 
   .chiptext {
-    font-size: 19px;
+    font-size: 17px;
     font-weight: bold;
     color: #17331d;
   }
@@ -232,64 +228,8 @@
     color: #ffffff;
   }
 
-  .ops {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 34px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ops2 {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn {
-    width: 82px;
-    height: 34px;
-    border-radius: 17px;
-    background-color: rgba(255, 255, 255, 0.92);
-    justify-content: center;
-    align-items: center;
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-
-  .btn-main {
-    background-color: #17331d;
-  }
-
-  .bt {
-    font-size: 16px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .bt-main {
-    color: #ffffff;
-  }
-
-  .overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.74);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .overtext {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 16px;
+  .chip-deadtext {
+    color: #5d6b60;
   }
 </style>
 
@@ -311,9 +251,8 @@
     seerIdxOf
   } from '../../common/werewolf';
 
-  const HEADER_H = 46;
-  const COLS = 3;
-  const ROWS = 3;
+  const TCOLS = 4;
+  const OPS_H = 46;
 
   export default {
     private: {
@@ -322,23 +261,18 @@
       playerCount: 6,
       listW: 320,
 
-      // 传阅
       holder: 1,
       holderText: '第 1 位玩家',
       revealed: false,
       holderRole: '',
       nextLabel: '下一位',
 
-      // 夜晚
-      nightStep: 'wolf', // wolf | seer | witch
+      nightStep: 'wolf',
       nightTitle: '',
       nightInfo: '',
       seerDone: false,
-      witchDone: false,
       pick: -1,
-      chips: [],
 
-      // 白天
       dayTitle: '',
       dayInfo: '',
       voting: false,
@@ -350,22 +284,24 @@
       over: false,
       overText: '',
 
-      // 布局
-      gx: 16,
-      gy: 150,
-      gw: 304,
-      gh: 104,
-      cw: 96,
-      ch: 48,
-      opsY: 280
+      cw2: 74,
+      ch2: 56,
+      q0x: 0, q0y: 0, q1x: 0, q1y: 0, q2x: 0, q2y: 0, q3x: 0, q3y: 0,
+      q4x: 0, q4y: 0, q5x: 0, q5y: 0, q6x: 0, q6y: 0, q7x: 0, q7y: 0,
+      c0t: '', c1t: '', c2t: '', c3t: '', c4t: '', c5t: '', c6t: '', c7t: '',
+      c0cls: 'chip', c1cls: 'chip', c2cls: 'chip', c3cls: 'chip',
+      c4cls: 'chip', c5cls: 'chip', c6cls: 'chip', c7cls: 'chip',
+      c0tcls: '', c1tcls: '', c2tcls: '', c3tcls: '', c4tcls: '', c5tcls: '', c6tcls: '', c7tcls: '',
+      has0: false, has1: false, has2: false, has3: false,
+      has4: false, has5: false, has6: false, has7: false,
+      slotIds: [-1, -1, -1, -1, -1, -1, -1, -1],
+      opsY: 420
     },
 
     onInit() {
       device.getInfo({
         success: (ret) => {
-          const w = (ret && ret.screenWidth) || 336;
-          const h = (ret && ret.screenHeight) || 480;
-          this.applyLayout(w, h);
+          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
         },
         fail: () => {
           this.applyLayout(336, 480);
@@ -374,25 +310,24 @@
     },
 
     onBackPress() {
-      // 游戏进行中拦截系统返回（防右滑误退）
       return this.stage === 'roles' || this.stage === 'night' || this.stage === 'day';
     },
 
     applyLayout(w, h) {
-      const cw = Math.floor((w - 24 - (COLS - 1) * 8) / COLS);
-      const ch = Math.max(40, Math.floor(cw * 0.5));
-      const gw = COLS * cw + (COLS - 1) * 8;
-      const gx = Math.floor((w - gw) / 2);
-      const gy = HEADER_H + 66;
-      this.cw = cw;
-      this.ch = ch;
-      this.gw = gw;
-      this.gx = gx;
-      this.gy = gy;
-      this.gh = ROWS * ch + 8;
-      this.opsY = gy + this.gh + 14;
+      const cw2 = Math.floor((w - 60) / TCOLS);
+      const ch2 = Math.max(48, Math.floor(cw2 * 0.7));
+      const gw2 = TCOLS * cw2 + (TCOLS - 1) * 8;
+      const gx2 = Math.floor((w - gw2) / 2);
+      const gy2 = 150;
+      this.cw2 = cw2;
+      this.ch2 = ch2;
+      for (let i = 0; i < 8; i++) {
+        this['q' + i + 'x'] = gx2 + (i % TCOLS) * (cw2 + 8);
+        this['q' + i + 'y'] = gy2 + Math.floor(i / TCOLS) * (ch2 + 8);
+      }
+      this.opsY = h - OPS_H - 34;
       this.listW = w - 24;
-      this.buildChips();
+      if (this.game) this.renderSlots();
     },
 
     /* ---------------- 菜单 / 传阅 ---------------- */
@@ -404,9 +339,9 @@
       this.holderText = '第 1 位玩家';
       this.revealed = false;
       this.holderRole = '';
-      this.nextLabel = '下一位';
+      this.nextLabel = this.playerCount > 1 ? '下一位' : '进入夜晚';
       this.stage = 'roles';
-      this.buildChips();
+      this.renderSlots();
     },
 
     minus() {
@@ -418,21 +353,18 @@
     },
 
     peekRole() {
-      const s = this.game;
-      const p = s.players[this.holder - 1];
-      this.holderRole = ROLE_LABELS[p.role];
+      const g = this.game;
+      this.holderRole = ROLE_LABELS[g.players[this.holder - 1].role];
       this.revealed = true;
     },
 
     nextHolder() {
       if (this.holder >= this.playerCount) {
-        // 发完身份 → 进入夜晚
         this.stage = 'night';
         this.nightStep = 'wolf';
         this.pick = -1;
         this.seerDone = false;
-        this.witchDone = false;
-        this.buildChips();
+        this.renderSlots();
         return;
       }
       this.holder++;
@@ -441,225 +373,212 @@
       this.nextLabel = this.holder >= this.playerCount ? '进入夜晚' : '下一位';
     },
 
-    /* ---------------- 夜晚 ---------------- */
+    /* ---------------- 玩家格子（原生点击） ---------------- */
 
-    buildChips() {
-      const s = this.game;
-      if (!s) {
-        this.chips = [];
-        return;
-      }
-      const chips = [];
-      const g = this.cw + 8;
-      const gy = this.ch + 8;
-      for (let i = 0; i < this.playerCount; i++) {
-        const p = s.players[i];
+    renderSlots() {
+      const g = this.game;
+      if (!g) return;
+      const ids = [-1, -1, -1, -1, -1, -1, -1, -1];
+      for (let i = 0; i < this.playerCount && i < 8; i++) {
+        const p = g.players[i];
         let cls = 'chip';
         if (!p.alive) cls = 'chip chip-dead';
         if (this.pick === i) cls = 'chip chip-sel';
         const isSel = this.pick === i;
-        chips.push({
-          i: i + 1,
-          x: (i % COLS) * g,
-          y: Math.floor(i / COLS) * gy,
-          text: (i + 1) + '号' + (p.alive ? '' : ' 💀'),
-          cls: cls,
-          textCls: isSel ? 'chip-seltext' : ''
-        });
+        ids[i] = i;
+        this['c' + i + 't'] = (i + 1) + '号' + (p.alive ? ' ♥' + p.hp : ' 出局');
+        this['c' + i + 'cls'] = cls;
+        this['c' + i + 'tcls'] = isSel ? 'chip-seltext' : p.alive ? '' : 'chip-deadtext';
+        this['has' + i] = true;
       }
-      this.chips = chips;
+      for (let i = this.playerCount; i < 8; i++) {
+        this['has' + i] = false;
+      }
+      this.slotIds = ids;
       this.refreshTitles();
     },
 
-    refreshTitles() {
-      const s = this.game;
-      if (!s) return;
-      if (this.stage === 'night') {
-        if (this.nightStep === 'wolf') {
-          this.nightTitle = '夜晚 · 狼人行动';
-          this.nightInfo = '选择要刀的玩家（不能选自己）';
-        } else if (this.nightStep === 'seer') {
-          this.nightTitle = '夜晚 · 预言家行动';
-          this.nightInfo = this.seerDone ? s.seerResult : '选择要查验的玩家';
-        } else {
-          this.nightTitle = '夜晚 · 女巫行动';
-          const canSave = s.witchHasSave && s.wolfTarget >= 0;
-          this.nightInfo =
-            (canSave ? '今晚有人被杀，可用解药救' : '今晚无人被杀/解药已用') +
-            (s.witchHasPoison ? ' · 可用毒药' : '');
-        }
-      } else if (this.stage === 'day') {
-        this.dayTitle = '白天 · 第 ' + s.round + ' 轮';
-        this.dayInfo = this.dayInfo || '讨论后请依次投票';
-        this.voteHint = this.voting ? (this.voter + 1) + '号 投票中（不能投自己）' : '投票完成';
-      }
-    },
-
-    tapChip(evt) {
-      if (this.stage !== 'night' && this.stage !== 'day') return;
-      const pt = this.touchPoint(evt);
-      if (!pt) return;
-      const s = this.game;
-      if (!s) return;
-      const g = this.cw + 8;
-      const gy = this.ch + 8;
-      let col = Math.floor((pt.x - this.gx) / g);
-      let row = Math.floor((pt.y - this.gy) / gy);
-      if (!this.inGrid(col, row)) {
-        const c2 = Math.floor(pt.x / g);
-        const r2 = Math.floor(pt.y / gy);
-        if (this.inGrid(c2, r2)) {
-          col = c2;
-          row = r2;
-        }
-      }
-      if (!this.inGrid(col, row)) return;
-      const id = row * COLS + col;
-      if (id < 0 || id >= this.playerCount) return;
-      const p = s.players[id];
+    tapSlot(k) {
+      const g = this.game;
+      if (!g) return;
+      const id = this.slotIds[k];
+      if (id == null || id < 0) return;
+      const p = g.players[id];
       if (!p.alive) return;
-      // 按阶段过滤可选目标
       if (this.stage === 'night') {
-        if (this.nightStep === 'wolf' && id === wolfIdxOf(s)) return;
-        if (this.nightStep === 'seer' && id === seerIdxOf(s)) return;
+        if (this.nightStep === 'wolf' && id === wolfIdxOf(g)) return;
+        if (this.nightStep === 'seer' && id === seerIdxOf(g)) return;
         if (this.nightStep === 'seer' && this.seerDone) return;
-        if (this.nightStep === 'witch' && this.witchDone) return;
       } else if (this.stage === 'day') {
         if (!this.voting) return;
         if (id === this.voter) return;
       }
       this.pick = id;
-      this.buildChips();
+      this.renderSlots();
     },
 
-    inGrid(col, row) {
-      return col >= 0 && col < COLS && row >= 0 && row < ROWS;
+    tgt0() {
+      this.tapSlot(0);
     },
+    tgt1() {
+      this.tapSlot(1);
+    },
+    tgt2() {
+      this.tapSlot(2);
+    },
+    tgt3() {
+      this.tapSlot(3);
+    },
+    tgt4() {
+      this.tapSlot(4);
+    },
+    tgt5() {
+      this.tapSlot(5);
+    },
+    tgt6() {
+      this.tapSlot(6);
+    },
+    tgt7() {
+      this.tapSlot(7);
+    },
+
+    refreshTitles() {
+      const g = this.game;
+      if (!g) return;
+      if (this.stage === 'night') {
+        this.dayTitle = '';
+        if (this.nightStep === 'wolf') {
+          this.nightTitle = '夜晚 · 狼人行动';
+          this.nightInfo = '点选要刀的玩家（不能选狼人自己）';
+        } else if (this.nightStep === 'seer') {
+          this.nightTitle = '夜晚 · 预言家行动';
+          this.nightInfo = this.seerDone ? g.seerResult : '点选要查验的玩家';
+        } else {
+          this.nightTitle = '夜晚 · 女巫行动';
+          const canSave = g.witchHasSave && g.wolfTarget >= 0;
+          this.nightInfo =
+            (canSave ? '今晚有人被杀，可用解药' : '今晚无人被杀 / 解药已用') +
+            (g.witchHasPoison ? ' · 可用毒药（先点人再点毒药）' : '');
+        }
+      } else if (this.stage === 'day') {
+        this.nightTitle = '';
+        this.dayTitle = '白天 · 第 ' + g.round + ' 轮';
+        this.voteHint = this.voting ? (this.voter + 1) + '号 投票（不能投自己）' : '投票完成，点「进入夜晚」';
+      } else {
+        this.voteHint = '';
+      }
+    },
+
+    /* ---------------- 夜晚 ---------------- */
 
     confirmAction() {
-      const s = this.game;
+      const g = this.game;
       if (this.pick < 0) {
-        this.hint('先点选一个目标');
+        this.hint('先点选一个玩家');
         return;
       }
       if (this.nightStep === 'wolf') {
-        const r = nightWolf(s, this.pick);
+        const r = nightWolf(g, this.pick);
         if (!r.ok) {
           this.hint(r.msg);
           return;
         }
         this.pick = -1;
         this.nightStep = 'seer';
-        this.buildChips();
+        this.renderSlots();
       } else if (this.nightStep === 'seer') {
-        const r = nightSeer(s, this.pick);
+        const r = nightSeer(g, this.pick);
         if (!r.ok) {
           this.hint(r.msg);
           return;
         }
         this.seerDone = true;
         this.pick = -1;
-        this.nightStep = 'witch';
-        this.buildChips();
+        this.renderSlots();
       }
     },
 
     nextNightStep() {
-      // seer 结果确认后进入女巫
       this.seerDone = false;
       this.nightStep = 'witch';
-      this.buildChips();
+      this.renderSlots();
     },
 
     witchSave() {
-      const s = this.game;
-      const r = nightWitch(s, 'save');
+      const g = this.game;
+      const r = nightWitch(g, 'save');
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
-      this.witchDone = true;
       this.nightInfo = '解药已使用';
-      this.buildChips();
       this.dawn();
     },
 
     witchPoison() {
-      const s = this.game;
+      const g = this.game;
       if (this.pick < 0) {
-        this.hint('先选要毒的目标');
+        this.hint('先点要毒的玩家');
         return;
       }
-      const r = nightWitch(s, 'poison', this.pick);
+      const r = nightWitch(g, 'poison', this.pick);
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
-      this.witchDone = true;
-      this.buildChips();
       this.dawn();
     },
 
     witchSkip() {
-      const r = nightWitch(this.game, 'skip');
-      this.witchDone = true;
-      this.buildChips();
+      nightWitch(this.game, 'skip');
       this.dawn();
     },
 
     dawn() {
-      const s = this.game;
-      const deaths = resolveNight(s);
+      const g = this.game;
+      const deaths = resolveNight(g);
       if (deaths.length === 0) this.dayInfo = '昨晚是平安夜';
       else this.dayInfo = '昨晚 ' + deaths.map((d) => d + 1).join('、') + ' 号死亡';
-      // 天亮后先判胜负
-      const end = checkEnd(s);
+      const end = checkEnd(g);
       if (end) {
         this.finish(end);
         return;
       }
       this.stage = 'day';
       this.votes = [];
-      this.voteList = aliveList(s);
+      this.voteList = aliveList(g);
       this.voter = this.voteList.length ? this.voteList[0] : -1;
       this.voting = this.voter >= 0;
       this.pick = -1;
-      this.buildChips();
+      this.renderSlots();
     },
 
     /* ---------------- 白天投票 ---------------- */
 
     confirmVote() {
-      const s = this.game;
+      const g = this.game;
       if (this.pick < 0) {
-        this.hint('先点选投票对象');
+        this.hint('先点投谁');
         return;
       }
       this.votes.push({ from: this.voter, to: this.pick });
       this.pick = -1;
-      // 下一个存活玩家
       const idx = this.voteList.indexOf(this.voter);
       if (idx >= 0 && idx < this.voteList.length - 1) {
         this.voter = this.voteList[idx + 1];
-        this.buildChips();
+        this.renderSlots();
         return;
       }
-      // 投票结束
-      const dead = resolveVote(s, this.votes);
+      const dead = resolveVote(g, this.votes);
       this.voting = false;
-      if (dead >= 0) {
-        this.dayInfo = (this.dayInfo || '') + ' · ' + (dead + 1) + ' 号 被投票出局';
-      } else {
-        this.dayInfo = (this.dayInfo || '') + ' · 平票，无人出局';
-      }
-      this.voteHint = '点「进入夜晚」继续';
-      const end = checkEnd(s);
+      if (dead >= 0) this.dayInfo = (this.dayInfo || '') + ' · ' + (dead + 1) + ' 号 被投票出局';
+      else this.dayInfo = (this.dayInfo || '') + ' · 平票，无人出局';
+      const end = checkEnd(g);
       if (end) {
         this.finish(end);
         return;
       }
-      this.pick = -1;
-      this.buildChips();
+      this.renderSlots();
     },
 
     goNight() {
@@ -667,8 +586,7 @@
       this.nightStep = 'wolf';
       this.pick = -1;
       this.seerDone = false;
-      this.witchDone = false;
-      this.buildChips();
+      this.renderSlots();
     },
 
     finish(end) {
@@ -687,16 +605,6 @@
 
     goRules() {
       router.push({ uri: '/pages/rules' });
-    },
-
-    touchPoint(evt) {
-      const list = evt && (evt.changedTouches || evt.touches);
-      const t = list && list[0];
-      if (!t) return null;
-      const x = t.clientX != null ? t.clientX : t.pageX != null ? t.pageX : t.screenX;
-      const y = t.clientY != null ? t.clientY : t.pageY != null ? t.pageY : t.screenY;
-      if (x == null || y == null) return null;
-      return { x: x, y: y };
     },
 
     hint(msg) {
