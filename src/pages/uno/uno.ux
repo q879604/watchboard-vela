@@ -38,7 +38,9 @@
     </div>
 
     <div class="screen" if="{{ phase === 'play' }}">
+      <text class="nowchip {{ nowCls }}">{{ nowName }}</text>
       <text class="info">{{ statusText }}</text>
+      <text class="sub">{{ hist }}</text>
       <text class="sub">{{ colorTip }}</text>
       <text class="sub" for="{{ otherList }}" tid="k">{{ $item.t }}</text>
 
@@ -179,6 +181,7 @@
     handCounts,
     COLOR_NAME
   } from '../../common/uno';
+  import { defaultNames, colorOf } from '../../common/setup';
 
   const SLOTS = 12;
 
@@ -204,6 +207,11 @@
       over: false,
       overText: '',
       drewThisTurn: false,
+      names: [],
+      colors: [],
+      nowName: '',
+      nowCls: 'nowchip pc-r',
+      hist: '',
 
       s0: 'tile tile-dim', s0t: '', s0c: 'tiletext-dim',
       s1: 'tile tile-dim', s1t: '', s1c: 'tiletext-dim',
@@ -265,6 +273,9 @@
       this.playerCount = count;
       this.mode = mode || this.mode;
       this.game = createGame(count);
+      this.names = defaultNames(count);
+      this.colors = [];
+      for (let i = 0; i < count; i++) this.colors.push(colorOf(i));
       this.sel = 0;
       this.page = 0;
       this.over = false;
@@ -313,11 +324,12 @@
         this.statusText = this.overText;
       } else if (this.mode === 'hotseat') {
         this.statusText = '轮到 ' + (s.current + 1) + '号（手里 ' + counts[s.current] + ' 张）';
-      } else if (s.current === 0) {
-        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张';
       } else {
-        this.statusText = s.current + 1 + '号 出牌中…';
+        this.statusText = '轮到 ' + (this.names[s.current] || s.current + 1 + '号') + ' · 手里 ' + counts[s.current] + ' 张';
       }
+      this.nowName = this.names[s.current] || s.current + 1 + '号';
+      this.nowCls = 'nowchip ' + (this.colors[s.current] || 'pc-r');
+      this.hist = s.log.slice(-2).join(' · ');
 
       const hand = s.hands[this.viewer];
       if (this.sel > hand.length - 1) this.sel = hand.length - 1;

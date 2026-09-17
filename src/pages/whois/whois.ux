@@ -160,6 +160,7 @@
 <script>
   import router from '@system.router';
   import device from '@system.device';
+  import { defaultNames } from '../../common/setup';
 
   /** 词库：[平民词, 卧底词] */
   const PAIRS = [
@@ -202,6 +203,7 @@
       listW: 320,
 
       pair: null,
+      names: [],
       spyIndex: -1, // 0 基
       holder: 1, // 1 基
       holderText: '第 1 位玩家',
@@ -234,6 +236,10 @@
       return this.phase !== 'setup';
     },
 
+    nm(i) {
+      return this.names[i] || (i + 1) + '号';
+    },
+
     minus() {
       if (this.playerCount > 4) this.playerCount--;
     },
@@ -243,12 +249,13 @@
     },
 
     startGame() {
+      this.names = defaultNames(this.playerCount);
       const pick = PAIRS[Math.floor(Math.random() * PAIRS.length)];
       const count = this.playerCount;
       this.pair = pick;
       this.spyIndex = Math.floor(Math.random() * count);
       this.holder = 1;
-      this.holderText = '第 1 位玩家';
+      this.holderText = '第 1 位玩家（' + this.nm(0) + '）';
       this.holderWord = '';
       this.revealed = false;
       this.nextLabel = count > 1 ? '下一位' : '开始讨论';
@@ -257,7 +264,7 @@
       const seq = [];
       for (let i = 1; i <= count; i++) seq.push(i);
       this.order = this.shuffle(seq);
-      this.orderText = this.order.join(' → ');
+      this.orderText = this.order.map((n) => this.nm(n - 1)).join(' → ');
 
       this.phase = 'reveal';
     },
@@ -276,7 +283,7 @@
         return;
       }
       this.holder++;
-      this.holderText = '第 ' + this.holder + ' 位玩家';
+      this.holderText = '第 ' + this.holder + ' 位玩家（' + this.nm(this.holder - 1) + '）';
       this.revealed = false;
       this.nextLabel = this.holder >= this.playerCount ? '开始讨论' : '下一位';
     },
@@ -284,7 +291,7 @@
     revealAnswer() {
       if (!this.pair) return;
       this.showAnswer = true;
-      this.answerLine1 = '卧底是 ' + (this.spyIndex + 1) + ' 号';
+      this.answerLine1 = '卧底是 ' + (this.spyIndex + 1) + ' 号（' + this.nm(this.spyIndex) + '）';
       this.answerLine2 = '平民词「' + this.pair[0] + '」· 卧底词「' + this.pair[1] + '」';
     },
 

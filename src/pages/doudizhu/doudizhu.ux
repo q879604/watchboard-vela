@@ -28,7 +28,9 @@
     </div>
 
     <div class="screen" if="{{ stage === 'play' }}">
+      <text class="nowchip {{ nowCls }}">{{ nowName }}</text>
       <text class="info">{{ topLine }}</text>
+      <text class="sub">{{ hist }}</text>
       <text class="sub">{{ botLine }}</text>
       <text class="sub">{{ pendingText }}</text>
 
@@ -126,6 +128,7 @@
   import device from '@system.device';
   import prompt from '@system.prompt';
   import { deal, cardText, parsePlay, beats, findPlay } from '../../common/doudizhu';
+  import { defaultNames, colorOf } from '../../common/setup';
 
   const SLOTS = 12;
 
@@ -163,6 +166,11 @@
       sel: [],
       page: 0,
       pagerOn: false,
+      names: [],
+      colors: [],
+      nowName: '',
+      nowCls: 'nowchip pc-r',
+      hist: '',
       topLine: '',
       botLine: '',
       pendingText: '',
@@ -220,6 +228,8 @@
       this.mode = mode || this.mode;
       const d = deal();
       this.hands = [d.hands[0].slice(), d.hands[1].slice(), d.hands[2].slice()];
+      this.names = defaultNames(3);
+      this.colors = [colorOf(0), colorOf(1), colorOf(2)];
       this.bottom = d.bottom.slice();
       this.landlord = d.landlord;
       this.hands[d.landlord] = this.hands[d.landlord].concat(d.bottom);
@@ -262,10 +272,17 @@
           : 'AI2 剩 ' + this.hands[1].length + ' 张 · AI3 剩 ' + this.hands[2].length + ' 张';
       this.hasPending = !!this.pending;
       this.pendingText = this.pending
-        ? (this.pending.owner + 1) + '号 出了 ' + TYPE_NAME[this.pending.type] +
+        ? this.nm(this.pending.owner) + ' 出了 ' + TYPE_NAME[this.pending.type] +
           '（' + this.pending.cards.map((c) => cardText(c).slice(1)).join(' ') + '）'
-        : '新一轮 · 由 ' + (this.cur + 1) + '号 领出';
+        : '新一轮 · 由 ' + this.nm(this.cur) + ' 领出';
+      this.nowName = this.nm(this.cur);
+      this.nowCls = 'nowchip ' + (this.colors[this.cur] || 'pc-r');
+      this.hist = (this.pending ? '上一手：' + TYPE_NAME[this.pending.type] : '') ;
       this.renderHand();
+    },
+
+    nm(i) {
+      return this.names[i] || (i + 1) + '号';
     },
 
     renderHand() {

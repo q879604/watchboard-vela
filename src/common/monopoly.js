@@ -1,14 +1,16 @@
 /**
  * 大富翁（简化版）引擎 —— 纯函数。
- * 环形 24 格：起点 / 地产(可买可升级) / 机会 / 税 / 监狱(停一轮)，含白云机场、阿尔卑斯山等地标。
- * 资金与人数由开局面板决定；支持真人 + 电脑混编。
- * 经济模型（实测调参）：过起点 +400；租金 = ceil(房价×30%/10)×10×(1+等级)；
- *   破产出局；60 回合后按总资产定胜负。
+ * 24 格：起点 / 地产(买+升级) / 机会 / 税 / 监狱(停一轮) / 赌场(有输有赢) /
+ *        捡到钱 / 汽车站(前进3格) / 机场(花200随机飞)。
+ * 经济：过起点 +400；租金 = ceil(房价×30%/10)×10×(1+等级)；破产前先半价变卖地产。
+ * 结束：只剩一人存活，或 60 回合后比总资产。
  */
 
 export const CELL_COUNT = 24;
 export const PASS_SALARY = 400;
 export const MAX_ROUNDS = 60;
+export const AIRPORT_FEE = 200;
+export const CASINO_BET = 300;
 
 export const MONEY_OPTIONS = [2000, 5000, 10000, 15000];
 
@@ -29,25 +31,25 @@ const LAYOUT = [
   { t: 'chance', name: '机会' },
   { t: 'prop', name: '韩国', price: 350 },
   { t: 'tax', name: '税', amount: 200 },
+  { t: 'casino', name: '赌场', bet: CASINO_BET },
   { t: 'prop', name: '日本', price: 400 },
-  { t: 'chance', name: '机会' },
+  { t: 'road', name: '汽车站', step: 3 },
   { t: 'prop', name: '俄罗斯', price: 450 },
+  { t: 'cash', name: '捡到钱' },
   { t: 'prop', name: '德国', price: 500 },
   { t: 'chance', name: '机会' },
-  { t: 'prop', name: '法国', price: 550 },
-  { t: 'prop', name: '西班牙', price: 600 },
   { t: 'jail', name: '监狱' },
+  { t: 'prop', name: '法国', price: 550 },
+  { t: 'airport', name: '机场' },
+  { t: 'prop', name: '西班牙', price: 600 },
+  { t: 'casino', name: '赌场', bet: CASINO_BET },
   { t: 'prop', name: '意大利', price: 650 },
+  { t: 'cash', name: '捡到钱' },
   { t: 'tax', name: '税', amount: 400 },
   { t: 'prop', name: '美国', price: 700 },
   { t: 'chance', name: '机会' },
-  { t: 'prop', name: '墨西哥', price: 800 },
   { t: 'prop', name: '白云机场', price: 900 },
-  { t: 'chance', name: '机会' },
-  { t: 'prop', name: '阿尔卑斯山', price: 1000 },
-  { t: 'prop', name: '阿根廷', price: 1100 },
-  { t: 'chance', name: '机会' },
-  { t: 'prop', name: '澳大利亚', price: 1200 }
+  { t: 'prop', name: '阿尔卑斯山', price: 1000 }
 ];
 
 export const BOARD = LAYOUT;
@@ -56,7 +58,6 @@ export function rentOf(cell, level) {
   return Math.ceil((cell.price * 0.3) / 10) * 10 * (level + 1);
 }
 
-/** count=总人数；money=初始资金 */
 export function createGame(count, money) {
   const start = money || MONEY_OPTIONS[0];
   const players = [];
@@ -96,9 +97,12 @@ function findOwner(s, cellIdx) {
   return null;
 }
 
-export function settle(s) {
+/** 结算落点。depth 用于处理「汽车站→再走 3 格」的连环结算 */
+export function settle(s, depth) {
+  const d = depth || 0;
   const p = s.players[s.current];
   const cell = BOARD[p.pos];
+
   if (cell.t === 'prop') {
     const ow = findOwner(s, p.pos);
     if (ow && ow.player === s.current) return { type: 'own', cell: p.pos, name: cell.name, level: ow.level };
@@ -111,16 +115,50 @@ export function settle(s) {
     }
     return { type: 'buy', price: cell.price, cell: p.pos, name: cell.name };
   }
+
   if (cell.t === 'tax') {
     p.money -= cell.amount;
     pushLog(s, (s.current + 1) + '号 缴税 ' + cell.amount);
     return { type: 'tax', amount: cell.amount, name: cell.name };
   }
+
   if (cell.t === 'jail') {
     p.skip = 1;
-    pushLog(s, (s.current + 1) + '号 进了监狱，下回合暂停');
+    pushLog(s, (s.current + 1) + '号 被关进监狱，暂停一轮');
     return { type: 'jail', name: cell.name };
   }
+
+  if (cell.t === 'casino') {
+    pushLog(s, (s.current + 1) + '号 进了赌场');
+    return { type: 'casino', bet: cell.bet || CASINO_BET, name: cell.name };
+  }
+
+  if (cell.t === 'cash') {
+    const amt = (1 + Math.floor(Math.random() * 5)) * 100;
+    p.money += amt;
+    pushLog(s, (s.current + 1) + '号 捡到钱 +' + amt);
+    return { type: 'cash', amount: amt, name: cell.name };
+  }
+
+  if (cell.t === 'airport') {
+    p.money -= AIRPORT_FEE;
+    const to = Math.floor(Math.random() * CELL_COUNT);
+    p.pos = to;
+    pushLog(s, (s.current + 1) + '号 花 ' + AIRPORT_FEE + ' 从机场飞到「' + BOARD[to].name + '」');
+    const out = { type: 'airport', fee: AIRPORT_FEE, to: to, toName: BOARD[to].name };
+    if (d < 2) out.inner = settle(s, d + 1);
+    return out;
+  }
+
+  if (cell.t === 'road') {
+    const step = cell.step || 3;
+    move(s, step);
+    pushLog(s, (s.current + 1) + '号 在汽车站搭车前进 ' + step + ' 格 →「' + BOARD[p.pos].name + '」');
+    const out = { type: 'road', step: step, to: p.pos, toName: BOARD[p.pos].name };
+    if (d < 2) out.inner = settle(s, d + 1);
+    return out;
+  }
+
   if (cell.t === 'chance') {
     const card = CHANCES[Math.floor(Math.random() * CHANCES.length)];
     if (card.money != null) {
@@ -140,7 +178,28 @@ export function settle(s) {
       return { type: 'chance', card: card, landed: p.pos };
     }
   }
+
   return { type: 'info', name: cell.name };
+}
+
+/** 赌场：押 bet，赢翻倍拿走，输掉本金（45% 胜率，心跳感） */
+export function casinoPlay(s, gamble) {
+  const p = s.players[s.current];
+  if (!gamble) {
+    pushLog(s, (s.current + 1) + '号 没敢下注');
+    return { ok: true, played: false };
+  }
+  const bet = CASINO_BET;
+  if (p.money < bet) return { ok: false, msg: '钱不够下注 ¥' + bet };
+  const win = Math.random() < 0.45;
+  if (win) {
+    p.money += bet;
+    pushLog(s, (s.current + 1) + '号 赌赢了 +' + bet);
+  } else {
+    p.money -= bet;
+    pushLog(s, (s.current + 1) + '号 赌输了 -' + bet);
+  }
+  return { ok: true, played: true, win: win, amount: bet };
 }
 
 export function buyProp(s, cellIdx) {
@@ -166,11 +225,10 @@ export function upgradeProp(s, cellIdx) {
 export function checkBankrupt(s) {
   const p = s.players[s.current];
   if (p.money < 0 && p.props.length) {
-    // 先变卖地产（半价）抵债，卖光仍为负才算破产
     while (p.money < 0 && p.props.length) {
       const e = p.props.pop();
       p.money += Math.floor(BOARD[e.i].price / 2);
-      pushLog(s, (s.current + 1) + '号 变卖 ' + BOARD[e.i].name);
+      pushLog(s, (s.current + 1) + '号 变卖 ' + BOARD[e.i].name + ' 抵债');
     }
   }
   if (p.money < 0) {
@@ -181,7 +239,6 @@ export function checkBankrupt(s) {
   return false;
 }
 
-/** 轮转到下一个存活玩家，并处理监狱暂停 */
 export function endTurn(s) {
   const n = s.players.length;
   for (let i = 1; i <= n; i++) {
@@ -227,11 +284,4 @@ export function roundWinner(s) {
     }
   }
   return { player: best, wealth: bestW };
-}
-
-/** 棋盘格在「可滚动网格」里的顺序（3 列 × 8 行，起点在最上方） */
-export function gridOrder() {
-  const out = [];
-  for (let i = 0; i < CELL_COUNT; i++) out.push(i);
-  return out;
 }

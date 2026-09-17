@@ -38,7 +38,9 @@
     </div>
 
     <div class="screen" if="{{ stage === 'play' }}">
+      <text class="nowchip {{ nowCls }}">{{ nowName }}</text>
       <text class="info">{{ topLine }}</text>
+      <text class="sub">{{ hist }}</text>
       <text class="sub">{{ midLine }}</text>
       <text class="sub">{{ logLine }}</text>
 
@@ -139,6 +141,7 @@
     allHandsEmpty,
     aiAction
   } from '../../common/liar';
+  import { defaultNames, colorOf } from '../../common/setup';
 
   const SLOTS = 12;
 
@@ -158,6 +161,11 @@
 
       topLine: '',
       midLine: '',
+      names: [],
+      colors: [],
+      nowName: '',
+      nowCls: 'nowchip pc-r',
+      hist: '',
       logLine: '',
       canCall: false,
       over: false,
@@ -223,6 +231,9 @@
       this.clearAi();
       this.mode = mode || this.mode;
       this.game = createGame(this.playerCount);
+      this.names = defaultNames(this.playerCount);
+      this.colors = [];
+      for (let i = 0; i < this.playerCount; i++) this.colors.push(colorOf(i));
       this.sel = [];
       this.page = 0;
       this.over = false;
@@ -262,10 +273,17 @@
         : (g.lastPlay ? (g.lastPlay.from + 1) + '号 盖了 ' + g.lastPlay.cards.length + ' 张' : '还没人盖牌') +
           ' · 轮到 ' + (g.cur + 1) + '号';
       this.logLine = g.log[0] || '';
+      this.nowName = this.nm(g.cur);
+      this.nowCls = 'nowchip ' + (this.colors[g.cur] || 'pc-r');
+      this.hist = g.log.slice(0, 2).join(' · ');
       this.canCall =
         !g.over && !this.cover && g.cur === this.viewer && !!g.lastPlay &&
         g.lastPlay.from !== this.viewer && aliveList(g).length > 1;
       this.renderHand();
+    },
+
+    nm(i) {
+      return this.names[i] || (i + 1) + '号';
     },
 
     renderHand() {

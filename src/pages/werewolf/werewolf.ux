@@ -165,6 +165,7 @@
     wolfIdxOf,
     seerIdxOf
   } from '../../common/werewolf';
+  import { defaultNames } from '../../common/setup';
 
   export default {
     private: {
@@ -195,6 +196,7 @@
 
       over: false,
       overText: '',
+      names: [],
 
       c0: 'chip chip-empty', c0t: '', c0c: 'chiptext-dim',
       c1: 'chip chip-empty', c1t: '', c1c: 'chiptext-dim',
@@ -233,14 +235,19 @@
 
     startGame() {
       this.game = createGame(this.playerCount);
+      this.names = defaultNames(this.playerCount);
       this.over = false;
       this.holder = 1;
-      this.holderText = '第 1 位玩家';
+      this.holderText = '第 1 位玩家（' + this.nm(0) + '）';
       this.revealed = false;
       this.holderRole = '';
       this.nextLabel = this.playerCount > 1 ? '下一位' : '进入夜晚';
       this.stage = 'roles';
       this.renderSlots();
+    },
+
+    nm(i) {
+      return this.names[i] || (i + 1) + '号';
     },
 
     peekRole() {
@@ -259,7 +266,7 @@
         return;
       }
       this.holder++;
-      this.holderText = '第 ' + this.holder + ' 位玩家';
+      this.holderText = '第 ' + this.holder + ' 位玩家（' + this.nm(this.holder - 1) + '）';
       this.revealed = false;
       this.nextLabel = this.holder >= this.playerCount ? '进入夜晚' : '下一位';
     },
@@ -276,7 +283,7 @@
           const sel = this.pick === k;
           ids[k] = k;
           this['c' + k] = !p.alive ? 'chip chip-dead' : sel ? 'chip chip-sel' : 'chip';
-          this['c' + k + 't'] = (k + 1) + '号' + (p.alive ? ' ♥' + p.hp : ' 亡');
+          this['c' + k + 't'] = this.nm(k) + (p.alive ? ' ♥' + p.hp : ' 亡');
           this['c' + k + 'c'] = !p.alive ? 'chiptext-dim' : 'chiptext';
         } else {
           ids[k] = -1;
@@ -353,7 +360,7 @@
       } else if (this.stage === 'day') {
         this.nightTitle = '';
         this.dayTitle = '白天 · 第 ' + g.round + ' 轮';
-        this.voteHint = this.voting ? (this.voter + 1) + '号 投票（不能投自己）' : '点「进入夜晚」继续';
+        this.voteHint = this.voting ? this.nm(this.voter) + ' 投票（不能投自己）' : '点「进入夜晚」继续';
       } else {
         this.voteHint = '';
       }

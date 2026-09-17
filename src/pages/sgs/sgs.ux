@@ -38,7 +38,9 @@
     </div>
 
     <div class="screen" if="{{ stage === 'play' }}">
+      <text class="nowchip {{ nowCls }}">{{ nowName }}</text>
       <text class="info">{{ infoLine }}</text>
+      <text class="sub">{{ hist }}</text>
       <text class="sub">{{ eventLine }}</text>
 
       <div class="grow"></div>
@@ -194,6 +196,7 @@
     aiTakeTurn,
     endTurn
   } from '../../common/sgs';
+  import { defaultNames, colorOf } from '../../common/setup';
 
   const SLOTS = 12;
 
@@ -214,6 +217,11 @@
 
       infoLine: '',
       eventLine: '',
+      names: [],
+      colors: [],
+      nowName: '',
+      nowCls: 'nowchip pc-r',
+      hist: '',
       myTurn: false,
       aiTurn: false,
 
@@ -299,6 +307,9 @@
       this.clearAi();
       this.mode = mode || this.mode;
       this.game = createGame(this.playerCount, this.mode === 'hotseat');
+      this.names = defaultNames(this.playerCount);
+      this.colors = [];
+      for (let i = 0; i < this.playerCount; i++) this.colors.push(colorOf(i));
       this.sel = [];
       this.page = 0;
       this.over = false;
@@ -334,12 +345,20 @@
       if (!g) return;
       const p = g.players[this.viewer];
       this.infoLine =
-        (this.viewer + 1) + '号：' + ROLE_NAME[p.role] + ' · HP ' + p.hp + ' · 手牌 ' + p.hand.length;
+        this.nm(this.viewer) + '（' + (this.viewer + 1) + '号）· ' + ROLE_NAME[p.role] +
+        ' · HP ' + p.hp + ' · 手牌 ' + p.hand.length;
+      this.nowName = this.nm(g.current);
+      this.nowCls = 'nowchip ' + (this.colors[g.current] || 'pc-r');
+      this.hist = g.events.slice(-2).join(' · ');
       this.eventLine = '现在 ' + (g.current + 1) + '号回合 · ' + (g.events[g.events.length - 1] || '');
       const myPhase = g.current === this.viewer && !g.winner && g.players[this.viewer].alive && !g.pending && !this.cover;
       this.myTurn = myPhase;
       this.aiTurn = this.mode === 'ai' && !g.winner && !g.pending && !this.cover && g.current !== 0;
       this.renderHand();
+    },
+
+    nm(i) {
+      return this.names[i] || (i + 1) + '号';
     },
 
     renderHand() {

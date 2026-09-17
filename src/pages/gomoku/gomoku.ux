@@ -43,6 +43,7 @@
         <text class="header-title">{{ title }}</text>
       </div>
 
+      <text class="nowchip {{ nowCls }}">{{ nowName }}</text>
       <div class="status">
         <text class="status-text">{{ statusText }}</text>
       </div>
@@ -300,6 +301,7 @@
     LEVEL_LABELS,
     LEVEL_ORDER
   } from '../../common/gomoku-ai';
+  import { defaultNames, colorOf } from '../../common/setup';
 
   const HEADER_H = 46;
   const STATUS_H = 26;
@@ -367,6 +369,10 @@
 
       title: '五子棋',
       statusText: '',
+      names: [],
+      colors: [],
+      nowName: '',
+      nowCls: 'nowchip pc-r',
       aiTimer: null
     },
 
@@ -553,7 +559,13 @@
       else if (this.winner === -1) this.statusText = '平局，棋盘已满';
       else if (this.mode === 'ai')
         this.statusText = this.turn === WHITE ? 'AI 思考中…' : '轮到你 · 执黑';
-      else this.statusText = this.turn === BLACK ? '轮到 黑方 落子' : '轮到 白方 落子';
+      else this.statusText = '轮到 ' + (this.names[this.turn - 1] || (this.turn === BLACK ? '黑方' : '白方')) + ' 落子';
+      this.nowName =
+        this.mode === 'ai'
+          ? (this.turn === WHITE ? 'AI 思考中' : '你（黑棋）')
+          : (this.names[this.turn - 1] || (this.turn === BLACK ? '黑方' : '白方')) +
+            (this.turn === BLACK ? ' 执黑' : ' 执白');
+      this.nowCls = 'nowchip ' + (this.colors[this.turn - 1] || 'pc-r');
       this.render();
     },
 
@@ -567,6 +579,8 @@
 
     startAi() {
       this.mode = 'ai';
+      this.names = ['你', 'AI'];
+      this.colors = [colorOf(0), colorOf(1)];
       this.phase = 'play';
       this.resetState();
       this.refresh();
@@ -574,6 +588,8 @@
 
     startPvp() {
       this.mode = 'pvp';
+      this.names = defaultNames(2);
+      this.colors = [colorOf(0), colorOf(1)];
       this.phase = 'play';
       this.resetState();
       this.refresh();
