@@ -8,24 +8,11 @@
     </div>
 
     <!-- 菜单 -->
-    <div class="screen" if="{{ phase === 'menu' }}">
-      <text class="step">选择人数（含你自己）</text>
-      <div class="countbox" style="width: {{ listW }}px;">
-        <div class="cbtn" onclick="minus">
-          <text class="ctext">－</text>
-        </div>
-        <text class="cnum">{{ playerCount }} 人</text>
-        <div class="cbtn" onclick="plus">
-          <text class="ctext">＋</text>
-        </div>
-      </div>
+    <div class="screen" if="{{ stage === 'menu' }}">
+      <div class="grow"></div>
       <div class="list" style="width: {{ listW }}px;">
-        <div class="card" onclick="startAi">
-          <text class="card-text">对战 AI（你 + {{ playerCount - 1 }} AI）</text>
-          <text class="card-arrow">&gt;</text>
-        </div>
-        <div class="card" onclick="startHuman">
-          <text class="card-text">同表多人（轮流操作）</text>
+        <div class="card" onclick="toSetup">
+          <text class="card-text">开始游戏</text>
           <text class="card-arrow">&gt;</text>
         </div>
         <div class="card" onclick="goRules">
@@ -33,36 +20,127 @@
           <text class="card-arrow">&gt;</text>
         </div>
       </div>
-      <text class="hint">掷骰走格 · 买地收租 · 升级翻倍租金</text>
-      <text class="hint">破产出局，60 回合后比总资产</text>
+      <div class="grow"></div>
+      <text class="hint">开局可设初始资金 / 真人 / 电脑 / 名字</text>
+    </div>
+
+    <!-- 开局设置 -->
+    <div class="screen" if="{{ stage === 'setup' }}">
+      <text class="info">开局设置</text>
+      <div class="countbox" style="width: {{ listW }}px;">
+        <div class="cbtn" onclick="moneyPrev">
+          <text class="ctext">◀</text>
+        </div>
+        <text class="cnum">资金 ¥{{ money }}</text>
+        <div class="cbtn" onclick="moneyNext">
+          <text class="ctext">▶</text>
+        </div>
+      </div>
+      <div class="countbox" style="width: {{ listW }}px;">
+        <div class="cbtn" onclick="humanPrev">
+          <text class="ctext">◀</text>
+        </div>
+        <text class="cnum">真人 {{ humans }} 人</text>
+        <div class="cbtn" onclick="humanNext">
+          <text class="ctext">▶</text>
+        </div>
+      </div>
+      <div class="countbox" style="width: {{ listW }}px;">
+        <div class="cbtn" onclick="aiPrev">
+          <text class="ctext">◀</text>
+        </div>
+        <text class="cnum">电脑 {{ ai }} 人</text>
+        <div class="cbtn" onclick="aiNext">
+          <text class="ctext">▶</text>
+        </div>
+      </div>
+
+      <scroll class="seats" scroll-y="true">
+        <div class="seatrow" if="{{ has0 }}">
+          <div class="{{ c0 }}" onclick="nm0L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n0 }}{{ t0 }}</text>
+          <div class="{{ c1 }}" onclick="nm0R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+        <div class="seatrow" if="{{ has1 }}">
+          <div class="{{ c0 }}" onclick="nm1L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n1 }}{{ t1 }}</text>
+          <div class="{{ c1 }}" onclick="nm1R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+        <div class="seatrow" if="{{ has2 }}">
+          <div class="{{ c0 }}" onclick="nm2L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n2 }}{{ t2 }}</text>
+          <div class="{{ c1 }}" onclick="nm2R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+        <div class="seatrow" if="{{ has3 }}">
+          <div class="{{ c0 }}" onclick="nm3L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n3 }}{{ t3 }}</text>
+          <div class="{{ c1 }}" onclick="nm3R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+        <div class="seatrow" if="{{ has4 }}">
+          <div class="{{ c0 }}" onclick="nm4L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n4 }}{{ t4 }}</text>
+          <div class="{{ c1 }}" onclick="nm4R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+        <div class="seatrow" if="{{ has5 }}">
+          <div class="{{ c0 }}" onclick="nm5L">
+            <text class="ctext">◀</text>
+          </div>
+          <text class="seatname">{{ n5 }}{{ t5 }}</text>
+          <div class="{{ c1 }}" onclick="nm5R">
+            <text class="ctext">▶</text>
+          </div>
+        </div>
+      </scroll>
+
+      <div class="ops">
+        <div class="btn btn-main" onclick="startGame">
+          <text class="bt bt-main">开始</text>
+        </div>
+        <div class="btn" onclick="onBack">
+          <text class="bt">返回</text>
+        </div>
+      </div>
     </div>
 
     <!-- 对局 -->
-    <div class="screen" if="{{ phase === 'play' }}">
-      <div class="boardwrap" style="width: {{ bs }}px; height: {{ bs }}px;">
-        <div class="board" style="left: 0; top: 0; width: {{ bs }}px; height: {{ bs }}px;">
-        <div
-          class="cell {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ cell }}px; height: {{ cell }}px;"
-          for="{{ cells }}"
-          tid="i"
-        >
-          <text class="celltext {{ $item.textCls }}">{{ $item.text }}</text>
-        </div>
-        <div
-          class="token {{ $item.cls }}"
-          style="left: {{ $item.x }}px; top: {{ $item.y }}px; width: {{ tk }}px; height: {{ tk }}px;"
-          for="{{ tokens }}"
-          tid="i"
-        ></div>
+    <div class="screen" if="{{ stage === 'play' }}">
+      <text class="sub">{{ logLine }}</text>
+      <div class="boardwrap">
+        <scroll class="tiles" scroll-y="true" style="height: {{ boardH }}px;">
+          <div class="tgrid">
+            <div class="tile {{ $item.cls }}" for="{{ cells }}" tid="i">
+              <text class="tname">{{ $item.name }}</text>
+              <text class="tsub">{{ $item.sub }}</text>
+              <text class="tdot {{ $item.dotCls }}">{{ $item.dotText }}</text>
+            </div>
+          </div>
+        </scroll>
 
-        <!-- 中央信息卡 -->
-        <div class="center" style="left: {{ cwx }}px; top: {{ cwy }}px; width: {{ cww }}px; height: {{ cwh }}px;">
-          <text class="ctitle">{{ turnLine }}</text>
-          <text class="cbig">{{ diceText }}</text>
+        <div class="center" style="top: {{ cTop }}px;">
+          <text class="crow {{ nowCls }}">{{ nowText }}</text>
+          <text class="ccash">{{ cashText }}</text>
+          <text class="cdice">{{ diceText }}</text>
           <text class="cevent">{{ eventLine }}</text>
-          <text class="cmoney" for="{{ moneyList }}" tid="k">{{ $item.t }}</text>
-        </div>
         </div>
       </div>
 
@@ -79,22 +157,30 @@
         <div class="btn" onclick="doUpgrade" if="{{ step === 'own' }}">
           <text class="bt">升级</text>
         </div>
-        <div class="btn" onclick="nextTurn" if="{{ step === 'own' || step === 'done' || step === 'payed' }}">
-          <text class="bt">结束回合</text>
+        <div class="btn" onclick="nextTurn" if="{{ step !== 'roll' && isHuman }}">
+          <text class="bt">结束</text>
         </div>
       </div>
+    </div>
 
-      <text class="log">{{ logLine }}</text>
+    <!-- 同表多人交接 -->
+    <div class="overlay" if="{{ cover }}">
+      <text class="overtext">{{ coverText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="revealPanel">
+          <text class="bt bt-main">继续</text>
+        </div>
+      </div>
+    </div>
 
-      <div class="overlay" if="{{ over }}">
-        <text class="overtext">{{ overText }}</text>
-        <div class="ops2">
-          <div class="btn" onclick="restart">
-            <text class="bt">再来一局</text>
-          </div>
-          <div class="btn" onclick="onBack">
-            <text class="bt">返回</text>
-          </div>
+    <div class="overlay" if="{{ over }}">
+      <text class="overtext">{{ overText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="startGame">
+          <text class="bt bt-main">再来一局</text>
+        </div>
+        <div class="btn" onclick="onBack">
+          <text class="bt">返回</text>
         </div>
       </div>
     </div>
@@ -104,182 +190,135 @@
 <style>
   @import "../../common/theme.css";
 
-  .screen {
+  /* 8 种玩家颜色 */
+  .pc-r { background-color: #d64545; }
+  .pc-b { background-color: #2b6cb0; }
+  .pc-o { background-color: #e07a2f; }
+  .pc-g { background-color: #2f9e44; }
+  .pc-p { background-color: #8e44ad; }
+  .pc-c { background-color: #17a2b8; }
+  .pc-y { background-color: #d9a520; }
+  .pc-k { background-color: #e84393; }
+
+  .seatrow {
     width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .step {
-    font-size: 17px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-top: 8px;
-    margin-bottom: 10px;
-  }
-
-  .countbox {
-    height: 60px;
+    height: 58px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.94);
-    border-radius: 14px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
-  .cbtn {
-    width: 56px;
-    height: 44px;
-    border-radius: 12px;
-    background-color: #17331d;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ctext {
-    font-size: 24px;
+  .seatname {
+    flex-grow: 1;
+    font-size: 20px;
     font-weight: bold;
     color: #ffffff;
+    text-align: center;
   }
 
-  .cnum {
-    font-size: 26px;
-    font-weight: bold;
-    color: #17331d;
+  .seats {
+    width: 100%;
+    flex-grow: 1;
   }
 
-  /* 棋盘：格子紧贴成环，中心为信息卡 */
+  /* 可滚动的地块网格 + 固定中央面板 */
   .boardwrap {
     position: relative;
-    margin-top: 6px;
+    width: 100%;
+    height: 100%;
   }
 
-  .board {
-    position: absolute;
-    background-color: #e9d3a6;
-    border-radius: 12px;
+  .tiles {
+    width: 100%;
   }
 
-  .cell {
-    position: absolute;
-    border-radius: 5px;
+  .tgrid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+
+  .tile {
+    width: 31%;
+    height: 52px;
+    border-radius: 8px;
     border-width: 1px;
     border-style: solid;
-    border-color: rgba(138, 106, 58, 0.5);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .celltext {
-    font-size: 13px;
-    font-weight: bold;
-    color: #17331d;
-  }
-
-  .cell-start {
-    background-color: #2f9e44;
-  }
-  .cell-prop {
-    background-color: #fdf7ea;
-  }
-  .cell-chance {
-    background-color: #f2c94c;
-  }
-  .cell-tax {
-    background-color: #e56b5d;
-  }
-  .cell-text-start {
-    color: #ffffff;
-  }
-  .cell-text-tax {
-    color: #ffffff;
-  }
-
-  .token {
-    position: absolute;
-    border-radius: 50%;
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff;
-  }
-
-  .token-0 {
-    background-color: #d64545;
-  }
-  .token-1 {
-    background-color: #2b6cb0;
-  }
-  .token-2 {
-    background-color: #2f9e44;
-  }
-  .token-3 {
-    background-color: #d9a520;
-  }
-
-  /* 中央信息卡 */
-  .center {
-    position: absolute;
-    background-color: #f7efdd;
-    border-radius: 10px;
+    border-color: rgba(255, 255, 255, 0.45);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 6px;
+    margin: 1%;
   }
 
-  .ctitle {
-    font-size: 16px;
+  .t-start { background-color: #17331d; }
+  .t-prop { background-color: rgba(255, 255, 255, 0.94); }
+  .t-chance { background-color: #f2c94c; }
+  .t-tax { background-color: #e56b5d; }
+  .t-jail { background-color: #6b7280; }
+
+  .tname {
+    font-size: 15px;
     font-weight: bold;
     color: #17331d;
-    text-align: center;
-    margin-bottom: 4px;
   }
 
-  .cbig {
-    font-size: 24px;
+  .tsub {
+    font-size: 12px;
+    color: #2b3f31;
+  }
+
+  .tdot {
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .dot-w { color: #ffffff; }
+  .dot-d { color: #17331d; }
+
+  .center {
+    position: absolute;
+    left: 12%;
+    width: 76%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .crow {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 12px;
+  }
+
+  .ccash {
+    font-size: 22px;
+    font-weight: bold;
+    color: #17331d;
+    margin-top: 4px;
+  }
+
+  .cdice {
+    font-size: 16px;
     font-weight: bold;
     color: #2b6cb0;
-    text-align: center;
-    margin-bottom: 4px;
+    margin-top: 2px;
   }
 
   .cevent {
-    font-size: 14px;
+    font-size: 13px;
     color: #2b3f31;
     text-align: center;
-    margin-bottom: 4px;
-  }
-
-  .cmoney {
-    font-size: 14px;
-    font-weight: bold;
-    color: #17331d;
-    margin-bottom: 2px;
-  }
-
-  .ops {
-    width: 100%;
-    height: 64px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .ops2 {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .log {
-    width: 100%;
-    font-size: 14px;
-    color: #eafffe;
-    text-align: center;
+    margin-top: 2px;
   }
 </style>
 
@@ -290,6 +329,8 @@
   import {
     BOARD,
     CELL_COUNT,
+    MONEY_OPTIONS,
+    MAX_ROUNDS,
     createGame,
     rollDice,
     move,
@@ -300,57 +341,64 @@
     endTurn,
     aliveCount,
     roundWinner,
-    ringPositions
+    wealthOf
   } from '../../common/monopoly';
+  import { NAME_POOL, COLOR_CLASSES, cycleName } from '../../common/setup';
 
-  const HEADER_H = 52;
-  const OPS_H = 46;
-  const COLORS = ['token-0', 'token-1', 'token-2', 'token-3'];
+  const MAX_SEATS = 6;
 
   export default {
     private: {
-      phase: 'menu',
-      mode: 'ai', // ai | human
-      playerCount: 3,
+      stage: 'menu', // menu | setup | play
       listW: 320,
 
+      // 设置
+      moneyIdx: 1,
+      money: 5000,
+      humans: 1,
+      ai: 2,
+      n0: '大卫', n1: '安娜', n2: '李雷', n3: '韩梅梅', n4: '麦克', n5: '小美',
+      t0: '', t1: '', t2: '', t3: '', t4: '', t5: '',
+      has0: true, has1: true, has2: true, has3: false, has4: false, has5: false,
+      c0: 'cbtn pc-r', c1: 'cbtn pc-r',
+      seatNames: [],
+
+      // 对局
       game: null,
+      seats: [],
+      viewer: 0,
+      cover: false,
+      coverText: '',
+      isHuman: true,
       step: 'roll',
       over: false,
       overText: '',
 
-      bx: 8,
-      by: 58,
-      bs: 312,
-      cell: 48,
-      tk: 16,
-      cwx: 60,
-      cwy: 60,
-      cww: 190,
-      cwh: 190,
-      opsY: 424,
-      logY: 398,
-
       cells: [],
-      tokens: [],
-      moneyList: [],
-      turnLine: '',
+      nowText: '',
+      nowCls: 'crow pc-r',
+      cashText: '',
       diceText: '',
       eventLine: '',
       logLine: '',
-
+      boardH: 300,
+      cTop: 90,
       aiTimer: null
     },
 
     onInit() {
       device.getInfo({
         success: (ret) => {
-          this.applyLayout((ret && ret.screenWidth) || 336, (ret && ret.screenHeight) || 480);
+          const w = (ret && ret.screenWidth) || 336;
+          const h = (ret && ret.screenHeight) || 480;
+          this.applyLayout(w, h);
         },
         fail: () => {
           this.applyLayout(336, 480);
         }
       });
+      this.money = MONEY_OPTIONS[this.moneyIdx];
+      this.syncSeats();
     },
 
     onHide() {
@@ -362,60 +410,153 @@
     },
 
     onBackPress() {
-      return this.phase === 'play';
+      return this.stage === 'play' || this.stage === 'setup';
     },
 
     applyLayout(w, h) {
-      const bs = Math.min(w - 16, 320);
-      const bx = Math.floor((w - bs) / 2);
-      const by = HEADER_H + 4;
-      const sp = bs / 6; // 每边 6 格
-      const cell = Math.floor(sp) - 2;
-      const opsY = h - OPS_H - 10;
-
-      this.bs = bs;
-      this.bx = bx;
-      this.by = by;
-      this.cell = cell;
-      this.tk = Math.max(10, Math.floor(cell / 3));
-      this.opsY = opsY;
-      this.logY = opsY - 24;
-      // 中央信息卡
-      this.cwx = Math.floor(sp) + 6;
-      this.cwy = this.cwx;
-      this.cww = bs - 2 * this.cwx;
-      this.cwh = this.cww;
       this.listW = w - 24;
-      if (this.game) this.renderBoard();
+      this.boardH = h - 54 - 30 - 64 - 12;
+      this.cTop = Math.floor(this.boardH / 2) - 60;
     },
 
-    minus() {
-      if (this.playerCount > 2) this.playerCount--;
+    /* ---------------- 开局设置 ---------------- */
+
+    syncSeats() {
+      const total = this.humans + this.ai;
+      const names = [];
+      for (let i = 0; i < MAX_SEATS; i++) {
+        const on = i < total;
+        this['has' + i] = on;
+        if (!on) continue;
+        const nm = this['n' + i];
+        const isAi = i >= this.humans;
+        this['t' + i] = (isAi ? '（电脑）' : '') + ' ' + COLOR_CLASSES[i % 8].replace('pc-', '');
+        names.push({ name: nm, ai: isAi, color: COLOR_CLASSES[i % 8] });
+      }
+      this.seatNames = names;
+      this.c0 = 'cbtn ' + COLOR_CLASSES[0];
+      this.c1 = 'cbtn ' + COLOR_CLASSES[1];
     },
 
-    plus() {
-      if (this.playerCount < 4) this.playerCount++;
+    moneyPrev() {
+      this.moneyIdx = (this.moneyIdx - 1 + MONEY_OPTIONS.length) % MONEY_OPTIONS.length;
+      this.money = MONEY_OPTIONS[this.moneyIdx];
     },
 
-    startAi() {
-      this.mode = 'ai';
-      this.startGame();
+    moneyNext() {
+      this.moneyIdx = (this.moneyIdx + 1) % MONEY_OPTIONS.length;
+      this.money = MONEY_OPTIONS[this.moneyIdx];
     },
 
-    startHuman() {
-      this.mode = 'human';
-      this.startGame();
+    humanPrev() {
+      if (this.humans > 1) this.humans--;
+      else this.humans = 4;
+      if (this.humans + this.ai > MAX_SEATS) this.ai = MAX_SEATS - this.humans;
+      if (this.humans + this.ai < 2) this.ai = Math.max(0, 2 - this.humans);
+      this.syncSeats();
     },
+
+    humanNext() {
+      if (this.humans < 4) this.humans++;
+      else this.humans = 1;
+      if (this.humans + this.ai > MAX_SEATS) this.ai = MAX_SEATS - this.humans;
+      if (this.humans + this.ai < 2) this.ai = Math.max(0, 2 - this.humans);
+      this.syncSeats();
+    },
+
+    aiPrev() {
+      if (this.ai > 0) this.ai--;
+      else this.ai = Math.min(4, MAX_SEATS - this.humans);
+      if (this.humans + this.ai < 2) this.ai = Math.max(0, 2 - this.humans);
+      this.syncSeats();
+    },
+
+    aiNext() {
+      if (this.humans + this.ai < MAX_SEATS) this.ai++;
+      else this.ai = 0;
+      if (this.humans + this.ai < 2) this.ai = Math.max(0, 2 - this.humans);
+      this.syncSeats();
+    },
+
+    cycleAt(i, dir) {
+      const cur = this['n' + i];
+      let next = cycleName(cur, dir);
+      // 避免与同房其它座位重名
+      let guard = 0;
+      const used = [];
+      for (let k = 0; k < MAX_SEATS; k++) {
+        if (k !== i && this['has' + k]) used.push(this['n' + k]);
+      }
+      while (used.indexOf(next) >= 0 && guard++ < NAME_POOL.length) {
+        next = cycleName(next, dir);
+      }
+      this['n' + i] = next;
+      this.syncSeats();
+    },
+
+    nm0L() {
+      this.cycleAt(0, -1);
+    },
+    nm0R() {
+      this.cycleAt(0, 1);
+    },
+    nm1L() {
+      this.cycleAt(1, -1);
+    },
+    nm1R() {
+      this.cycleAt(1, 1);
+    },
+    nm2L() {
+      this.cycleAt(2, -1);
+    },
+    nm2R() {
+      this.cycleAt(2, 1);
+    },
+    nm3L() {
+      this.cycleAt(3, -1);
+    },
+    nm3R() {
+      this.cycleAt(3, 1);
+    },
+    nm4L() {
+      this.cycleAt(4, -1);
+    },
+    nm4R() {
+      this.cycleAt(4, 1);
+    },
+    nm5L() {
+      this.cycleAt(5, -1);
+    },
+    nm5R() {
+      this.cycleAt(5, 1);
+    },
+
+    toSetup() {
+      this.stage = 'setup';
+      this.syncSeats();
+    },
+
+    /* ---------------- 开局 ---------------- */
 
     startGame() {
       this.clearAi();
-      this.game = createGame(this.playerCount);
+      const total = this.humans + this.ai;
+      this.seats = [];
+      for (let i = 0; i < total; i++) {
+        this.seats.push({
+          name: this['n' + i],
+          color: COLOR_CLASSES[i % 8],
+          isAi: i >= this.humans
+        });
+      }
+      this.game = createGame(total, this.money);
       this.over = false;
       this.step = 'roll';
-      this.phase = 'play';
+      this.viewer = 0;
       this.diceText = '';
+      this.stage = 'play';
       this.renderBoard();
-      this.refreshInfo('轮到 1 号掷骰');
+      this.refreshInfo('');
       this.afterTurn();
     },
 
@@ -428,108 +569,80 @@
     renderBoard() {
       const g = this.game;
       if (!g) return;
-      const cell = this.cell;
-      const inner = this.bs - cell;
-      const pts = ringPositions(inner);
       const cells = [];
       for (let i = 0; i < CELL_COUNT; i++) {
         const c = BOARD[i];
-        let text = String(c.price);
-        if (c.t === 'chance') text = '机';
-        if (c.t === 'tax') text = '税';
-        if (c.t === 'start') text = '起';
+        const owner = g.players.findIndex((q) => q.props.some((e) => e.i === i));
+        const here = [];
+        for (let p = 0; p < g.players.length; p++) {
+          if (g.players[p].alive && g.players[p].pos === i) here.push(p + 1);
+        }
+        let sub = '';
+        if (c.t === 'prop') sub = '¥' + c.price + (owner >= 0 ? ' · ' + this.seats[owner].name : '');
+        else if (c.t === 'tax') sub = '缴 ¥' + c.amount;
+        else if (c.t === 'chance') sub = '抽卡';
+        else sub = c.t === 'jail' ? '暂停一轮' : '领 ¥400';
         cells.push({
           i: i + 1,
-          x: pts[i].x,
-          y: pts[i].y,
-          cls: 'cell-' + c.t,
-          textCls: c.t === 'prop' ? '' : 'cell-text-' + c.t,
-          text: text
+          name: c.name,
+          sub: sub,
+          cls: 'tile t-' + c.t,
+          dotText: here.length ? '● ' + here.join('/') + '号' : '',
+          dotCls: c.t === 'prop' || c.t === 'chance' ? 'tdot dot-d' : 'tdot dot-w'
         });
       }
       this.cells = cells;
-      this.buildTokens();
-    },
-
-    buildTokens() {
-      const g = this.game;
-      if (!g) return;
-      const cell = this.cell;
-      const inner = this.bs - cell;
-      const pts = ringPositions(inner);
-      const count = g.players.length;
-      const tokens = [];
-      for (let p = 0; p < count; p++) {
-        if (!g.players[p].alive) continue;
-        const base = pts[g.players[p].pos];
-        const off = (p - (count - 1) / 2) * Math.floor(cell / 4);
-        tokens.push({
-          i: p + 1,
-          x: base.x + Math.floor(cell / 2) - Math.floor(this.tk / 2) + off,
-          y: base.y + Math.floor(cell / 2) - Math.floor(this.tk / 2) + off,
-          cls: COLORS[p % 4]
-        });
-      }
-      this.tokens = tokens;
     },
 
     refreshInfo(event) {
       const g = this.game;
       if (!g) return;
       const p = g.players[g.current];
-      const isAi = this.mode === 'ai' && g.current !== 0;
-      this.turnLine = '轮到 ' + (g.current + 1) + '号' + (isAi ? '（AI）' : '') + ' · 第 ' + g.round + ' 回合';
+      const seat = this.seats[g.current];
+      this.nowText = '轮到 ' + seat.name + '（' + (g.current + 1) + '号' + (seat.isAi ? '·电脑' : '') + '）';
+      this.nowCls = 'crow ' + seat.color;
+      this.cashText = '¥' + Math.max(0, p.money) + ' · 第' + g.round + '/' + MAX_ROUNDS + '回合';
       this.eventLine = event || '';
       this.logLine = g.log[g.log.length - 1] || '';
-      const list = [];
-      for (let i = 0; i < g.players.length; i++) {
-        const q = g.players[i];
-        list.push({
-          k: i + 1,
-          t: (i + 1) + '号 ¥' + Math.max(0, q.money) + (q.alive ? '' : ' 出局')
-        });
-      }
-      this.moneyList = list;
-      this.buildTokens();
-      this.step = this.step || 'roll';
-      this.renderHandless();
+      this.isHuman = !seat.isAi;
+      this.renderBoard();
     },
 
-    renderHandless() {
-      // 触发视图更新（cells/tokens 已在上面赋值）
-      this.cells = this.cells.slice();
-    },
-
-    /* ---------------- 人类回合 ---------------- */
+    /* ---------------- 回合 ---------------- */
 
     roll() {
       const g = this.game;
-      if (!g || this.over) return;
+      if (!g || this.over || this.cover) return;
       const d = rollDice();
-      this.diceText = d.a + ' + ' + d.b;
+      this.diceText = '骰 ' + d.a + ' + ' + d.b;
       move(g, d.sum);
       const ev = settle(g);
       this.renderBoard();
+      const seat = this.seats[g.current];
       if (ev.type === 'buy') {
         this.step = 'buy';
-        this.refreshInfo('要买下 ' + ev.name + ' 吗？¥' + ev.price + '（你 ¥' + g.players[0].money + '）');
+        this.refreshInfo('要买下「' + ev.name + '」吗？¥' + ev.price);
         return;
       }
       if (ev.type === 'own') {
-        const p = g.players[g.current];
-        const e = p.props.find((q) => q.i === ev.cell);
+        const e = g.players[g.current].props.find((q) => q.i === ev.cell);
         this.step = e && e.level < 2 ? 'own' : 'done';
-        this.refreshInfo('你的地产（' + ev.name + '）' + (e && e.level < 2 ? ' · 可升级' : ' · 已满级'));
+        this.refreshInfo('自己的「' + ev.name + '」' + (e && e.level < 2 ? '，可升级' : '· 已满级'));
         return;
       }
       if (ev.type === 'rent') {
-        this.step = 'payed';
-        this.refreshInfo('付租 ¥' + ev.amount + ' 给 ' + (ev.owner + 1) + '号');
+        this.step = 'done';
+        this.refreshInfo('付租 ¥' + ev.amount + ' 给 ' + this.seats[ev.owner].name);
         return;
       }
       if (ev.type === 'tax') {
-        this.step = 'payed';
+        this.step = 'done';
         this.refreshInfo('缴税 ¥' + ev.amount);
+        return;
+      }
+      if (ev.type === 'jail') {
+        this.step = 'done';
+        this.refreshInfo('进了监狱，暂停一轮');
         return;
       }
       if (ev.type === 'chance') {
@@ -538,13 +651,12 @@
         return;
       }
       this.step = 'done';
-      this.refreshInfo('落在 ' + (ev.name || ''));
+      this.refreshInfo('落在「' + (ev.name || '') + '」');
+      return;
     },
 
     doBuy() {
       const g = this.game;
-      const ev = this.pendingCell;
-      // 当前位置即待买格
       const pos = g.players[g.current].pos;
       if (g.players[g.current].money < BOARD[pos].price) {
         this.hint('买不起');
@@ -552,7 +664,7 @@
       }
       buyProp(g, pos);
       this.step = 'done';
-      this.refreshInfo('买入 ' + BOARD[pos].name);
+      this.refreshInfo('买入「' + BOARD[pos].name + '」');
     },
 
     skipBuy() {
@@ -562,8 +674,7 @@
 
     doUpgrade() {
       const g = this.game;
-      const pos = g.players[g.current].pos;
-      const r = upgradeProp(g, pos);
+      const r = upgradeProp(g, g.players[g.current].pos);
       if (!r.ok) {
         this.hint(r.msg);
         return;
@@ -578,29 +689,47 @@
       checkBankrupt(g);
       const ac = aliveCount(g);
       if (ac.count <= 1) {
-        this.finish('玩家 ' + (ac.last + 1) + ' 号获胜！');
+        this.finish(this.seats[ac.last].name + ' 获胜！');
+        return;
+      }
+      if (g.round > MAX_ROUNDS) {
+        const rw = roundWinner(g);
+        this.finish('60 回合到 · ' + this.seats[rw.player].name + ' 总资产最高获胜！');
         return;
       }
       endTurn(g);
-      if (g.round > 60) {
-        const rw = roundWinner(g);
-        this.finish('60 回合到 · ' + (rw.player + 1) + ' 号总资产最高获胜！');
-        return;
-      }
       this.diceText = '';
       this.step = 'roll';
-      this.renderBoard();
-      this.refreshInfo('轮到 ' + (g.current + 1) + ' 号掷骰');
       this.afterTurn();
     },
-
-    /* ---------------- AI 回合 ---------------- */
 
     afterTurn() {
       const g = this.game;
       if (!g || this.over) return;
-      if (this.mode === 'ai' && g.current !== 0) this.scheduleAi();
+      const seat = this.seats[g.current];
+      if (seat.isAi) {
+        this.refreshInfo(this.seatName(g.current) + '（电脑）思考中…');
+        this.scheduleAi();
+        return;
+      }
+      // 真人：同表多人时交接
+      this.viewer = g.current;
+      this.cover = true;
+      this.coverText = '轮到 ' + seat.name + '（' + (g.current + 1) + '号）· 把表交给 TA';
+      this.refreshInfo('轮到 ' + seat.name + '，点「继续」开始');
     },
+
+    revealPanel() {
+      this.cover = false;
+      this.step = 'roll';
+      this.refreshInfo('轮到 ' + this.seats[this.game.current].name + '，掷骰');
+    },
+
+    seatName(i) {
+      return this.seats[i] ? this.seats[i].name : i + 1 + '号';
+    },
+
+    /* ---------------- AI ---------------- */
 
     scheduleAi() {
       this.clearAi();
@@ -608,71 +737,63 @@
         this.aiTimer = null;
         const g = this.game;
         if (!g || this.over) return;
-        if (this.mode !== 'ai' || g.current === 0) return;
-        this.aiStep();
-      }, 650);
-    },
-
-    aiStep() {
-      const g = this.game;
-      if (!g || this.over || g.current === 0) return;
-      const pid = g.current;
-      const d = rollDice();
-      this.diceText = d.a + ' + ' + d.b;
-      move(g, d.sum);
-      const ev = settle(g);
-      this.renderBoard();
-
-      if (ev.type === 'buy') {
-        const p = g.players[pid];
-        if (p.money >= BOARD[ev.cell].price) {
-          buyProp(g, ev.cell);
-          this.refreshInfo((pid + 1) + '号(AI) 买入 ' + ev.name);
-        } else {
-          this.refreshInfo((pid + 1) + '号(AI) 放弃购买');
-        }
-      } else if (ev.type === 'own') {
-        const p = g.players[pid];
-        const e = p.props.find((q) => q.i === ev.cell);
-        if (e && e.level < 2 && p.money >= BOARD[ev.cell].price * 3) {
-          upgradeProp(g, ev.cell);
-          this.refreshInfo((pid + 1) + '号(AI) 升级地产');
-        } else {
-          this.refreshInfo((pid + 1) + '号(AI) 回合结束');
-        }
-      } else if (ev.type === 'rent') {
-        this.refreshInfo((pid + 1) + '号(AI) 付租 ¥' + ev.amount);
-      } else if (ev.type === 'tax') {
-        this.refreshInfo((pid + 1) + '号(AI) 缴税 ¥' + ev.amount);
-      } else if (ev.type === 'chance') {
-        this.refreshInfo((pid + 1) + '号(AI) 机会：' + ev.card.text);
-      } else {
-        this.refreshInfo((pid + 1) + '号(AI) 走格');
-      }
-      this.renderBoard();
-
-      this.aiTimer = setTimeout(() => {
-        this.aiTimer = null;
-        const gg = this.game;
-        if (!gg || this.over) return;
-        checkBankrupt(gg);
-        const ac = aliveCount(gg);
-        if (ac.count <= 1) {
-          this.finish('玩家 ' + (ac.last + 1) + ' 号获胜！');
-          return;
-        }
-        endTurn(gg);
-        if (gg.round > 60) {
-          const rw = roundWinner(gg);
-          this.finish('60 回合到 · ' + (rw.player + 1) + ' 号总资产最高获胜！');
-          return;
-        }
-        this.diceText = '';
-        this.step = 'roll';
+        if (!this.seats[g.current].isAi) return;
+        const pid = g.current;
+        const d = rollDice();
+        this.diceText = '骰 ' + d.a + ' + ' + d.b;
+        move(g, d.sum);
+        const ev = settle(g);
         this.renderBoard();
-        this.refreshInfo('轮到 ' + (gg.current + 1) + ' 号掷骰');
-        this.afterTurn();
-      }, 700);
+        const nm = this.seatName(pid);
+        if (ev.type === 'buy') {
+          if (g.players[pid].money >= BOARD[ev.cell].price) {
+            buyProp(g, ev.cell);
+            this.refreshInfo(nm + ' 买入「' + ev.name + '」');
+          } else {
+            this.refreshInfo(nm + ' 放弃购买');
+          }
+        } else if (ev.type === 'own') {
+          const e = g.players[pid].props.find((q) => q.i === ev.cell);
+          if (e && e.level < 2 && g.players[pid].money >= BOARD[ev.cell].price * 3) {
+            upgradeProp(g, ev.cell);
+            this.refreshInfo(nm + ' 升级「' + ev.name + '」');
+          } else {
+            this.refreshInfo(nm + ' 回合结束');
+          }
+        } else if (ev.type === 'rent') {
+          this.refreshInfo(nm + ' 付租 ¥' + ev.amount + ' 给 ' + this.seatName(ev.owner));
+        } else if (ev.type === 'tax') {
+          this.refreshInfo(nm + ' 缴税 ¥' + ev.amount);
+        } else if (ev.type === 'jail') {
+          this.refreshInfo(nm + ' 进了监狱');
+        } else if (ev.type === 'chance') {
+          this.refreshInfo(nm + ' 机会：' + ev.card.text);
+        } else {
+          this.refreshInfo(nm + ' 落在「' + (ev.name || '') + '」');
+        }
+        this.renderBoard();
+
+        this.aiTimer = setTimeout(() => {
+          this.aiTimer = null;
+          const gg = this.game;
+          if (!gg || this.over) return;
+          checkBankrupt(gg);
+          const ac = aliveCount(gg);
+          if (ac.count <= 1) {
+            this.finish(this.seats[ac.last].name + ' 获胜！');
+            return;
+          }
+          if (gg.round > MAX_ROUNDS) {
+            const rw = roundWinner(gg);
+            this.finish('60 回合到 · ' + this.seats[rw.player].name + ' 总资产最高获胜！');
+            return;
+          }
+          endTurn(gg);
+          this.diceText = '';
+          this.step = 'roll';
+          this.afterTurn();
+        }, 700);
+      }, 650);
     },
 
     clearAi() {
@@ -685,17 +806,20 @@
     finish(text) {
       this.over = true;
       this.overText = text;
-      this.step = 'done';
+      this.cover = false;
       this.refreshInfo(text);
     },
 
-    /* ---------------- 导航 ---------------- */
-
     onBack() {
       this.clearAi();
-      if (this.phase === 'play') {
-        this.phase = 'menu';
+      if (this.stage === 'play') {
+        this.stage = 'setup';
         this.over = false;
+        this.cover = false;
+        return;
+      }
+      if (this.stage === 'setup') {
+        this.stage = 'menu';
         return;
       }
       router.back();

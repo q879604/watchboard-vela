@@ -9,7 +9,7 @@
 
     <div class="screen" if="{{ stage === 'menu' }}">
       <div class="grow"></div>
-      <text class="info">2 ~ 4 人 · 你坐 1 号位</text>
+      <text class="info">选择人数</text>
       <div class="countbox" style="width: {{ listW }}px;">
         <div class="cbtn" onclick="minus">
           <text class="ctext">－</text>
@@ -20,8 +20,12 @@
         </div>
       </div>
       <div class="list" style="width: {{ listW }}px;">
-        <div class="card" onclick="startGame">
-          <text class="card-text">开始游戏</text>
+        <div class="card" onclick="startAi">
+          <text class="card-text">对战 AI（你 + {{ playerCount - 1 }} AI）</text>
+          <text class="card-arrow">&gt;</text>
+        </div>
+        <div class="card" onclick="startHotseat">
+          <text class="card-text">同表多人（{{ playerCount }} 人轮流）</text>
           <text class="card-arrow">&gt;</text>
         </div>
         <div class="card" onclick="goRules">
@@ -30,7 +34,7 @@
         </div>
       </div>
       <div class="grow"></div>
-      <text class="hint">盖牌声称目标点数 · 被喊中假牌就掉命</text>
+      <text class="hint">同表多人：轮流盖牌，各看各的手牌</text>
     </div>
 
     <div class="screen" if="{{ stage === 'play' }}">
@@ -84,14 +88,20 @@
       </div>
 
       <div class="ops">
-        <div class="btn btn-main" onclick="doPlay" if="{{ myTurn }}">
+        <div class="btn btn-main" onclick="doPlay">
           <text class="bt bt-main">盖牌</text>
         </div>
         <div class="btn" onclick="doCall" if="{{ canCall }}">
           <text class="bt">喊骗子</text>
         </div>
-        <div class="btn btn-main" onclick="aiStep" if="{{ myTurn === false }}">
-          <text class="bt bt-main">下一步</text>
+      </div>
+    </div>
+
+    <div class="overlay" if="{{ cover }}">
+      <text class="overtext">{{ coverText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="revealHand">
+          <text class="bt bt-main">查看手牌</text>
         </div>
       </div>
     </div>
@@ -99,7 +109,7 @@
     <div class="overlay" if="{{ over }}">
       <text class="overtext">{{ overText }}</text>
       <div class="ops">
-        <div class="btn btn-main" onclick="startGame">
+        <div class="btn btn-main" onclick="restart">
           <text class="bt bt-main">再来一局</text>
         </div>
         <div class="btn" onclick="onBack">
@@ -135,16 +145,20 @@
   export default {
     private: {
       stage: 'menu',
+      mode: 'ai', // ai | hotseat
       playerCount: 3,
       listW: 320,
 
       game: null,
+      viewer: 0,
+      cover: false,
+      coverText: '',
       sel: [],
       page: 0,
+
       topLine: '',
       midLine: '',
       logLine: '',
-      myTurn: false,
       canCall: false,
       over: false,
       overText: '',
@@ -197,44 +211,67 @@
       if (this.playerCount < 4) this.playerCount++;
     },
 
-    startGame() {
+    startAi() {
+      this.startGame('ai');
+    },
+
+    startHotseat() {
+      this.startGame('hotseat');
+    },
+
+    startGame(mode) {
       this.clearAi();
+      this.mode = mode || this.mode;
       this.game = createGame(this.playerCount);
       this.sel = [];
       this.page = 0;
       this.over = false;
+      this.viewer = this.game.cur;
+      this.cover = this.mode === 'hotseat';
+      this.coverText = '轮到 ' + (this.viewer + 1) + '号 · 请把表交给 TA';
       this.stage = 'play';
       this.renderAll();
-      this.chain();
+      if (this.mode === 'ai') this.chain();
+    },
+
+    restart() {
+      this.startGame(this.mode);
+    },
+
+    revealHand() {
+      this.cover = false;
+      this.sel = [];
+      this.renderHand();
     },
 
     renderAll() {
       const g = this.game;
       if (!g) return;
-      const p = g.players[0];
+      const p = g.players[this.viewer] || g.players[0];
       const others = [];
       for (const i of aliveList(g)) {
-        if (i === 0) continue;
-        others.push((i + 1) + '号 ♥' + g.players[i].hp);
+        if (i === this.viewer) continue;
+        others.push((i + 1) + '号 ' + g.players[i].hp);
       }
       this.topLine =
-        '第 ' + g.round + ' 轮 · 目标 ' + VALUE_CHARS[g.target] + ' · 你 ♥' + p.hp +
+        '第 ' + g.round + ' 轮 · 目标 ' + VALUE_CHARS[g.target] +
+        ' · ' + (this.viewer + 1) + '号 ♥' + p.hp +
         (others.length ? ' · ' + others.join(' ') : '');
       this.midLine = g.over
         ? this.overText
-        : (g.lastPlay
-            ? (g.lastPlay.from + 1) + '号 盖了 ' + g.lastPlay.cards.length + ' 张'
-            : '由 ' + (g.cur + 1) + '号 开始') + ' · 轮到 ' + (g.cur + 1) + '号';
+        : (g.lastPlay ? (g.lastPlay.from + 1) + '号 盖了 ' + g.lastPlay.cards.length + ' 张' : '还没人盖牌') +
+          ' · 轮到 ' + (g.cur + 1) + '号';
       this.logLine = g.log[0] || '';
-      this.myTurn = g.cur === 0 && !g.over && g.players[0].alive;
-      this.canCall = this.myTurn && !!g.lastPlay && g.lastPlay.from !== 0 && aliveList(g).length > 1;
+      this.canCall =
+        !g.over && !this.cover && g.cur === this.viewer && !!g.lastPlay &&
+        g.lastPlay.from !== this.viewer && aliveList(g).length > 1;
       this.renderHand();
     },
 
     renderHand() {
       const g = this.game;
       if (!g) return;
-      const hand = g.players[0].hand;
+      const hand = g.players[this.viewer].hand;
       const start = this.page * SLOTS;
       for (let k = 0; k < SLOTS; k++) {
         const idx = start + k;
@@ -248,16 +285,13 @@
             ? 'tiletext-red'
             : 'tiletext';
       }
-      this.pagerOn = hand.length > SLOTS;
     },
 
     toggleSlot(k) {
       const g = this.game;
-      if (!g || !this.myTurn) {
-        this.hint('还没轮到你');
-        return;
-      }
-      const hand = g.players[0].hand;
+      if (!g || this.cover || this.over) return;
+      if (g.cur !== this.viewer) return;
+      const hand = g.players[this.viewer].hand;
       const idx = this.page * SLOTS + k;
       if (idx >= hand.length) return;
       const pos = this.sel.indexOf(idx);
@@ -306,36 +340,66 @@
 
     doPlay() {
       const g = this.game;
-      if (!g || !this.myTurn) return;
+      if (!g || this.cover || this.over) return;
+      if (g.cur !== this.viewer) return;
       if (!this.sel.length) {
         this.hint('先选 1~3 张盖牌');
         return;
       }
-      const r = playBatch(g, 0, this.sel);
+      const r = playBatch(g, this.viewer, this.sel);
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
       this.sel = [];
       this.page = 0;
-      this.renderAll();
-      this.chain();
+      this.afterMove();
     },
 
     doCall() {
       const g = this.game;
       if (!this.canCall) return;
-      const r = call(g, 0);
+      const r = call(g, this.viewer);
       if (!r.ok) {
         this.hint(r.msg);
         return;
       }
       this.sel = [];
-      this.renderAll();
       if (g.over) {
         this.finish();
         return;
       }
+      this.afterMove();
+    },
+
+    /** 一次行动结束：同表换人交接 / AI 模式驱动电脑 */
+    afterMove() {
+      const g = this.game;
+      if (!g) return;
+      if (g.over) {
+        this.finish();
+        return;
+      }
+      if (this.mode === 'hotseat') {
+        // 一圈打满且无人喊 → 平安收轮
+        const al = aliveList(g);
+        if (g.playedCount >= al.length) {
+          passFull(g);
+          if (g.over) {
+            this.finish();
+            return;
+          }
+        }
+        this.viewer = g.cur;
+        this.sel = [];
+        this.page = 0;
+        this.cover = true;
+        this.coverText =
+          '轮到 ' + (g.cur + 1) + '号 · 目标点数 ' + VALUE_CHARS[g.target] + ' · 把表交给 TA';
+        this.renderAll();
+        return;
+      }
+      this.renderAll();
       this.chain();
     },
 
@@ -344,7 +408,7 @@
       this.aiTimer = setTimeout(() => {
         this.aiTimer = null;
         const g = this.game;
-        if (!g || g.over) return;
+        if (!g || g.over || this.mode !== 'ai') return;
         if (g.cur === 0) {
           this.renderAll();
           return;
@@ -352,7 +416,6 @@
         const al = aliveList(g);
         if (g.playedCount >= al.length) {
           passFull(g);
-          this.renderAll();
           if (g.over) {
             this.finish();
             return;
@@ -364,7 +427,6 @@
         if (a.type === 'pass') {
           if (allHandsEmpty(g)) {
             passFull(g);
-            this.renderAll();
             if (!g.over) this.chain();
             return;
           }
@@ -375,7 +437,6 @@
         }
         if (a.type === 'call') {
           call(g, g.cur);
-          this.renderAll();
           if (g.over) {
             this.finish();
             return;
@@ -383,19 +444,10 @@
           this.chain();
           return;
         }
-        const r = playBatch(g, g.cur, a.idx);
-        if (!r.ok) {
-          this.hint('AI 出牌异常');
-          return;
-        }
+        playBatch(g, g.cur, a.idx);
         this.renderAll();
         this.chain();
       }, 620);
-    },
-
-    aiStep() {
-      this.clearAi();
-      this.chain();
     },
 
     clearAi() {
@@ -408,6 +460,7 @@
     finish() {
       const g = this.game;
       this.over = true;
+      this.cover = false;
       this.overText = g.winner >= 0 ? (g.winner + 1) + '号 获胜！' : '平局';
       this.renderAll();
     },
@@ -417,6 +470,7 @@
       if (this.stage === 'play') {
         this.stage = 'menu';
         this.over = false;
+        this.cover = false;
         return;
       }
       router.back();

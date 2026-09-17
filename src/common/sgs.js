@@ -48,7 +48,7 @@ function buildDeck() {
   return shuffle(d);
 }
 
-export function createGame(count) {
+export function createGame(count, allHuman) {
   const roles = shuffle(rolesFor(count).slice(1));
   const all = ['zhu'].concat(roles);
   const players = all.map((r, i) => ({
@@ -66,6 +66,7 @@ export function createGame(count) {
     current: 0,
     phase: 'draw',
     shaUsed: 0,
+    allHuman: !!allHuman, // 同表多人：所有座位都由真人操作
     pending: null, // {type:'shan'|'tao'|'juedou', who}
     duel: null,
     events: [],
@@ -147,8 +148,8 @@ function damage(s, pid, n) {
   pushEvent(s, (pid + 1) + '号 受伤，HP=' + p.hp);
   if (p.hp <= 0) {
     if (hasCard(p.hand, 'tao')) {
-      if (pid === 0) {
-        s.pending = { type: 'tao', who: 0 };
+      if (s.allHuman || pid === 0) {
+        s.pending = { type: 'tao', who: pid };
         return;
       }
       discardFrom(s, p.hand, 'tao');
@@ -215,13 +216,13 @@ export function playCard(s, pid, idx, target) {
   if (card.t === 'sha') {
     s.shaUsed++;
     const t = s.players[target];
-    if (target === 0) {
+    if (s.allHuman || target === 0) {
       if (hasCard(t.hand, 'shan')) {
-        s.pending = { type: 'shan', who: 0, from: pid };
-        pushEvent(s, (pid + 1) + '号 对你出杀');
+        s.pending = { type: 'shan', who: target, from: pid };
+        pushEvent(s, (pid + 1) + '号 对 ' + (target + 1) + '号 出杀');
         return { ok: true, msg: '请出闪' };
       }
-      damage(s, 0, 1);
+      damage(s, target, 1);
       return { ok: true, msg: '杀中' };
     }
     if (hasCard(t.hand, 'shan')) {
@@ -284,8 +285,8 @@ function stepDuel(s) {
       s.duel = null;
       return;
     }
-    if (cur === 0) {
-      s.pending = { type: 'juedou', who: 0 };
+    if (s.allHuman || cur === 0) {
+      s.pending = { type: 'juedou', who: cur };
       return;
     }
     discardFrom(s, s.players[cur].hand, 'sha');
@@ -297,22 +298,23 @@ function stepDuel(s) {
 /** 玩家 0 响应挂起事件：shan=出闪 true/false；tao=用桃 true/false；juedou=出杀 true/false */
 export function respond(s, action) {
   const pend = s.pending;
-  if (!pend || pend.who !== 0) return;
+  if (!pend) return;
+  const who = pend.who;
   if (pend.type === 'shan') {
     if (action) {
-      discardFrom(s, s.players[0].hand, 'shan');
-      pushEvent(s, '你出闪躲过');
+      discardFrom(s, s.players[who].hand, 'shan');
+      pushEvent(s, (who + 1) + '号 出闪');
     } else {
-      damage(s, 0, 1);
+      damage(s, who, 1);
     }
     s.pending = null;
   } else if (pend.type === 'tao') {
     if (action) {
-      removeCard(s.players[0].hand, 'tao');
-      s.players[0].hp = 1;
-      pushEvent(s, '你吃桃救回');
+      discardFrom(s, s.players[who].hand, 'tao');
+      s.players[who].hp = 1;
+      pushEvent(s, (who + 1) + '号 吃桃救回');
     } else {
-      die(s, 0);
+      die(s, who);
     }
     s.pending = null;
   } else if (pend.type === 'juedou') {
@@ -321,11 +323,11 @@ export function respond(s, action) {
       return;
     }
     if (action) {
-      discardFrom(s, s.players[0].hand, 'sha');
+      discardFrom(s, s.players[who].hand, 'sha');
       s.duel.index = 1 - s.duel.index;
       stepDuel(s);
     } else {
-      damage(s, 0, 1);
+      damage(s, who, 1);
       s.duel = null;
       s.pending = null;
     }

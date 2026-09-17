@@ -35,7 +35,7 @@
           <text class="doc-title">扑克牌类 · 斗地主</text>
           <text class="doc-text">3 人（你 + 2 AI），地主随机并收 3 张底牌。</text>
           <text class="doc-text">牌型：单/对/三带一/三带二/顺子(≥5)/连对(≥3 对)/炸弹/火箭；顺子须同长度，不含 2 与王。</text>
-          <text class="doc-text">先出完者胜；地主赢或农民赢。</text>
+          <text class="doc-text">先出完者胜。可选对战 AI（你+2 AI）或同表多人（3 人轮流，交接时遮罩隐藏手牌）。</text>
         </div>
 
         <div class="doc-block">
@@ -43,6 +43,7 @@
           <text class="doc-text">2 ~ 4 人，每人 3 条命 + 5 张牌。每轮宣布目标点数，按顺序盖牌声称都是该点数（1~3 张）。</text>
           <text class="doc-text">下一位可「喊骗子」翻开上家：有假牌 → 上家掉命；全是真的 → 喊话者掉命。</text>
           <text class="doc-text">一圈无人喊 → 平安收牌。命归零出局，最后存活者胜。</text>
+          <text class="doc-text">可选对战 AI 或同表多人（2~4 人轮流）。</text>
         </div>
 
         <div class="doc-block">
@@ -57,12 +58,14 @@
           <text class="doc-text">牌：杀/闪/桃/决斗/无中生有/过河拆桥/顺手牵羊/无懈可击。每回合 1 杀，出牌阶段后自动弃牌到 HP。</text>
           <text class="doc-text">主公死 → 反贼胜（仅剩内奸则内奸胜）；反贼与内奸全灭 → 主公/忠臣胜。</text>
           <text class="doc-text">腕上简化：无装备、无武将技能、濒死一桃救回 HP=1、无懈可击自动生效。</text>
+          <text class="doc-text">可选对战 AI 或同表多人（2~8 人轮流，各看各的手牌与身份）。</text>
         </div>
 
         <div class="doc-block">
           <text class="doc-title">UNO</text>
           <text class="doc-text">2 ~ 4 人（你 + 1~3 AI）。同色/同数字/同功能可出；禁/反/+2/变色/+4。</text>
           <text class="doc-text">+2/+4 不叠加，被罚者跳过；先出完手牌者胜。</text>
+          <text class="doc-text">可选对战 AI 或同表多人（2~4 人轮流）。</text>
         </div>
 
         <div class="doc-block">

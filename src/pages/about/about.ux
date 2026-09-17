@@ -17,8 +17,8 @@
 
         <div class="doc-block">
           <text class="doc-title">已收录（全部可玩）</text>
-          <text class="doc-text">除狼人杀、谁是卧底需真人发言投票外，其余都支持人机对战</text>
-          <text class="doc-text">除狼人杀、谁是卧底需真人发言投票外，其余都支持人机对战</text>
+          <text class="doc-text">五子棋/大富翁/狼人杀/谁是卧底天然同表；UNO、斗地主、骗子酒馆、三国杀、大富翁均支持「对战 AI」与「同表多人」两种模式</text>
+          <text class="doc-text">五子棋/大富翁/狼人杀/谁是卧底天然同表；UNO、斗地主、骗子酒馆、三国杀、大富翁均支持「对战 AI」与「同表多人」两种模式</text>
           <text class="doc-text">五子棋：单人（三档 AI）/ 双人，放大棋盘 + 拖动 + 瞄准</text>
           <text class="doc-text">大富翁：2 ~ 4 人 · 买地收租</text>
           <text class="doc-text">狼人杀：5 ~ 8 人 · 传阅式身份局</text>
@@ -56,7 +56,7 @@
   export default {
     private: {
       listW: 320,
-      version: '0.2.3',
+      version: '0.2.4',
       buildInfo: 'Vela 快应用'
     },
 

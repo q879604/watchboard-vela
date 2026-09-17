@@ -9,17 +9,23 @@
 
     <div class="screen" if="{{ phase === 'menu' }}">
       <div class="grow"></div>
+      <text class="info">选择人数</text>
+      <div class="countbox" style="width: {{ listW }}px;">
+        <div class="cbtn" onclick="minus">
+          <text class="ctext">－</text>
+        </div>
+        <text class="cnum">{{ playerCount }} 人</text>
+        <div class="cbtn" onclick="plus">
+          <text class="ctext">＋</text>
+        </div>
+      </div>
       <div class="list" style="width: {{ listW }}px;">
-        <div class="card" onclick="start2">
-          <text class="card-text">2 人 · 你 + 1 AI</text>
+        <div class="card" onclick="startAi">
+          <text class="card-text">对战 AI（你 + {{ playerCount - 1 }} AI）</text>
           <text class="card-arrow">&gt;</text>
         </div>
-        <div class="card" onclick="start3">
-          <text class="card-text">3 人 · 你 + 2 AI</text>
-          <text class="card-arrow">&gt;</text>
-        </div>
-        <div class="card" onclick="start4">
-          <text class="card-text">4 人 · 你 + 3 AI</text>
+        <div class="card" onclick="startHotseat">
+          <text class="card-text">同表多人（{{ playerCount }} 人轮流）</text>
           <text class="card-arrow">&gt;</text>
         </div>
         <div class="card" onclick="goRules">
@@ -28,7 +34,7 @@
         </div>
       </div>
       <div class="grow"></div>
-      <text class="hint">同色 / 同数字 / 同功能牌 可出</text>
+      <text class="hint">同表多人：把表传给下一位，各看各的牌</text>
     </div>
 
     <div class="screen" if="{{ phase === 'play' }}">
@@ -93,6 +99,16 @@
         </div>
         <div class="btn btn-s" onclick="pageNext" if="{{ pagerOn }}">
           <text class="bt">▶</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 同表多人：轮换交接遮罩 -->
+    <div class="overlay" if="{{ cover }}">
+      <text class="overtext">{{ coverText }}</text>
+      <div class="ops">
+        <div class="btn btn-main" onclick="revealHand">
+          <text class="bt bt-main">查看手牌</text>
         </div>
       </div>
     </div>
@@ -169,11 +185,15 @@
   export default {
     private: {
       phase: 'menu',
+      mode: 'ai', // ai | hotseat
       title: 'UNO',
       listW: 320,
       playerCount: 3,
 
       game: null,
+      viewer: 0,
+      cover: false,
+      coverText: '',
       sel: 0,
       page: 0,
       pagerOn: false,
@@ -225,60 +245,81 @@
       return this.phase === 'play';
     },
 
-    start2() {
-      this.startGame(2);
-    },
-    start3() {
-      this.startGame(3);
-    },
-    start4() {
-      this.startGame(4);
+    minus() {
+      if (this.playerCount > 2) this.playerCount--;
     },
 
-    startGame(count) {
+    plus() {
+      if (this.playerCount < 4) this.playerCount++;
+    },
+
+    startAi() {
+      this.startGame(this.playerCount, 'ai');
+    },
+
+    startHotseat() {
+      this.startGame(this.playerCount, 'hotseat');
+    },
+
+    startGame(count, mode) {
       this.playerCount = count;
+      this.mode = mode || this.mode;
       this.game = createGame(count);
       this.sel = 0;
       this.page = 0;
       this.over = false;
       this.needsColor = false;
       this.drewThisTurn = false;
+      this.viewer = 0;
+      this.cover = this.mode === 'hotseat';
+      this.coverText = '轮到 1 号 · 请把表交给 TA';
       this.phase = 'play';
-      this.title = 'UNO · ' + count + ' 人';
+      this.title = 'UNO · ' + count + ' 人' + (this.mode === 'hotseat' ? ' · 同表' : '');
       this.refresh();
       this.afterAction();
     },
 
     restart() {
-      this.startGame(this.playerCount);
+      this.startGame(this.playerCount, this.mode);
+    },
+
+    revealHand() {
+      this.cover = false;
+      this.sel = 0;
+      this.page = 0;
+      this.renderHand();
     },
 
     refresh() {
       const s = this.game;
       if (!s) return;
       this.clearAi();
+      if (this.mode === 'hotseat') this.viewer = s.current;
+
       const t = topCard(s);
       this.colorTip = '当前色 ' + (COLOR_NAME[s.color] || '') + ' · 上家出 ' + cardText(t);
       const counts = handCounts(s);
       const others = [];
-      for (let p = 1; p < counts.length; p++) {
+      for (let p = 0; p < counts.length; p++) {
+        if (p === this.viewer) continue;
         others.push({ k: p + 1, t: (p + 1) + '号 · ' + counts[p] + ' 张' });
       }
       this.otherList = others;
-      if (s.winner === 0) {
+
+      if (s.winner >= 0) {
         this.over = true;
-        this.overText = '你赢了！';
-        this.statusText = '你赢了！';
-      } else if (s.winner > 0) {
-        this.over = true;
-        this.overText = s.winner + 1 + '号 赢了';
+        this.cover = false;
+        this.overText = (s.winner + 1) + '号 赢了！';
         this.statusText = this.overText;
+      } else if (this.mode === 'hotseat') {
+        this.statusText = '轮到 ' + (s.current + 1) + '号（手里 ' + counts[s.current] + ' 张）';
       } else if (s.current === 0) {
-        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张（点牌选中）';
+        this.statusText = '轮到你 · 手里 ' + counts[0] + ' 张';
       } else {
         this.statusText = s.current + 1 + '号 出牌中…';
       }
-      const hand = s.hands[0];
+
+      const hand = s.hands[this.viewer];
       if (this.sel > hand.length - 1) this.sel = hand.length - 1;
       if (this.sel < 0) this.sel = 0;
       this.page = Math.floor(this.sel / SLOTS);
@@ -288,7 +329,7 @@
     renderHand() {
       const s = this.game;
       if (!s) return;
-      const hand = s.hands[0];
+      const hand = s.hands[this.viewer] || [];
       const start = this.page * SLOTS;
       for (let k = 0; k < SLOTS; k++) {
         const idx = start + k;
@@ -303,9 +344,10 @@
 
     pickSlot(k) {
       const s = this.game;
-      if (!s || this.over || this.needsColor) return;
+      if (!s || this.over || this.needsColor || this.cover) return;
+      if (s.current !== this.viewer) return;
       const idx = this.page * SLOTS + k;
-      if (idx >= s.hands[0].length) return;
+      if (idx >= s.hands[this.viewer].length) return;
       this.sel = idx;
       this.renderHand();
     },
@@ -348,29 +390,22 @@
     },
 
     pagePrev() {
-      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[0].length / SLOTS)) : 1;
+      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[this.viewer].length / SLOTS)) : 1;
       this.page = (this.page - 1 + n) % n;
-      const idx = this.page * SLOTS;
-      if (idx < (this.game ? this.game.hands[0].length : 0)) this.sel = idx;
       this.renderHand();
     },
 
     pageNext() {
-      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[0].length / SLOTS)) : 1;
+      const n = this.game ? Math.max(1, Math.ceil(this.game.hands[this.viewer].length / SLOTS)) : 1;
       this.page = (this.page + 1) % n;
-      const idx = this.page * SLOTS;
-      if (idx < (this.game ? this.game.hands[0].length : 0)) this.sel = idx;
       this.renderHand();
     },
 
     doPlay() {
       const s = this.game;
-      if (!s || this.over || this.needsColor) return;
-      if (s.current !== 0) {
-        this.hint('还没轮到你');
-        return;
-      }
-      const card = s.hands[0][this.sel];
+      if (!s || this.over || this.needsColor || this.cover) return;
+      if (s.current !== this.viewer) return;
+      const card = s.hands[this.viewer][this.sel];
       if (!card) return;
       if (!canPlay(s, card)) {
         this.hint('这张牌出不了');
@@ -391,8 +426,7 @@
       }
       this.needsColor = false;
       this.drewThisTurn = false;
-      this.refresh();
-      this.afterAction();
+      this.afterMove();
     },
 
     pickR() {
@@ -410,29 +444,24 @@
 
     doDraw() {
       const s = this.game;
-      if (!s || this.over || this.needsColor) return;
-      if (s.current !== 0) {
-        this.hint('还没轮到你');
-        return;
-      }
+      if (!s || this.over || this.needsColor || this.cover) return;
+      if (s.current !== this.viewer) return;
       if (this.drewThisTurn) {
         passTurn(s);
         this.drewThisTurn = false;
-        this.refresh();
-        this.afterAction();
+        this.afterMove();
         return;
       }
       const r = drawOne(s);
       if (!r.ok) {
         this.hint('牌堆空了，过牌');
         passTurn(s);
-        this.refresh();
-        this.afterAction();
+        this.afterMove();
         return;
       }
       this.drewThisTurn = true;
       if (r.playable) {
-        this.sel = s.hands[0].length - 1;
+        this.sel = s.hands[this.viewer].length - 1;
         this.page = Math.floor(this.sel / SLOTS);
         this.hint('摸到 ' + cardText(r.card) + '，可以直接出');
         this.refresh();
@@ -440,19 +469,36 @@
         this.hint('摸到 ' + cardText(r.card) + '，出不了，跳过');
         passTurn(s);
         this.drewThisTurn = false;
-        this.refresh();
-        this.afterAction();
+        this.afterMove();
       }
     },
 
-    afterAction() {
+    /** 一次行动结束后：同表模式换人交接；AI 模式驱动电脑 */
+    afterMove() {
       const s = this.game;
       if (!s) return;
       if (s.winner >= 0) {
         this.refresh();
         return;
       }
-      if (s.current !== 0) this.scheduleAi();
+      if (this.mode === 'hotseat') {
+        this.viewer = s.current;
+        this.sel = 0;
+        this.page = 0;
+        this.cover = true;
+        this.coverText = '轮到 ' + (s.current + 1) + '号 · 请把表交给 TA';
+        this.refresh();
+        return;
+      }
+      this.refresh();
+      this.afterAction();
+    },
+
+    afterAction() {
+      const s = this.game;
+      if (!s) return;
+      if (s.winner >= 0) return;
+      if (this.mode === 'ai' && s.current !== 0) this.scheduleAi();
     },
 
     scheduleAi() {
@@ -460,7 +506,7 @@
       this.aiTimer = setTimeout(() => {
         this.aiTimer = null;
         const s = this.game;
-        if (!s || s.winner >= 0 || s.current === 0) return;
+        if (!s || s.winner >= 0 || s.current === 0 || this.mode !== 'ai') return;
         const d = aiDecide(s);
         if (d.type === 'play') {
           playCard(s, d.idx, d.color);
@@ -487,6 +533,7 @@
         this.game = null;
         this.over = false;
         this.needsColor = false;
+        this.cover = false;
         this.phase = 'menu';
         this.title = 'UNO';
         return;

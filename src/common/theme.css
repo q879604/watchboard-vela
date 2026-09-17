@@ -18,9 +18,6 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background-color: #0e1114;
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
 }
 
 .header-title {
